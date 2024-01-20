@@ -1,12 +1,12 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity({ name: 'ficha_grupo' })
-export class FichaGrupoEntity {
+@Entity({ name: 'ficha_tipo' })
+export class FichaTipoEntity {
 
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  titulo: string;
+  nombre: string;
 
 }
