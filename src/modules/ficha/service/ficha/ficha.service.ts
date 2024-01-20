@@ -5,6 +5,7 @@ import { FichaGrupoEntity } from '../../entity/fichaGrupo.entity';
 import { FichaDescripcionEntity } from '../../entity/fichaDescription.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
+import { IFichaCard } from '../../interface/ficha.interface';
 
 @Injectable()
 export class FichaService {
@@ -22,34 +23,46 @@ export class FichaService {
     private readonly versionRepository: Repository<VersionEntity>
   ) {}
 
-  public async getFichaFormat(): Promise<any> {
-    const fichasGrupos: FichaGrupoEntity[] =
-      await this.fichaGrupoRepository.find();
+  public async getFichaFormat(): Promise<IFichaCard> {
+    try {
+      const fichasGrupos: FichaGrupoEntity[] =
+        await this.fichaGrupoRepository.find();
 
-    const fichasDescripcion: FichaDescripcionEntity[] =
-      await this.fichaDescripcionRepository.find();
+      const fichasDescripcion: FichaDescripcionEntity[] =
+        await this.fichaDescripcionRepository.find();
 
-    const fichaTipo: FichaTipoEntity[] = await this.fichaTipoRepository.find();
+      const fichaTipo: FichaTipoEntity[] =
+        await this.fichaTipoRepository.find();
 
-    const version = await this.versionRepository.findOne({
-      where: { id: MoreThan(0) },
-      order: { id: 'DESC' }
-    });
+      const version = await this.versionRepository.findOne({
+        where: { id: MoreThan(0) },
+        order: { id: 'DESC' }
+      });
 
-    const fichasResult = fichasGrupos.map((grupos: FichaGrupoEntity) => {
-      grupos['values'] =
-        fichasDescripcion.filter(
-          (ficha: FichaDescripcionEntity) => ficha.ficha_grupo_id == grupos.id
-        ) || [];
-      return grupos;
-    });
+      const fichasResult = fichasGrupos.map((grupos: FichaGrupoEntity) => {
+        grupos['values'] =
+          fichasDescripcion.filter(
+            (ficha: FichaDescripcionEntity) => ficha.ficha_grupo_id == grupos.id
+          ) || [];
+        return grupos;
+      });
 
-    fichaTipo.forEach((tipos: FichaTipoEntity) => {
-      version[tipos.nombre] = fichasResult.find(
-        ficha => ficha.ficha_tipo_id === tipos.id
-      );
-    });
+      const dataFormat: IFichaCard = {
+        version: version.id.toString(),
+        dateLastVersion: version.dateLastVersion,
+        familyCard: [],
+        personCard: []
+      };
 
-    return version;
+      fichaTipo.forEach((tipos: FichaTipoEntity) => {
+        dataFormat[tipos.nombre] = fichasResult.find(
+          ficha => ficha.ficha_tipo_id === tipos.id
+        );
+      });
+
+      return dataFormat;
+    } catch (error) {
+      throw error.message;
+    }
   }
 }
