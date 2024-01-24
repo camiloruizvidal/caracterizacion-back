@@ -1,10 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm';
 import { FichaGrupoEntity } from './fichaGrupo.entity';
 import { ESteperType } from '../interface/ficha.interface';
 
 @Entity({ name: 'ficha_descripcion' })
 export class FichaDescripcionEntity {
-
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -29,11 +34,13 @@ export class FichaDescripcionEntity {
   @Column({ nullable: true })
   default: string;
 
+  @Column({ nullable: true })
+  required: string;
+
   @Column()
   ficha_grupo_id: number;
 
   @ManyToOne(() => FichaGrupoEntity, fichaGrupo => fichaGrupo.id)
   @JoinColumn({ name: 'ficha_grupo_id' })
   fichaGrupo: FichaGrupoEntity;
-
 }

@@ -14,9 +14,9 @@ dotenv.config();
     TypeOrmModule.forRoot(typeOrmConfig),
     PacientesModule,
     UsuariosModule,
-    FichaModule,
+    FichaModule
   ],
   controllers: [],
-  providers: [],
+  providers: []
 })
 export class AppModule {}

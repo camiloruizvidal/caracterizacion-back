@@ -6,6 +6,7 @@ import { FichaDescripcionEntity } from '../../entity/fichaDescription.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFichaCard } from '../../interface/ficha.interface';
+import { PersonaEntity } from '../../entity/persona.entity';
 
 @Injectable()
 export class FichaService {
@@ -20,7 +21,10 @@ export class FichaService {
     private readonly fichaTipoRepository: Repository<FichaTipoEntity>,
 
     @InjectRepository(VersionEntity)
-    private readonly versionRepository: Repository<VersionEntity>
+    private readonly versionRepository: Repository<VersionEntity>,
+
+    @InjectRepository(VersionEntity)
+    private readonly personaRepository: Repository<PersonaEntity>
   ) {}
 
   public async getFichaFormat(): Promise<IFichaCard> {
@@ -39,6 +43,13 @@ export class FichaService {
         order: { id: 'DESC' }
       });
 
+      const dataFormat: IFichaCard = {
+        version: version.id.toString(),
+        dateLastVersion: version.dateLastVersion,
+        familyCard: [],
+        personCard: []
+      };
+
       const fichasResult = fichasGrupos.map((grupos: FichaGrupoEntity) => {
         grupos['values'] =
           fichasDescripcion.filter(
@@ -47,20 +58,26 @@ export class FichaService {
         return grupos;
       });
 
-      const dataFormat: IFichaCard = {
-        version: version.id.toString(),
-        dateLastVersion: version.dateLastVersion,
-        familyCard: [],
-        personCard: []
-      };
-
       fichaTipo.forEach((tipos: FichaTipoEntity) => {
-        dataFormat[tipos.nombre] = fichasResult.find(
-          ficha => ficha.ficha_tipo_id === tipos.id
+        if (dataFormat[tipos.nombre] === undefined) {
+          dataFormat[tipos.nombre] = [];
+        }
+
+        dataFormat[tipos.nombre].push(
+          fichasResult.find(ficha => ficha.ficha_tipo_id === tipos.id)
         );
       });
 
       return dataFormat;
+    } catch (error) {
+      throw error.message;
+    }
+  }
+
+  public async getPeopelData(): Promise<PersonaEntity[]> {
+    try {
+      const person: PersonaEntity[] = await this.personaRepository.find();
+      return person;
     } catch (error) {
       throw error.message;
     }

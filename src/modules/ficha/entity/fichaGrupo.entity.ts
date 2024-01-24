@@ -19,6 +19,9 @@ export class FichaGrupoEntity {
   subtitle: string;
 
   @Column({ nullable: true })
+  orden: number;
+
+  @Column({ nullable: true })
   ficha_tipo_id: number;
 
   @ManyToOne(
