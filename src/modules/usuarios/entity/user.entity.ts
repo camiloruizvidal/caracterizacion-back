@@ -6,21 +6,24 @@ export class UserEntity {
   id: number;
 
   @Column()
+  username: string;
+
+  @Column()
   password: string;
 
   @Column({ name: 'nombre_primero' })
   nombrePrimero: string;
 
-  @Column({ name: 'nombre_segundo' })
+  @Column({ nullable: true, name: 'nombre_segundo' })
   nombreSegundo: string;
 
   @Column({ name: 'apellido_primero' })
   apellidoPrimero: string;
 
-  @Column({ name: 'apellido_segundo' })
+  @Column({ nullable: true, name: 'apellido_segundo' })
   apellidoSegundo: string;
 
-  @Column()
+  @Column({ unique: true })
   documento: string;
 
   @Column({ name: 'documento_tipo_id' })

@@ -8,7 +8,6 @@ export class FichaController {
   @Get('formato_ficha')
   public async getFormatoFicha() {
     const ficha = await this.fichaService.getFichaFormat();
-    //const person = await this.fichaService.getPersonFormat();
 
     try {
       return {

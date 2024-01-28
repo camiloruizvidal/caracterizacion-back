@@ -30,7 +30,9 @@ export class FichaService {
   public async getFichaFormat(): Promise<IFichaCard> {
     try {
       const fichasGrupos: FichaGrupoEntity[] =
-        await this.fichaGrupoRepository.find();
+        await this.fichaGrupoRepository.find({
+          order: { orden: 'ASC' }
+        });
 
       const fichasDescripcion: FichaDescripcionEntity[] =
         await this.fichaDescripcionRepository.find();
@@ -55,16 +57,13 @@ export class FichaService {
           fichasDescripcion.filter(
             (ficha: FichaDescripcionEntity) => ficha.ficha_grupo_id == grupos.id
           ) || [];
+
         return grupos;
       });
 
       fichaTipo.forEach((tipos: FichaTipoEntity) => {
-        if (dataFormat[tipos.nombre] === undefined) {
-          dataFormat[tipos.nombre] = [];
-        }
-
-        dataFormat[tipos.nombre].push(
-          fichasResult.find(ficha => ficha.ficha_tipo_id === tipos.id)
+        dataFormat[tipos.nombre] = fichasResult.filter(
+          ficha => ficha.ficha_tipo_id === tipos.id
         );
       });
 
