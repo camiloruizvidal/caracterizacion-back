@@ -17,10 +17,10 @@ export interface ISteperValues {
   label: string;
   description: string;
   type: ESteperType;
-  options: IOptionsCheck | null;
+  options?: IOptionsCheck | IOptionsSelect;
   default: boolean | string;
-  visibility: IOptionsVisibility;
-  required: IOptionsRequired;
+  visibility: IOptionsVisibility | boolean;
+  required: IOptionsRequired | boolean;
   value?: any;
 }
 
@@ -44,6 +44,11 @@ export enum ESteperType {
 export interface IOptionsCheck {
   valueTrue: string;
   valueFalse: string;
+}
+
+export interface IOptionsSelect {
+  value: string;
+  option: string;
 }
 
 export interface IOptionsRequired {

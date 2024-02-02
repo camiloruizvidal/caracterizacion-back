@@ -35,7 +35,9 @@ export class FichaService {
         });
 
       const fichasDescripcion: FichaDescripcionEntity[] =
-        await this.fichaDescripcionRepository.find();
+        await this.fichaDescripcionRepository.find({
+          order: { orden: 'ASC' }
+        });
 
       const fichaTipo: FichaTipoEntity[] =
         await this.fichaTipoRepository.find();
@@ -54,9 +56,19 @@ export class FichaService {
 
       const fichasResult = fichasGrupos.map((grupos: FichaGrupoEntity) => {
         grupos['values'] =
-          fichasDescripcion.filter(
-            (ficha: FichaDescripcionEntity) => ficha.ficha_grupo_id == grupos.id
-          ) || [];
+          fichasDescripcion
+            .filter(
+              (ficha: FichaDescripcionEntity) =>
+                ficha.ficha_grupo_id == grupos.id
+            )
+            .map((ficha: FichaDescripcionEntity) => {
+              ficha.options = JSON.parse(ficha.options);
+              ficha.default = JSON.parse(ficha.default);
+              ficha.visibility = JSON.parse(ficha.visibility);
+              ficha.required = JSON.parse(ficha.required);
+              ficha['value'] = ficha.default;
+              return ficha;
+            }) || [];
 
         return grupos;
       });

@@ -101,13 +101,13 @@ export class UsuariosService {
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log({ isPasswordValid, password, 'user.password': user.password });
 
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
     delete user.password;
+    user['codes'] = await this.findAllCodes(user.id);
 
     return user;
   }
@@ -133,9 +133,7 @@ export class UsuariosService {
     return this.userCodesRepository.save(newUserCodes);
   }
 
-  public async findAllByUserIdOrdered(
-    userId: number
-  ): Promise<UserCodesEntity[]> {
+  public async findAllCodes(userId: number): Promise<UserCodesEntity[]> {
     return this.userCodesRepository.find({
       where: { user_id: userId },
       order: { start: 'ASC' }

@@ -16,8 +16,8 @@ export class FichaDescripcionEntity {
   @Column({ nullable: true, name: 'nombre_columna' })
   columnName: string;
 
-  @Column({ nullable: true, name: 'order' })
-  order: number;
+  @Column({ nullable: true, name: 'orden' })
+  orden: number;
 
   @Column({ nullable: true, name: 'label' })
   label: string;
@@ -33,6 +33,9 @@ export class FichaDescripcionEntity {
 
   @Column({ nullable: true })
   default: string;
+
+  @Column({ nullable: true })
+  visibility: string;
 
   @Column({ nullable: true })
   required: string;
