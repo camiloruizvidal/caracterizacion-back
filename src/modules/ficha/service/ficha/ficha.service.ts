@@ -63,7 +63,6 @@ export class FichaService {
             )
             .map((ficha: FichaDescripcionEntity) => {
               ficha.options = JSON.parse(ficha.options);
-              ficha.default = JSON.parse(ficha.default);
               ficha.visibility = JSON.parse(ficha.visibility);
               ficha.required = JSON.parse(ficha.required);
               ficha['value'] = ficha.default;

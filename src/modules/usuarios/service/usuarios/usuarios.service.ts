@@ -108,6 +108,7 @@ export class UsuariosService {
 
     delete user.password;
     user['codes'] = await this.findAllCodes(user.id);
+    user['currentCode'] = 1;
 
     return user;
   }
@@ -135,6 +136,7 @@ export class UsuariosService {
 
   public async findAllCodes(userId: number): Promise<UserCodesEntity[]> {
     return this.userCodesRepository.find({
+      select: ['start', 'finish'],
       where: { user_id: userId },
       order: { start: 'ASC' }
     });
