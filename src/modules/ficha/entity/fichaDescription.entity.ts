@@ -3,7 +3,9 @@ import {
   Column,
   PrimaryGeneratedColumn,
   ManyToOne,
-  JoinColumn
+  JoinColumn,
+  UpdateDateColumn,
+  CreateDateColumn
 } from 'typeorm';
 import { FichaGrupoEntity } from './fichaGrupo.entity';
 import { ESteperType } from '../interface/ficha.interface';
@@ -46,4 +48,14 @@ export class FichaDescripcionEntity {
   @ManyToOne(() => FichaGrupoEntity, fichaGrupo => fichaGrupo.id)
   @JoinColumn({ name: 'ficha_grupo_id' })
   fichaGrupo: FichaGrupoEntity;
+
+  @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    default: () => 'CURRENT_TIMESTAMP',
+    onUpdate: 'CURRENT_TIMESTAMP'
+  })
+  updatedAt: Date;
 }

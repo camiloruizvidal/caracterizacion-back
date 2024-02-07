@@ -7,10 +7,14 @@ import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFichaCard } from '../../interface/ficha.interface';
 import { PersonaEntity } from '../../entity/persona.entity';
+import { BackupEntity } from '../../entity/backup.entity';
 
 @Injectable()
 export class FichaService {
   constructor(
+    @InjectRepository(BackupEntity)
+    private readonly backupRepository: Repository<BackupEntity>,
+
     @InjectRepository(FichaDescripcionEntity)
     private readonly fichaDescripcionRepository: Repository<FichaDescripcionEntity>,
 
@@ -90,6 +94,18 @@ export class FichaService {
       return person;
     } catch (error) {
       throw error.message;
+    }
+  }
+
+  public async saveRegisterBackup(data: any): Promise<boolean> {
+    try {
+      const backup = this.backupRepository.create({
+        data
+      });
+      await this.backupRepository.save(backup);
+      return true;
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -10,8 +10,8 @@ const typeOrmConfig: TypeOrmModuleOptions = {
   password: process.env.DATABASE_PASS,
   database: process.env.DATABASE_NAME,
   port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
-  synchronize: JSON.parse(process.env.DEVELOP  || 'false'),
-  entities: ['dist/**/*.entity{.ts,.js}'],
+  synchronize: JSON.parse(process.env.DEVELOP || 'false'),
+  entities: ['dist/**/*.entity{.ts,.js}']
 };
 
 export default typeOrmConfig;

@@ -6,6 +6,7 @@ import { FichaDescripcionEntity } from './entity/fichaDescription.entity';
 import { FichaGrupoEntity } from './entity/fichaGrupo.entity';
 import { VersionEntity } from './entity/version.entity';
 import { FichaTipoEntity } from './entity/fichaTipo.entity';
+import { BackupEntity } from './entity/backup.entity';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { FichaTipoEntity } from './entity/fichaTipo.entity';
       FichaDescripcionEntity,
       FichaGrupoEntity,
       FichaTipoEntity,
-      VersionEntity
+      VersionEntity,
+      BackupEntity
     ])
   ],
   providers: [FichaService],

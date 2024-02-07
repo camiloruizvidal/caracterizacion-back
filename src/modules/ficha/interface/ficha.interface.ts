@@ -8,6 +8,7 @@ export interface IFichaCard {
 export interface IStepers {
   title: string;
   subtitle?: string;
+  table: string;
   values: ISteperValues[];
 }
 
@@ -38,7 +39,8 @@ export enum ESteperType {
   Select = 'select',
   SelectFilter = 'selectFilter',
   Text = 'text',
-  TextArea = 'textarea'
+  TextArea = 'textarea',
+  Ruta = 'ruta_atencion'
 }
 
 export interface IOptionsCheck {
@@ -67,6 +69,24 @@ export interface IOptionsRule {
   columnDepend: string;
   rule: string;
   value: string;
+}
+export interface ICodes {
+  id?: number;
+  user_id?: number;
+  start: number;
+  finish: number;
+}
+export interface IFamilyCardSave {
+  version: string;
+  dateLastVersion: Date;
+  dateRegister?: Date;
+  code: number;
+  userId?: number;
+  data: IDataFamilyCard;
+}
+export interface IDataFamilyCard {
+  familyCard: IStepers[];
+  personCard: IStepers[][];
 }
 
 export interface IValueColumn {
