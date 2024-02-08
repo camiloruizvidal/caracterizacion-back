@@ -1,7 +1,9 @@
 import { PacientesService } from './../../service/pacientes/pacientes.service';
 import {
   Controller,
+  Get,
   Post,
+  Query,
   UploadedFile,
   UseInterceptors
 } from '@nestjs/common';
@@ -13,7 +15,7 @@ export class PacientesController {
 
   @Post('carga')
   @UseInterceptors(FileInterceptor('pacientes'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async cargarArchivos(@UploadedFile() file: Express.Multer.File) {
     try {
       const data = this.pacientesService.cargaExcelMasivo(file);
       return {
@@ -21,5 +23,22 @@ export class PacientesController {
         data
       };
     } catch (error) {}
+  }
+
+  @Get('')
+  async verPacientes(
+    @Query('page') page: number = 1,
+    @Query('perPage') perPage: number = 10
+  ) {
+    try {
+      return await this.pacientesService.paginarPacientes({
+        page,
+        perPage
+      });
+    } catch (error) {
+      return {
+        error: 'Ocurrió un error al obtener los pacientes paginados.'
+      };
+    }
   }
 }
