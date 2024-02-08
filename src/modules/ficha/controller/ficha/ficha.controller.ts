@@ -35,6 +35,11 @@ export class FichaController {
   @Post('save')
   public async guardarRegistro(@Body() data: IFamilyCardSave) {
     try {
+      const ran = Math.floor(Math.random() * 2) + 1;
+      console.log({ran})
+      if (ran === 1) {
+        throw 'jajajajajaja';
+      }
       return {
         code: 200,
         msj: 'success',
