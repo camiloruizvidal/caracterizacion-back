@@ -94,3 +94,18 @@ export interface IValueColumn {
   value: any;
   isValid?: boolean;
 }
+
+export interface IOptionsSelectFilter {
+  label: string;
+  tabla_destino: string;
+  item_busqueda: string;
+  relaciones: IOptionsSelectFilterRelaciones[];
+  formato_listado_mostrar: string;
+  create_new: boolean;
+  label_no_exist?: string;
+}
+
+export interface IOptionsSelectFilterRelaciones {
+  origen: string;
+  destino: string;
+}

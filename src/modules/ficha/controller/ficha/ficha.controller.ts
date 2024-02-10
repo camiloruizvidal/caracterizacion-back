@@ -33,26 +33,16 @@ export class FichaController {
   }
 
   @Post('save')
-  public async guardarRegistro(@Body() data: IFamilyCardSave) {
+  public async guardarRegistro(@Body() dataFamilyCard: IFamilyCardSave) {
     try {
-      const ran = Math.floor(Math.random() * 2) + 1;
-      console.log({ran})
-      if (ran === 1) {
-        throw 'jajajajajaja';
-      }
+      const data = await this.fichaService.saveRegisterBackup(dataFamilyCard);
       return {
-        code: 200,
+        status: 200,
         msj: 'success',
-        data: { save: await this.fichaService.saveRegisterBackup(data) }
+        data
       };
     } catch (error) {
-      throw new HttpException(
-        {
-          code: 500,
-          msj: error
-        },
-        HttpStatus.EXPECTATION_FAILED
-      );
+      throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
     }
   }
 }
