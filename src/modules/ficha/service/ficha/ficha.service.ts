@@ -8,6 +8,7 @@ import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFichaCard } from '../../interface/ficha.interface';
 import { PersonaEntity } from '../../entity/persona.entity';
 import { BackupEntity } from '../../entity/backup.entity';
+import { FichaEntity } from '../../entity/ficha.entity';
 
 @Injectable()
 export class FichaService {
@@ -107,5 +108,30 @@ export class FichaService {
     } catch (error) {
       throw error;
     }
+  }
+
+  public async loadFormsPage(
+    page: number = 1,
+    pageSize: number = 10
+  ): Promise<{
+    data: BackupEntity[];
+    totalItems: number;
+    currentPage: number;
+    totalPages: number;
+    itemsPerPage: number;
+  }> {
+    const skip = (page - 1) * pageSize;
+    const [data, totalItems] = await this.backupRepository.findAndCount({
+      take: pageSize,
+      skip
+    });
+
+    return {
+      data,
+      totalItems,
+      currentPage: page,
+      totalPages: Math.ceil(totalItems / pageSize),
+      itemsPerPage: pageSize
+    };
   }
 }

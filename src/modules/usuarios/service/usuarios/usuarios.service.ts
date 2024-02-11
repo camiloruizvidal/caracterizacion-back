@@ -35,7 +35,11 @@ export class UsuariosService {
     totalPages: number;
     itemsPerPage: number;
   }> {
-    const [data, totalItems] = await this.getPaginatedUsers(page, pageSize);
+    const skip = (page - 1) * pageSize;
+    const [data, totalItems] = await this.userRepository.findAndCount({
+      take: pageSize,
+      skip
+    });
 
     return {
       data: data.map(user => {
@@ -56,19 +60,6 @@ export class UsuariosService {
 
   public async getDocumentType() {
     return await this.documentTypeRepository.find();
-  }
-
-  private async getPaginatedUsers(
-    page: number,
-    pageSize: number
-  ): Promise<[UserEntity[], number]> {
-    const skip = (page - 1) * pageSize;
-    const [data, totalItems] = await this.userRepository.findAndCount({
-      take: pageSize,
-      skip
-    });
-
-    return [data, totalItems];
   }
 
   public async createUser(newUser: UserEntity): Promise<UserEntity> {

@@ -6,7 +6,8 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Post
+  Post,
+  Query
 } from '@nestjs/common';
 
 @Controller('api/v1/ficha')
@@ -44,5 +45,13 @@ export class FichaController {
     } catch (error) {
       throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
     }
+  }
+
+  @Get('backup')
+  public obtenerFichas(
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number
+  ) {
+    return this.fichaService.loadFormsPage(page, pageSize);
   }
 }
