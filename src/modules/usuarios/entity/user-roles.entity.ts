@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
@@ -17,7 +17,7 @@ export class UserRolesEntity {
   @Column({ nullable: false })
   type: string;
 
-  @ManyToOne(() => UserEntity, user => user.roles)
+  @OneToOne(() => UserEntity, user => user.roles)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 
