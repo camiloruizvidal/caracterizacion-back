@@ -9,6 +9,8 @@ import { UserEntity } from '../../entity/user.entity';
 import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
+import { UserRolesEntity } from '../../entity/user-roles.entity';
+import { DocumentTypeEntity } from 'src/utils/entity/documento-tipo.entity';
 
 @Injectable()
 export class UsuariosService {
@@ -16,7 +18,11 @@ export class UsuariosService {
     @InjectRepository(UserCodesEntity)
     private readonly userCodesRepository: Repository<UserCodesEntity>,
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(UserRolesEntity)
+    private readonly userRolesRepository: Repository<UserRolesEntity>,
+    @InjectRepository(DocumentTypeEntity)
+    private readonly documentTypeRepository: Repository<DocumentTypeEntity>
   ) {}
 
   public async loadUsersPage(
@@ -42,6 +48,14 @@ export class UsuariosService {
       totalPages: Math.ceil(totalItems / pageSize),
       itemsPerPage: pageSize
     };
+  }
+
+  public async getRols() {
+    return await this.userRolesRepository.find();
+  }
+
+  public async getDocumentType() {
+    return await this.documentTypeRepository.find();
   }
 
   private async getPaginatedUsers(

@@ -24,6 +24,16 @@ export class UsuariosController {
     return this.usuariosService.loadUsersPage(page, pageSize);
   }
 
+  @Get('/roles')
+  public async getRols() {
+    return await this.usuariosService.getRols();
+  }
+
+  @Get('/documentoTipo')
+  public async documentoTipo() {
+    return await this.usuariosService.getDocumentType();
+  }
+
   @Post('')
   public createUser(@Body() newUser: UserEntity) {
     try {
