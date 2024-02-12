@@ -8,7 +8,7 @@ import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFichaCard } from '../../interface/ficha.interface';
 import { PersonaEntity } from '../../entity/persona.entity';
 import { BackupEntity } from '../../entity/backup.entity';
-import { FichaEntity } from '../../entity/ficha.entity';
+import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 
 @Injectable()
 export class FichaService {
@@ -29,7 +29,10 @@ export class FichaService {
     private readonly versionRepository: Repository<VersionEntity>,
 
     @InjectRepository(VersionEntity)
-    private readonly personaRepository: Repository<PersonaEntity>
+    private readonly personaRepository: Repository<PersonaEntity>,
+
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>
   ) {}
 
   public async getFichaFormat(): Promise<IFichaCard> {
@@ -114,7 +117,7 @@ export class FichaService {
     page: number = 1,
     pageSize: number = 10
   ): Promise<{
-    data: BackupEntity[];
+    data: any[];
     totalItems: number;
     currentPage: number;
     totalPages: number;
@@ -125,13 +128,22 @@ export class FichaService {
       take: pageSize,
       skip
     });
-
+    const allUser = await this.userRepository.find();
+    const dataResponse = await this.addUsers(data, allUser);
     return {
-      data,
+      data: dataResponse,
       totalItems,
       currentPage: page,
       totalPages: Math.ceil(totalItems / pageSize),
       itemsPerPage: pageSize
     };
+  }
+  private async addUsers(data: any[], users: UserEntity[]) {
+    return data.map(IFamilyCard => {
+      IFamilyCard['user'] = users.find(
+        user => IFamilyCard.data.userId === user.id
+      );
+      return IFamilyCard;
+    });
   }
 }
