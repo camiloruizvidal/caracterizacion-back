@@ -40,6 +40,8 @@ export enum ESteperType {
   SelectFilter = 'selectFilter',
   Text = 'text',
   TextArea = 'textarea',
+  Title = 'title',
+  SubTitle = 'subtitle',
   Ruta = 'ruta_atencion',
   selectMultiple = 'select_multiple'
 }
