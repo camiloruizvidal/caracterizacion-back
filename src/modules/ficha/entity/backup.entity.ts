@@ -5,7 +5,7 @@ import {
   UpdateDateColumn,
   CreateDateColumn
 } from 'typeorm';
-enum IStatus {
+export enum IStatus {
   Almacenado = 'almacenado',
   Fallo = 'fallo',
   Guardado = 'guardado'

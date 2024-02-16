@@ -7,7 +7,7 @@ import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFichaCard } from '../../interface/ficha.interface';
 import { PersonaEntity } from '../../entity/persona.entity';
-import { BackupEntity } from '../../entity/backup.entity';
+import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 
 @Injectable()
@@ -145,5 +145,28 @@ export class FichaService {
       );
       return IFamilyCard;
     });
+  }
+
+  public async procesarFichasSubidasConUltimaVersion() {
+    try {
+      const version: VersionEntity = await this.versionRepository.findOne({
+        where: { id: MoreThan(0) },
+        order: { id: 'DESC' }
+      });
+
+      return await this.loadLastCards(version.id);
+    } catch (error) {
+      console.log({ error });
+      throw error;
+    }
+  }
+
+  private async loadLastCards(versionId: number) {
+    const cards: any[] = await this.backupRepository.find({
+      where: { status: IStatus.Almacenado }
+    });
+    return cards
+      .filter(card => Number(card.data.version) == versionId)
+      .map(card => card.data.data);
   }
 }

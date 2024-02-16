@@ -47,6 +47,22 @@ export class FichaController {
     }
   }
 
+  @Get('procesarTodas')
+  public async procesarTodaslasFichasSubidas() {}
+
+  @Get('procesar')
+  public async procesarFichasSubidasConUltimaVersion() {
+    try {
+      return {
+        status: 200,
+        msj: 'success',
+        data: await this.fichaService.procesarFichasSubidasConUltimaVersion()
+      };
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
+    }
+  }
+
   @Get('backup')
   public obtenerFichas(
     @Query('page') page: number,

@@ -1,57 +1,76 @@
 import {
-  Column,
-  CreateDateColumn,
   Entity,
+  Column,
   PrimaryGeneratedColumn,
-  UpdateDateColumn
+  UpdateDateColumn,
+  CreateDateColumn,
+  JoinColumn,
+  OneToOne
 } from 'typeorm';
+import { PsicosocialPersonaEntity } from './psicosocial-persona.entity';
 
-@Entity({ name: 'persona' })
+@Entity('persona')
 export class PersonaEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ nullable: true })
-  nombre_primero: string;
+  @Column({ name: 'documento_tipo', type: 'varchar', nullable: false })
+  documentoTipo: string;
 
-  @Column({ nullable: true })
-  nombre_segundo: string;
+  @Column({ name: 'documento_numero', type: 'varchar', nullable: false })
+  documentoNumero: string;
 
-  @Column({ nullable: true })
-  apellido_primero: string;
+  @Column({ type: 'varchar', nullable: false })
+  genero: string;
 
-  @Column({ nullable: true })
-  apellido_segundo: string;
+  @Column({ name: 'nombre_primero', type: 'varchar', nullable: false })
+  nombrePrimero: string;
 
-  @Column({ nullable: true })
-  documento: string;
+  @Column({ name: 'nombre_segundo', type: 'varchar', nullable: true })
+  nombreSegundo: string;
 
-  @Column({ nullable: true })
-  sexo: string;
+  @Column({ name: 'apellido_primero', type: 'varchar', nullable: false })
+  apellidoPrimero: string;
 
-  @Column({ nullable: true })
-  fecha_nacimiento: Date;
+  @Column({ name: 'apellido_segundo', type: 'varchar', nullable: true })
+  apellidoSegundo: string;
 
-  @Column({ nullable: true })
+  @Column({ name: 'estado_civil', type: 'varchar', nullable: false })
+  estadoCivil: string;
+
+  @Column({ type: 'varchar', nullable: false })
   parentesco: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: false })
   ocupacion: string;
 
-  @Column({ nullable: true })
-  aporta_ingresos: string;
+  @Column({ name: 'aporta_ingresos', type: 'varchar', nullable: false })
+  aportaIngresos: string;
 
-  @Column({ nullable: true })
-  nivel_escolaridad: string;
+  @Column({ name: 'nivel_escolaridad', type: 'varchar', nullable: false })
+  nivelEscolaridad: string;
 
-  @Column({ nullable: true })
-  afilicion_salud_tipo: string;
+  @Column({ name: 'tipo_afiliacion_salud', type: 'varchar', nullable: false })
+  tipoAfiliacionSalud: string;
 
-  @Column({ nullable: true })
-  grupo_atencion_especial: string;
+  @Column({ name: 'grupo_atencion_especial', type: 'varchar', nullable: false })
+  grupoAtencionEspecial: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: false })
   discapacidad: string;
+
+  @Column({ name: 'fecha_nacimiento', type: 'date', nullable: false })
+  fechaNacimiento: Date;
+
+  @OneToOne(
+    () => PsicosocialPersonaEntity,
+    psicosocial => psicosocial.persona,
+    {
+      cascade: true
+    }
+  )
+  @JoinColumn()
+  psicosocial: PsicosocialPersonaEntity;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
