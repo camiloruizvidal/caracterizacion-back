@@ -63,7 +63,9 @@ export class FichaController {
         await this.fichaService.procesarFichasSubidasConUltimaVersion();
       return {
         status: 200,
-        msj: 'Solo se procesan las fichas que tengan la última version',
+        msj:
+          'Solo se procesan las fichas que tengan la última version: ' +
+          data.id.toString(),
         data
       };
     } catch (error) {

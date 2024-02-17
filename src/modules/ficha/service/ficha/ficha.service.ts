@@ -169,18 +169,23 @@ export class FichaService {
       const cards = await this.loadLastCards(version.id);
       const registers: any[] = [];
       cards
-        .map(card => card.data.data)
+        .map(card => ({ card: card.data.data, id: card.id }))
         .forEach(async (card: any, index: number) => {
-          const register = await this.createRegister(card, cards, index);
+          const register = await this.createRegister(
+            card.card,
+            cards,
+            index,
+            card.id
+          );
           registers.push(register);
         });
-      return registers;
+      return version;
     } catch (error) {
       throw error;
     }
   }
 
-  private async createRegister(card, cards, index) {
+  private async createRegister(card, cards, index, backupId) {
     const personsEncuesta = this.extractDataTable({
       card,
       typeCard: 'personCard',
@@ -210,7 +215,8 @@ export class FichaService {
       },
       persons,
       personsEncuesta,
-      familyCard
+      familyCard,
+      backupId
     });
   }
 
@@ -257,8 +263,9 @@ export class FichaService {
     personsEncuesta: any[];
     card: any;
     familyCard: any;
+    backupId: number;
   }) {
-    const { familyCard, card, persons, personsEncuesta } = dataToSave;
+    const { familyCard, card, persons, personsEncuesta, backupId } = dataToSave;
     const ficha = await this.guardarFicha(card);
     this.guardarTarjetaFamiliar(familyCard, ficha);
     for (let index = 0; index < persons.length; index++) {
@@ -268,9 +275,20 @@ export class FichaService {
         personEncuesta.fichaId = ficha.id;
         personEncuesta.personaId = personSave.id;
         await this.guardarEncuesta(personEncuesta);
+        const backup = await this.backupRepository.findOne({
+          where: { id: backupId }
+        });
       } catch (error) {
         throw error;
       }
+    }
+
+    const backup = await this.backupRepository.findOne({
+      where: { id: backupId }
+    });
+    if (backup) {
+      backup.status = IStatus.Guardado;
+      return await this.backupRepository.save(backup);
     }
     return ficha;
   }
