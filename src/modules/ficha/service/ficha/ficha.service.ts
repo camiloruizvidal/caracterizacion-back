@@ -11,6 +11,7 @@ import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
 import { FichaEntity } from '../../entity/ficha.entity';
+import { TarjetaFamiliarEntity } from '../../entity/tarjetaFamiliar.entity';
 
 @Injectable()
 export class FichaService {
@@ -29,6 +30,9 @@ export class FichaService {
 
     @InjectRepository(FichaTipoEntity)
     private readonly fichaTipoRepository: Repository<FichaTipoEntity>,
+
+    @InjectRepository(TarjetaFamiliarEntity)
+    private readonly tarjetaFamiliarRepository: Repository<TarjetaFamiliarEntity>,
 
     @InjectRepository(VersionEntity)
     private readonly versionRepository: Repository<VersionEntity>,
@@ -177,29 +181,36 @@ export class FichaService {
   }
 
   private async createRegister(card, cards, index) {
-    let persons: any[] = [];
-    let personsEncuesta: any[] = [];
-    personsEncuesta = this.extractDataTable({
+    const personsEncuesta = this.extractDataTable({
       card,
       typeCard: 'personCard',
       table: 'psicosocial_persona'
     });
-    persons = this.extractDataTable({
+    const persons = this.extractDataTable({
       card,
       typeCard: 'personCard',
       table: 'persona'
     });
-
+    const familyCard = this.extractDataTable(
+      {
+        card,
+        typeCard: 'familyCard',
+        table: 'tarjeta_familiar'
+      },
+      false
+    );
     return await this.saveRegisters({
       card: {
         version: cards[index].data.version,
         dateLastVersion: cards[index].data.dateLastVersion,
         dateRegister: cards[index].data.dateRegister,
         code: cards[index].data.code,
-        userId: cards[index].data.userId
+        userId: cards[index].data.userId,
+        familyCard
       },
       persons,
-      personsEncuesta
+      personsEncuesta,
+      familyCard
     });
   }
 
@@ -208,32 +219,48 @@ export class FichaService {
       where: { status: IStatus.Almacenado }
     });
     return cards.filter(card => Number(card.data.version) == versionId);
-    //.map(card => card.data.data) as BackupEntity[];
   }
 
-  private extractDataTable(data: {
-    card: any;
-    typeCard: string;
-    table: string;
-  }): any {
+  private extractDataTable(
+    data: {
+      card: any;
+      typeCard: string;
+      table: string;
+    },
+    isArray: boolean = true
+  ): any {
     const { card, typeCard, table } = data;
-    return card[typeCard].flatMap(valueCard => [
-      valueCard
-        .find(items => items.table === table)
-        .values.reduce(
-          (acc, value) => ({ ...acc, [value.columnName]: value.value }),
-          {}
-        )
-    ]);
+    let result;
+    if (!isArray) {
+      result = card[typeCard].reduce((result, card) => {
+        const valuesSets = card.values;
+        valuesSets.forEach(values => {
+          result[values.columnName] = values.value;
+        });
+        return result;
+      }, {});
+    } else {
+      result = card[typeCard].flatMap(valueCard => [
+        valueCard
+          .find(items => items.table === table)
+          .values.reduce(
+            (acc, value) => ({ ...acc, [value.columnName]: value.value }),
+            {}
+          )
+      ]);
+    }
+    return result;
   }
 
   private async saveRegisters(dataToSave: {
     persons: any[];
     personsEncuesta: any[];
     card: any;
+    familyCard: any;
   }) {
-    const { card, persons, personsEncuesta } = dataToSave;
+    const { familyCard, card, persons, personsEncuesta } = dataToSave;
     const ficha = await this.guardarFicha(card);
+    this.guardarTarjetaFamiliar(familyCard, ficha);
     for (let index = 0; index < persons.length; index++) {
       try {
         const personSave = await this.guardarPersona(persons[index]);
@@ -282,5 +309,14 @@ export class FichaService {
     });
     const data = await this.fichaRepository.save(fichaCreate);
     return data;
+  }
+
+  private async guardarTarjetaFamiliar(
+    familyCard: TarjetaFamiliarEntity,
+    ficha: FichaEntity
+  ) {
+    const tarjetaFamiliar = this.tarjetaFamiliarRepository.create(familyCard);
+    tarjetaFamiliar.ficha = ficha;
+    return await this.tarjetaFamiliarRepository.save(tarjetaFamiliar);
   }
 }

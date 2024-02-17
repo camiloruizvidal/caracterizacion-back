@@ -11,6 +11,8 @@ import { UserEntity } from '../usuarios/entity/user.entity';
 import { PersonaEntity } from './entity/persona.entity';
 import { PsicosocialPersonaEntity } from './entity/psicosocial-persona.entity';
 import { FichaEntity } from './entity/ficha.entity';
+import { TarjetaFamiliarEntity } from './entity/tarjetaFamiliar.entity';
+import { InformesService } from './service/informes/informes.service';
 
 @Module({
   imports: [
@@ -23,10 +25,11 @@ import { FichaEntity } from './entity/ficha.entity';
       BackupEntity,
       UserEntity,
       PersonaEntity,
-      PsicosocialPersonaEntity
+      PsicosocialPersonaEntity,
+      TarjetaFamiliarEntity
     ])
   ],
-  providers: [FichaService],
+  providers: [FichaService, InformesService],
   controllers: [FichaController]
 })
 export class FichaModule {}

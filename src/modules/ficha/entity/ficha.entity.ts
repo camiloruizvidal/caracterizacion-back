@@ -6,8 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { TarjetaFamiliarEntity } from './tarjetaFamiliar.entity';
 import { PsicosocialPersonaEntity } from './psicosocial-persona.entity';
+import { TarjetaFamiliarEntity } from './tarjetaFamiliar.entity';
 
 @Entity({ name: 'ficha' })
 export class FichaEntity {

@@ -172,6 +172,7 @@ export class PsicosocialPersonaEntity {
   @JoinColumn({ name: 'ficha_id' })
   ficha: FichaEntity;
 
+  @ManyToOne(() => PersonaEntity, person => person.PsicosocialPersona)
   @JoinColumn({ name: 'persona_id' })
   persona: PersonaEntity;
 

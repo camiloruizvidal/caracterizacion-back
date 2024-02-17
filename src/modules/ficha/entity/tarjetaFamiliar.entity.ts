@@ -328,7 +328,7 @@ export class TarjetaFamiliarEntity {
   @Column({ type: 'varchar', nullable: true })
   almacenamiento_conjunto_productos: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   notas: string;
 
   @ManyToOne(() => FichaEntity, ficha => ficha.tarjetasFamiliares)

@@ -3,8 +3,10 @@ import {
   Column,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-  CreateDateColumn
+  CreateDateColumn,
+  OneToMany
 } from 'typeorm';
+import { PsicosocialPersonaEntity } from './psicosocial-persona.entity';
 
 @Entity('persona')
 export class PersonaEntity {
@@ -58,6 +60,12 @@ export class PersonaEntity {
 
   @Column({ type: 'varchar', nullable: true })
   discapacidad: string;
+
+  @OneToMany(
+    () => PsicosocialPersonaEntity,
+    psicosocialPersona => psicosocialPersona
+  )
+  PsicosocialPersona: PsicosocialPersonaEntity[];
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;

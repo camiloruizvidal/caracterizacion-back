@@ -9,10 +9,14 @@ import {
   Post,
   Query
 } from '@nestjs/common';
+import { InformesService } from '../../service/informes/informes.service';
 
 @Controller('api/v1/ficha')
 export class FichaController {
-  constructor(private fichaService: FichaService) {}
+  constructor(
+    private fichaService: FichaService,
+    private informesService: InformesService
+  ) {}
 
   @Get('formato_ficha')
   public async getFormatoFicha() {
@@ -63,6 +67,11 @@ export class FichaController {
     } catch (error) {
       throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
     }
+  }
+
+  @Get('informecompleto')
+  public async generarInformes() {
+    return this.informesService.generarInformes();
   }
 
   @Get('backup')
