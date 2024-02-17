@@ -3,14 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
 import { FichaService } from './service/ficha/ficha.service';
 import { FichaController } from './controller/ficha/ficha.controller';
-import { FichaGrupoEntity } from './entity/fichaGrupo.entity';
+import { FichaGrupoEntity } from './entity/ficha-grupo.entity';
 import { VersionEntity } from './entity/version.entity';
-import { FichaTipoEntity } from './entity/fichaTipo.entity';
+import { FichaTipoEntity } from './entity/ficha-tipo.entity';
 import { BackupEntity } from './entity/backup.entity';
 import { UserEntity } from '../usuarios/entity/user.entity';
 import { PsicosocialPersonaEntity } from './entity/psicosocial-persona.entity';
 import { FichaEntity } from './entity/ficha.entity';
-import { TarjetaFamiliarEntity } from './entity/tarjetaFamiliar.entity';
+import { TarjetaFamiliarEntity } from './entity/tarjeta-familiar.entity';
 import { InformesService } from './service/informes/informes.service';
 import { PacienteEntity } from '../pacientes/entity/pacientes.entity';
 

@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
   CreateDateColumn
 } from 'typeorm';
-import { FichaGrupoEntity } from './fichaGrupo.entity';
+import { FichaGrupoEntity } from './ficha-grupo.entity';
 import { ESteperType } from '../interface/ficha.interface';
 
 @Entity({ name: 'ficha_descripcion' })

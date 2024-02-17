@@ -7,7 +7,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { PsicosocialPersonaEntity } from './psicosocial-persona.entity';
-import { TarjetaFamiliarEntity } from './tarjetaFamiliar.entity';
+import { TarjetaFamiliarEntity } from './tarjeta-familiar.entity';
 
 @Entity({ name: 'ficha' })
 export class FichaEntity {

@@ -2,15 +2,15 @@ import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
-import { FichaGrupoEntity } from '../../entity/fichaGrupo.entity';
+import { FichaGrupoEntity } from '../../entity/ficha-grupo.entity';
 import { VersionEntity } from '../../entity/version.entity';
-import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
+import { FichaTipoEntity } from '../../entity/ficha-tipo.entity';
 import { IFamilyCardSave, IFichaCard } from '../../interface/ficha.interface';
 import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
 import { FichaEntity } from '../../entity/ficha.entity';
-import { TarjetaFamiliarEntity } from '../../entity/tarjetaFamiliar.entity';
+import { TarjetaFamiliarEntity } from '../../entity/tarjeta-familiar.entity';
 import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables } from 'src/utils/global.interface';
 
