@@ -8,11 +8,11 @@ import { VersionEntity } from './entity/version.entity';
 import { FichaTipoEntity } from './entity/fichaTipo.entity';
 import { BackupEntity } from './entity/backup.entity';
 import { UserEntity } from '../usuarios/entity/user.entity';
-import { PersonaEntity } from './entity/persona.entity';
 import { PsicosocialPersonaEntity } from './entity/psicosocial-persona.entity';
 import { FichaEntity } from './entity/ficha.entity';
 import { TarjetaFamiliarEntity } from './entity/tarjetaFamiliar.entity';
 import { InformesService } from './service/informes/informes.service';
+import { PacienteEntity } from '../pacientes/entity/pacientes.entity';
 
 @Module({
   imports: [
@@ -24,9 +24,9 @@ import { InformesService } from './service/informes/informes.service';
       VersionEntity,
       BackupEntity,
       UserEntity,
-      PersonaEntity,
       PsicosocialPersonaEntity,
-      TarjetaFamiliarEntity
+      TarjetaFamiliarEntity,
+      PacienteEntity
     ])
   ],
   providers: [FichaService, InformesService],

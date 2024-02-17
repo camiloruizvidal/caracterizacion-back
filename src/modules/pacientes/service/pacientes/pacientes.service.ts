@@ -66,7 +66,7 @@ export class PacientesService {
 
     for (const pacienteData of registrosPacienteEntity) {
       const existingPaciente = await this.pacienteRepository.findOne({
-        where: { documento: pacienteData.documento }
+        where: { documento_numero: pacienteData.documento }
       });
 
       if (existingPaciente) {

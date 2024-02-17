@@ -6,12 +6,12 @@ import { FichaDescripcionEntity } from '../../entity/fichaDescription.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFamilyCardSave, IFichaCard } from '../../interface/ficha.interface';
-import { PersonaEntity } from '../../entity/persona.entity';
 import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
 import { FichaEntity } from '../../entity/ficha.entity';
 import { TarjetaFamiliarEntity } from '../../entity/tarjetaFamiliar.entity';
+import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 
 @Injectable()
 export class FichaService {
@@ -37,8 +37,8 @@ export class FichaService {
     @InjectRepository(VersionEntity)
     private readonly versionRepository: Repository<VersionEntity>,
 
-    @InjectRepository(PersonaEntity)
-    private readonly personaRepository: Repository<PersonaEntity>,
+    @InjectRepository(PacienteEntity)
+    private readonly pacienteRepository: Repository<PacienteEntity>,
 
     @InjectRepository(PsicosocialPersonaEntity)
     private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>,
@@ -104,10 +104,10 @@ export class FichaService {
     }
   }
 
-  public async getPeopelData(): Promise<PersonaEntity[]> {
+  public async getPeopelData(): Promise<PacienteEntity[]> {
     try {
-      const person: PersonaEntity[] = await this.personaRepository.find();
-      return person;
+      const paciente: PacienteEntity[] = await this.pacienteRepository.find();
+      return paciente;
     } catch (error) {
       throw error.message;
     }
@@ -299,22 +299,22 @@ export class FichaService {
   }
 
   private async guardarPersona(
-    personaData: PersonaEntity
-  ): Promise<PersonaEntity> {
-    const existente = await this.personaRepository.findOne({
+    personaData: PacienteEntity
+  ): Promise<PacienteEntity> {
+    const existente = await this.pacienteRepository.findOne({
       where: {
         documento_numero: personaData?.documento_numero
       }
     });
 
     if (existente) {
-      return await this.personaRepository.save({
+      return await this.pacienteRepository.save({
         ...existente,
         ...personaData
       });
     } else {
-      const nuevaPersona = this.personaRepository.create(personaData);
-      return await this.personaRepository.save(nuevaPersona);
+      const nuevaPersona = this.pacienteRepository.create(personaData);
+      return await this.pacienteRepository.save(nuevaPersona);
     }
   }
 

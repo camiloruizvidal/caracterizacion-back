@@ -7,8 +7,8 @@ import {
   UpdateDateColumn,
   CreateDateColumn
 } from 'typeorm';
-import { PersonaEntity } from './persona.entity';
 import { FichaEntity } from './ficha.entity';
+import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 
 @Entity('psicosocial_persona')
 export class PsicosocialPersonaEntity {
@@ -162,7 +162,7 @@ export class PsicosocialPersonaEntity {
   @Column({ name: 'felicidad_actual', type: 'varchar', nullable: true })
   felicidadActual: string;
 
-  @Column({ name: 'persona_id' })
+  @Column({ name: 'paciente_id' })
   personaId: number;
 
   @Column({ name: 'ficha_id' })
@@ -172,9 +172,9 @@ export class PsicosocialPersonaEntity {
   @JoinColumn({ name: 'ficha_id' })
   ficha: FichaEntity;
 
-  @ManyToOne(() => PersonaEntity, person => person.PsicosocialPersona)
-  @JoinColumn({ name: 'persona_id' })
-  persona: PersonaEntity;
+  @ManyToOne(() => PacienteEntity, paciente => paciente.PsicosocialPersona)
+  @JoinColumn({ name: 'paciente_id' })
+  persona: PacienteEntity;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
