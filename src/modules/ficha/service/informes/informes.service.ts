@@ -21,7 +21,6 @@ export class InformesService {
     return await this.verInforme();
   }
   private async verInforme() {
-    console.log('entro');
     try {
       const query = `
     SELECT *
@@ -36,10 +35,13 @@ export class InformesService {
   `;
       const informe: any[] = await this.entityManager.query(query);
       const fichaDescripcion: any[] =
-        await this.fichaDescripcionEntityRepository.find(/*{
-          select: ['columnName', 'label']
-        }*/);
-
+        await this.fichaDescripcionEntityRepository
+          .createQueryBuilder('descripcion')
+          .innerJoinAndSelect('descripcion.fichaGrupo', 'grupo')
+          .orderBy('grupo.orden', 'ASC')
+          .addOrderBy('descripcion.orden', 'ASC')
+          .select(['descripcion.columnName', 'descripcion.label'])
+          .getMany();
       fichaDescripcion.push({ columnName: 'version', label: 'Versión' });
       fichaDescripcion.push({
         columnName: 'codigo',
@@ -78,8 +80,6 @@ export class InformesService {
       const row = headers.map(header => item[header]);
       worksheet.addRow(row);
     });
-
-    // Devolver el contenido del archivo como un buffer
     return workbook.xlsx.writeBuffer();
   }
 }
