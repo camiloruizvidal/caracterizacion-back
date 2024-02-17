@@ -53,10 +53,13 @@ export class FichaController {
   @Get('procesar')
   public async procesarFichasSubidasConUltimaVersion() {
     try {
+      const data =
+        await this.fichaService.procesarFichasSubidasConUltimaVersion();
+      console.log({ data });
       return {
         status: 200,
         msj: 'Solo se procesan las fichas que tengan la última version',
-        data: await this.fichaService.procesarFichasSubidasConUltimaVersion()
+        data
       };
     } catch (error) {
       throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);

@@ -10,6 +10,7 @@ import { BackupEntity } from './entity/backup.entity';
 import { UserEntity } from '../usuarios/entity/user.entity';
 import { PersonaEntity } from './entity/persona.entity';
 import { PsicosocialPersonaEntity } from './entity/psicosocial-persona.entity';
+import { FichaEntity } from './entity/ficha.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PsicosocialPersonaEntity } from './entity/psicosocial-persona.entity';
       FichaDescripcionEntity,
       FichaGrupoEntity,
       FichaTipoEntity,
+      FichaEntity,
       VersionEntity,
       BackupEntity,
       UserEntity,

@@ -5,11 +5,12 @@ import { FichaGrupoEntity } from '../../entity/fichaGrupo.entity';
 import { FichaDescripcionEntity } from '../../entity/fichaDescription.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
-import { IFichaCard } from '../../interface/ficha.interface';
+import { IFamilyCardSave, IFichaCard } from '../../interface/ficha.interface';
 import { PersonaEntity } from '../../entity/persona.entity';
 import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
+import { FichaEntity } from '../../entity/ficha.entity';
 
 @Injectable()
 export class FichaService {
@@ -19,6 +20,9 @@ export class FichaService {
 
     @InjectRepository(FichaDescripcionEntity)
     private readonly fichaDescripcionRepository: Repository<FichaDescripcionEntity>,
+
+    @InjectRepository(FichaEntity)
+    private readonly fichaRepository: Repository<FichaEntity>,
 
     @InjectRepository(FichaGrupoEntity)
     private readonly fichaGrupoRepository: Repository<FichaGrupoEntity>,
@@ -157,21 +161,42 @@ export class FichaService {
         where: { id: MoreThan(0) },
         order: { id: 'DESC' }
       });
+      console.clear();
 
-      const cards = await this.loadLastCards(1536 /*version.id*/);
-      const personsEncuesta: any[] = this.extractDataTable({
-        cards,
-        typeCard: 'personCard',
-        table: 'psicosocial_persona'
-      });
-      const persons: any[] = this.extractDataTable({
-        cards,
-        typeCard: 'personCard',
-        table: 'persona'
-      });
-      return this.saveRegisters({ persons, personsEncuesta });
+      const cards = await this.loadLastCards(version.id);
+      let persons: any[] = [];
+      let personsEncuesta: any[] = [];
+      const registers: any[] = [];
+      cards
+        .map(card => card.data.data)
+        .forEach(async (card: any, index: number) => {
+          personsEncuesta = this.extractDataTable({
+            card,
+            typeCard: 'personCard',
+            table: 'psicosocial_persona'
+          });
+          persons = this.extractDataTable({
+            card,
+            typeCard: 'personCard',
+            table: 'persona'
+          });
+          const register = await this.saveRegisters({
+            card: {
+              version: cards[index].data.version,
+              dateLastVersion: cards[index].data.dateLastVersion,
+              dateRegister: cards[index].data.dateRegister,
+              code: cards[index].data.code,
+              userId: cards[index].data.userId
+            },
+            persons,
+            personsEncuesta
+          });
+          console.log({ register });
+          registers.push(register);
+        });
+      console.log({ registers });
+      return registers;
     } catch (error) {
-      console.log({ error });
       throw error;
     }
   }
@@ -180,51 +205,52 @@ export class FichaService {
     const cards: any[] = await this.backupRepository.find({
       where: { status: IStatus.Almacenado }
     });
-    return cards
-      .filter(card => Number(card.data.version) == versionId)
-      .map(card => card.data.data) as BackupEntity[];
+    return cards.filter(card => Number(card.data.version) == versionId);
+    //.map(card => card.data.data) as BackupEntity[];
   }
 
   private extractDataTable(data: {
-    cards: any[];
+    card: any;
     typeCard: string;
     table: string;
   }): any {
-    const { cards, typeCard, table } = data;
-    return cards.flatMap(card =>
-      card[typeCard].flatMap(valueCard => [
-        valueCard
-          .find(items => items.table === table)
-          .values.reduce(
-            (acc, value) => ({ ...acc, [value.columnName]: value.value }),
-            {}
-          )
-      ])
-    );
+    const { card, typeCard, table } = data;
+    return card[typeCard].flatMap(valueCard => [
+      valueCard
+        .find(items => items.table === table)
+        .values.reduce(
+          (acc, value) => ({ ...acc, [value.columnName]: value.value }),
+          {}
+        )
+    ]);
   }
 
   private async saveRegisters(dataToSave: {
     persons: any[];
     personsEncuesta: any[];
+    card: any;
   }) {
-    const { persons, personsEncuesta } = dataToSave;
-
+    const { card, persons, personsEncuesta } = dataToSave;
+    const ficha = await this.guardarFicha(card);
+    console.log({ ficha });
     for (let index = 0; index < persons.length; index++) {
       try {
         const personSave = await this.guardarPersona(persons[index]);
-        console.log('Person saved:', personSave);
         const personEncuesta: PsicosocialPersonaEntity = personsEncuesta[index];
+        personEncuesta.fichaId = ficha.id;
         personEncuesta.personaId = personSave.id;
-
-        const createPsicosocial =
-          this.psicosocialPersonaRepository.create(personEncuesta);
-        await this.psicosocialPersonaRepository.save(createPsicosocial);
-        console.log('Psicosocial saved:', createPsicosocial);
+        await this.guardarEncuesta(personEncuesta);
       } catch (error) {
         console.error('Error saving:', error);
         throw error;
       }
     }
+    return ficha;
+  }
+
+  private async guardarEncuesta(personEncuesta: PsicosocialPersonaEntity) {
+    const create = this.psicosocialPersonaRepository.create(personEncuesta);
+    return await this.psicosocialPersonaRepository.save(create);
   }
 
   private async guardarPersona(
@@ -232,7 +258,7 @@ export class FichaService {
   ): Promise<PersonaEntity> {
     const existente = await this.personaRepository.findOne({
       where: {
-        documentoNumero: personaData?.documentoNumero
+        documento_numero: personaData?.documento_numero
       }
     });
 
@@ -245,5 +271,17 @@ export class FichaService {
       const nuevaPersona = this.personaRepository.create(personaData);
       return await this.personaRepository.save(nuevaPersona);
     }
+  }
+
+  private async guardarFicha(card: IFamilyCardSave): Promise<FichaEntity> {
+    const fichaCreate = this.fichaRepository.create({
+      usuario_creacion_id: card.userId,
+      version: Number(card.version),
+      codigo: card.code,
+      fecha_registro: card.dateRegister
+    });
+    const data = await this.fichaRepository.save(fichaCreate);
+    console.log({ data });
+    return data;
   }
 }
