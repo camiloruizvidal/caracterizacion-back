@@ -60,13 +60,23 @@ export class PacientesService {
         nombre_segundo: registro?.segundo_nombre,
         apellido_primero: registro.primer_apellido,
         apellido_segundo: registro?.segundo_apellido,
-        documento: registro.documento
+        documento_numero: registro?.documento_numero,
+        fecha_nacimiento: new Date(registro?.fecha_nacimiento),
+        sexo: registro?.sexo,
+        parentesco: registro?.parentesco,
+        ocupacion: registro?.ocupacion,
+        aporta_ingresos: registro?.aporta_ingresos,
+        nivel_escolaridad: registro?.nivel_escolaridad,
+        afilicion_salud_tipo: registro?.afilicion_salud_tipo,
+        grupo_atencion_especial: registro?.grupo_atencion_especial,
+        discapacidad: registro?.discapacidad
       })
     );
 
+    console.log({ registrosPacienteEntity });
     for (const pacienteData of registrosPacienteEntity) {
       const existingPaciente = await this.pacienteRepository.findOne({
-        where: { documento_numero: pacienteData.documento }
+        where: { documento_numero: pacienteData.documento_numero }
       });
 
       if (existingPaciente) {
