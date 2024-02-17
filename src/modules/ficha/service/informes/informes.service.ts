@@ -17,8 +17,8 @@ export class InformesService {
     private readonly fichaDescripcionEntityRepository: Repository<FichaDescripcionEntity>
   ) {}
 
-  public generarInformes() {
-    return this.verInforme();
+  public async generarInformes() {
+    return await this.verInforme();
   }
   private async verInforme() {
     const query = `
@@ -65,7 +65,7 @@ export class InformesService {
     return await this.exportToExcel(informe.map(mapearItem));
   }
 
-  private async exportToExcel(data: any[]): Promise<string> {
+  private async exportToExcel(data: any[]): Promise<any> {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sheet 1');
 
@@ -77,16 +77,7 @@ export class InformesService {
       worksheet.addRow(row);
     });
 
-    const downloadPath = path.join(__dirname, '..', '..', 'download');
-    const fileName = `exported-data-${Date.now()}.xlsx`;
-    const filePath = path.join(downloadPath, fileName);
-
-    if (!fs.existsSync(downloadPath)) {
-      fs.mkdirSync(downloadPath);
-    }
-
-    await workbook.xlsx.writeFile(filePath);
-
-    return fileName;
+    // Devolver el contenido del archivo como un buffer
+    return workbook.xlsx.writeBuffer();
   }
 }

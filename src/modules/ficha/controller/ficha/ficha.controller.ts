@@ -7,9 +7,11 @@ import {
   HttpException,
   HttpStatus,
   Post,
-  Query
+  Query,
+  Res
 } from '@nestjs/common';
 import { InformesService } from '../../service/informes/informes.service';
+import { Response } from 'express';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -70,8 +72,22 @@ export class FichaController {
   }
 
   @Get('informecompleto')
-  public async generarInformes() {
-    return this.informesService.generarInformes();
+  public async generarInformes(@Res() res: Response) {
+    try {
+      const informe = await this.informesService.generarInformes();
+      res.setHeader(
+        'Content-Type',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      );
+      res.setHeader(
+        'Content-Disposition',
+        'attachment; filename=exported-data.xlsx'
+      );
+
+      res.send(informe);
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
+    }
   }
 
   @Get('backup')
