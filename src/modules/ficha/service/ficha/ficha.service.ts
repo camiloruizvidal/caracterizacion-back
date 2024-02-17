@@ -9,6 +9,7 @@ import { IFichaCard } from '../../interface/ficha.interface';
 import { PersonaEntity } from '../../entity/persona.entity';
 import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
+import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
 
 @Injectable()
 export class FichaService {
@@ -28,8 +29,11 @@ export class FichaService {
     @InjectRepository(VersionEntity)
     private readonly versionRepository: Repository<VersionEntity>,
 
-    @InjectRepository(VersionEntity)
+    @InjectRepository(PersonaEntity)
     private readonly personaRepository: Repository<PersonaEntity>,
+
+    @InjectRepository(PsicosocialPersonaEntity)
+    private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>,
 
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>
@@ -154,7 +158,18 @@ export class FichaService {
         order: { id: 'DESC' }
       });
 
-      return await this.loadLastCards(version.id);
+      const cards = await this.loadLastCards(1536 /*version.id*/);
+      const personsEncuesta: any[] = this.extractDataTable({
+        cards,
+        typeCard: 'personCard',
+        table: 'psicosocial_persona'
+      });
+      const persons: any[] = this.extractDataTable({
+        cards,
+        typeCard: 'personCard',
+        table: 'persona'
+      });
+      return this.saveRegisters({ persons, personsEncuesta });
     } catch (error) {
       console.log({ error });
       throw error;
@@ -167,6 +182,68 @@ export class FichaService {
     });
     return cards
       .filter(card => Number(card.data.version) == versionId)
-      .map(card => card.data.data);
+      .map(card => card.data.data) as BackupEntity[];
+  }
+
+  private extractDataTable(data: {
+    cards: any[];
+    typeCard: string;
+    table: string;
+  }): any {
+    const { cards, typeCard, table } = data;
+    return cards.flatMap(card =>
+      card[typeCard].flatMap(valueCard => [
+        valueCard
+          .find(items => items.table === table)
+          .values.reduce(
+            (acc, value) => ({ ...acc, [value.columnName]: value.value }),
+            {}
+          )
+      ])
+    );
+  }
+
+  private async saveRegisters(dataToSave: {
+    persons: any[];
+    personsEncuesta: any[];
+  }) {
+    const { persons, personsEncuesta } = dataToSave;
+
+    for (let index = 0; index < persons.length; index++) {
+      try {
+        const personSave = await this.guardarPersona(persons[index]);
+        console.log('Person saved:', personSave);
+        const personEncuesta: PsicosocialPersonaEntity = personsEncuesta[index];
+        personEncuesta.personaId = personSave.id;
+
+        const createPsicosocial =
+          this.psicosocialPersonaRepository.create(personEncuesta);
+        await this.psicosocialPersonaRepository.save(createPsicosocial);
+        console.log('Psicosocial saved:', createPsicosocial);
+      } catch (error) {
+        console.error('Error saving:', error);
+        throw error;
+      }
+    }
+  }
+
+  private async guardarPersona(
+    personaData: PersonaEntity
+  ): Promise<PersonaEntity> {
+    const existente = await this.personaRepository.findOne({
+      where: {
+        documentoNumero: personaData?.documentoNumero
+      }
+    });
+
+    if (existente) {
+      return await this.personaRepository.save({
+        ...existente,
+        ...personaData
+      });
+    } else {
+      const nuevaPersona = this.personaRepository.create(personaData);
+      return await this.personaRepository.save(nuevaPersona);
+    }
   }
 }

@@ -8,6 +8,8 @@ import { VersionEntity } from './entity/version.entity';
 import { FichaTipoEntity } from './entity/fichaTipo.entity';
 import { BackupEntity } from './entity/backup.entity';
 import { UserEntity } from '../usuarios/entity/user.entity';
+import { PersonaEntity } from './entity/persona.entity';
+import { PsicosocialPersonaEntity } from './entity/psicosocial-persona.entity';
 
 @Module({
   imports: [
@@ -17,7 +19,9 @@ import { UserEntity } from '../usuarios/entity/user.entity';
       FichaTipoEntity,
       VersionEntity,
       BackupEntity,
-      UserEntity
+      UserEntity,
+      PersonaEntity,
+      PsicosocialPersonaEntity
     ])
   ],
   providers: [FichaService],

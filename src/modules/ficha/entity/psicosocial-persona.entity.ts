@@ -159,6 +159,9 @@ export class PsicosocialPersonaEntity {
   @Column({ name: 'felicidad_actual', type: 'boolean', nullable: true })
   felicidadActual: boolean;
 
+  @Column({ name: 'persona_id' })
+  personaId: number;
+
   @ManyToOne(() => PersonaEntity, persona => persona.psicosocial)
   @JoinColumn({ name: 'persona_id' })
   persona: PersonaEntity;

@@ -11,7 +11,7 @@ export class VersionEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'date_last_version' })
+  @Column({ name: 'date_last_version', nullable: true })
   dateLastVersion: Date;
 
   @CreateDateColumn({
