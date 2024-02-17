@@ -18,3 +18,9 @@ export interface IPagination<T> {
   totalPages: number;
   itemsPerPage: number;
 }
+
+export enum ETables {
+  PACIENTE = 'pacientes',
+  TARJETA_FAMILIAR = 'tarjeta_familiar',
+  PSICOSOCIAL_PERSONA = 'psicosocial_persona'
+}

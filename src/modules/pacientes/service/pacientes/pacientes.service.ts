@@ -39,6 +39,7 @@ export class PacientesService {
     }
   }
 
+  public async filtrarPorGps() {}
   public cargaExcelMasivo(file: Express.Multer.File) {
     try {
       const workbook = XLSX.read(file.buffer, { type: 'buffer' });

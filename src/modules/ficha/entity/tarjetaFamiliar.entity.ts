@@ -32,10 +32,10 @@ export class TarjetaFamiliarEntity {
   @Column({ type: 'varchar', nullable: true })
   participa_organizacion_comunitaria_si: string;
 
-  @Column({ type: 'integer', nullable: false })
+  @Column({ type: 'integer', nullable: true })
   cuantas_personas_residen_en_la_vivienda: number;
 
-  @Column({ type: 'integer', nullable: false })
+  @Column({ type: 'integer', nullable: true })
   cuantas_familias_residen_en_esta_vivienda: number;
 
   @Column({ type: 'varchar', nullable: true })
@@ -62,13 +62,13 @@ export class TarjetaFamiliarEntity {
   @Column({ type: 'varchar', nullable: true })
   trabajo_en_casa_cual: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   ingresos_mensuales_familia: string;
 
   @Column({ type: 'integer', nullable: true })
   gastos_servicios_publicos: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   acceso_facil_vivienda: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -104,7 +104,7 @@ export class TarjetaFamiliarEntity {
   @Column({ type: 'varchar', nullable: true })
   por_que_no_conformidad: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   origen_agua_consumo: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -130,7 +130,8 @@ export class TarjetaFamiliarEntity {
 
   @Column({ type: 'varchar', nullable: true })
   tratamiento_agua_otro: string;
-  @Column({ type: 'varchar', nullable: false })
+
+  @Column({ type: 'varchar', nullable: true })
   servicio_sanitario: string;
 
   @Column({ type: 'varchar', nullable: true })
@@ -235,7 +236,7 @@ export class TarjetaFamiliarEntity {
   @Column({ type: 'varchar', nullable: true })
   enfermedades_miembros_familia: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   frecuencia_visitas_odontologo: string;
 
   @Column({ type: 'varchar', nullable: true })

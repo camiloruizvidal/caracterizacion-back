@@ -2,12 +2,9 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  ManyToOne,
-  JoinColumn,
   CreateDateColumn,
   UpdateDateColumn
 } from 'typeorm';
-import { FichaTipoEntity } from './fichaTipo.entity';
 
 @Entity({ name: 'ficha_grupo' })
 export class FichaGrupoEntity {
@@ -28,13 +25,6 @@ export class FichaGrupoEntity {
 
   @Column({ nullable: true })
   table: string;
-
-  @ManyToOne(
-    () => FichaTipoEntity,
-    (fichaTipo: FichaTipoEntity) => fichaTipo.id
-  )
-  @JoinColumn({ name: 'ficha_tipo_id' })
-  fichaTipo: FichaTipoEntity;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

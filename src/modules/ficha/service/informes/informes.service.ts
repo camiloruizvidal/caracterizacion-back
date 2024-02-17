@@ -1,6 +1,6 @@
-import { FichaDescripcionEntity } from './../../entity/fichaDescription.entity';
-import { Injectable } from '@nestjs/common';
+import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
+import { Injectable } from '@nestjs/common';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as ExcelJS from 'exceljs';
@@ -21,48 +21,50 @@ export class InformesService {
     return await this.verInforme();
   }
   private async verInforme() {
-    const query = `
-    SELECT
-      "public"."ficha".*,
-      "public"."persona".*,
-      "public"."psicosocial_persona".*
+    console.log('entro');
+    try {
+      const query = `
+    SELECT *
     FROM
       "public"."psicosocial_persona"
     INNER JOIN
-      "public"."persona" ON "public"."psicosocial_persona"."persona_id" = "public"."persona"."id"
+      "public"."pacientes" ON "public"."psicosocial_persona"."paciente_id" = "public"."pacientes"."id"
     INNER JOIN
       "public"."ficha" ON "public"."psicosocial_persona"."ficha_id" = "public"."ficha"."id"
     INNER JOIN
       "public"."tarjeta_familiar" ON "public"."tarjeta_familiar"."ficha_id" = "public"."ficha"."id";
   `;
-    const informe: any[] = await this.entityManager.query(query);
-    const fichaDescripcion: any[] =
-      await this.fichaDescripcionEntityRepository.find({
-        select: ['columnName', 'label']
+      const informe: any[] = await this.entityManager.query(query);
+      const fichaDescripcion: any[] =
+        await this.fichaDescripcionEntityRepository.find(/*{
+          select: ['columnName', 'label']
+        }*/);
+
+      fichaDescripcion.push({ columnName: 'version', label: 'Versión' });
+      fichaDescripcion.push({
+        columnName: 'codigo',
+        label: 'Código de encuesta'
       });
+      const mapearItem = informeItem => {
+        const resultadoItem = {};
 
-    fichaDescripcion.push({ columnName: 'version', label: 'Versión' });
-    fichaDescripcion.push({
-      columnName: 'codigo',
-      label: 'Código de encuesta'
-    });
+        for (const key in informeItem) {
+          const descripcion = fichaDescripcion.find(
+            desc => desc.columnName === key
+          );
 
-    const mapearItem = informeItem => {
-      const resultadoItem = {};
-
-      for (const key in informeItem) {
-        const descripcion = fichaDescripcion.find(
-          desc => desc.columnName === key
-        );
-
-        if (descripcion) {
-          resultadoItem[descripcion.label] = informeItem[key];
+          if (descripcion) {
+            resultadoItem[descripcion.label] = informeItem[key];
+          }
         }
-      }
 
-      return resultadoItem;
-    };
-    return await this.exportToExcel(informe.map(mapearItem));
+        return resultadoItem;
+      };
+      return await this.exportToExcel(informe.map(mapearItem));
+    } catch (error) {
+      console.log({ error });
+      throw error;
+    }
   }
 
   private async exportToExcel(data: any[]): Promise<any> {

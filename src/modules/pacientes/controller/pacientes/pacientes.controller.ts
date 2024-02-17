@@ -41,4 +41,15 @@ export class PacientesController {
       };
     }
   }
+
+  @Get('filtromaps')
+  async filtrarPorGps() {
+    try {
+      return await this.pacientesService.filtrarPorGps();
+    } catch (error) {
+      return {
+        error: 'Ocurrió un error al obtener los pacientes paginados.'
+      };
+    }
+  }
 }

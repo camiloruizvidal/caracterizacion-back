@@ -1,8 +1,8 @@
+import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
 import { FichaGrupoEntity } from '../../entity/fichaGrupo.entity';
-import { FichaDescripcionEntity } from '../../entity/fichaDescription.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/fichaTipo.entity';
 import { IFamilyCardSave, IFichaCard } from '../../interface/ficha.interface';
@@ -12,6 +12,7 @@ import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entit
 import { FichaEntity } from '../../entity/ficha.entity';
 import { TarjetaFamiliarEntity } from '../../entity/tarjetaFamiliar.entity';
 import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
+import { ETables } from 'src/utils/global.interface';
 
 @Injectable()
 export class FichaService {
@@ -189,18 +190,18 @@ export class FichaService {
     const personsEncuesta = this.extractDataTable({
       card,
       typeCard: 'personCard',
-      table: 'psicosocial_persona'
+      table: ETables.PSICOSOCIAL_PERSONA
     });
     const persons = this.extractDataTable({
       card,
       typeCard: 'personCard',
-      table: 'persona'
+      table: ETables.PACIENTE
     });
     const familyCard = this.extractDataTable(
       {
         card,
         typeCard: 'familyCard',
-        table: 'tarjeta_familiar'
+        table: ETables.TARJETA_FAMILIAR
       },
       false
     );
@@ -237,7 +238,18 @@ export class FichaService {
   ): any {
     const { card, typeCard, table } = data;
     let result;
-    if (!isArray) {
+    if (isArray) {
+      result = card[typeCard].flatMap(valueCard =>
+        valueCard
+          .filter(items => items.table === table)
+          .map(item =>
+            item.values.reduce(
+              (acc, value) => ({ ...acc, [value.columnName]: value.value }),
+              {}
+            )
+          )
+      );
+    } else {
       result = card[typeCard].reduce((result, card) => {
         const valuesSets = card.values;
         valuesSets.forEach(values => {
@@ -245,15 +257,6 @@ export class FichaService {
         });
         return result;
       }, {});
-    } else {
-      result = card[typeCard].flatMap(valueCard => [
-        valueCard
-          .find(items => items.table === table)
-          .values.reduce(
-            (acc, value) => ({ ...acc, [value.columnName]: value.value }),
-            {}
-          )
-      ]);
     }
     return result;
   }
