@@ -8,6 +8,7 @@ import {
   CreateDateColumn
 } from 'typeorm';
 import { PersonaEntity } from './persona.entity';
+import { FichaEntity } from './ficha.entity';
 
 @Entity('psicosocial_persona')
 export class PsicosocialPersonaEntity {
@@ -166,6 +167,10 @@ export class PsicosocialPersonaEntity {
 
   @Column({ name: 'ficha_id' })
   fichaId: number;
+
+  @ManyToOne(() => FichaEntity, ficha => ficha.tarjetasFamiliares)
+  @JoinColumn({ name: 'ficha_id' })
+  ficha: FichaEntity;
 
   @JoinColumn({ name: 'persona_id' })
   persona: PersonaEntity;
