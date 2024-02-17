@@ -55,7 +55,6 @@ export class FichaController {
     try {
       const data =
         await this.fichaService.procesarFichasSubidasConUltimaVersion();
-      console.log({ data });
       return {
         status: 200,
         msj: 'Solo se procesan las fichas que tengan la última version',

@@ -161,44 +161,46 @@ export class FichaService {
         where: { id: MoreThan(0) },
         order: { id: 'DESC' }
       });
-      console.clear();
 
       const cards = await this.loadLastCards(version.id);
-      let persons: any[] = [];
-      let personsEncuesta: any[] = [];
       const registers: any[] = [];
       cards
         .map(card => card.data.data)
         .forEach(async (card: any, index: number) => {
-          personsEncuesta = this.extractDataTable({
-            card,
-            typeCard: 'personCard',
-            table: 'psicosocial_persona'
-          });
-          persons = this.extractDataTable({
-            card,
-            typeCard: 'personCard',
-            table: 'persona'
-          });
-          const register = await this.saveRegisters({
-            card: {
-              version: cards[index].data.version,
-              dateLastVersion: cards[index].data.dateLastVersion,
-              dateRegister: cards[index].data.dateRegister,
-              code: cards[index].data.code,
-              userId: cards[index].data.userId
-            },
-            persons,
-            personsEncuesta
-          });
-          console.log({ register });
+          const register = await this.createRegister(card, cards, index);
           registers.push(register);
         });
-      console.log({ registers });
       return registers;
     } catch (error) {
       throw error;
     }
+  }
+
+  private async createRegister(card, cards, index) {
+    let persons: any[] = [];
+    let personsEncuesta: any[] = [];
+    personsEncuesta = this.extractDataTable({
+      card,
+      typeCard: 'personCard',
+      table: 'psicosocial_persona'
+    });
+    persons = this.extractDataTable({
+      card,
+      typeCard: 'personCard',
+      table: 'persona'
+    });
+
+    return await this.saveRegisters({
+      card: {
+        version: cards[index].data.version,
+        dateLastVersion: cards[index].data.dateLastVersion,
+        dateRegister: cards[index].data.dateRegister,
+        code: cards[index].data.code,
+        userId: cards[index].data.userId
+      },
+      persons,
+      personsEncuesta
+    });
   }
 
   private async loadLastCards(versionId: number) {
@@ -232,7 +234,6 @@ export class FichaService {
   }) {
     const { card, persons, personsEncuesta } = dataToSave;
     const ficha = await this.guardarFicha(card);
-    console.log({ ficha });
     for (let index = 0; index < persons.length; index++) {
       try {
         const personSave = await this.guardarPersona(persons[index]);
@@ -241,7 +242,6 @@ export class FichaService {
         personEncuesta.personaId = personSave.id;
         await this.guardarEncuesta(personEncuesta);
       } catch (error) {
-        console.error('Error saving:', error);
         throw error;
       }
     }
@@ -281,7 +281,6 @@ export class FichaService {
       fecha_registro: card.dateRegister
     });
     const data = await this.fichaRepository.save(fichaCreate);
-    console.log({ data });
     return data;
   }
 }
