@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm';
@@ -26,8 +27,8 @@ export class FichaEntity {
   @Column()
   fecha_registro: Date;
 
-  @OneToMany(() => TarjetaFamiliarEntity, tarjeta => tarjeta.ficha)
-  tarjetasFamiliares: TarjetaFamiliarEntity[];
+  @OneToOne(() => TarjetaFamiliarEntity, tarjeta => tarjeta.ficha)
+  tarjetasFamiliares: TarjetaFamiliarEntity;
 
   @OneToMany(
     () => PsicosocialPersonaEntity,

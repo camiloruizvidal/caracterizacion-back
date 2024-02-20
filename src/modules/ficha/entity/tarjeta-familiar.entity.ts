@@ -8,6 +8,7 @@ import {
   UpdateDateColumn
 } from 'typeorm';
 import { FichaEntity } from './ficha.entity';
+import { JsonTransformer } from 'src/utils/helpers';
 
 @Entity({ name: 'tarjeta_familiar' })
 export class TarjetaFamiliarEntity {
@@ -38,7 +39,11 @@ export class TarjetaFamiliarEntity {
   @Column({ type: 'integer', nullable: true })
   cuantas_familias_residen_en_esta_vivienda: number;
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({
+    type: 'varchar',
+    nullable: true,
+    transformer: new JsonTransformer()
+  })
   ubicacion_gps: string;
 
   @Column({ type: 'varchar', nullable: true })

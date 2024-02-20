@@ -1,3 +1,4 @@
+import { JsonTransformer } from 'src/utils/helpers';
 import {
   Entity,
   Column,
@@ -9,15 +10,6 @@ export enum IStatus {
   Almacenado = 'almacenado',
   Fallo = 'fallo',
   Guardado = 'guardado'
-}
-class JsonTransformer {
-  to(value: any): string {
-    return JSON.stringify(value);
-  }
-
-  from(value: string): any {
-    return JSON.parse(value);
-  }
 }
 
 @Entity({ name: 'backup' })

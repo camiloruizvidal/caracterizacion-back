@@ -99,4 +99,9 @@ export class FichaController {
   ) {
     return this.fichaService.loadFormsPage(page, pageSize);
   }
+
+  @Get('detalle')
+  public async verFichasDetalle() {
+    return await this.fichaService.loadFormsDetail();
+  }
 }

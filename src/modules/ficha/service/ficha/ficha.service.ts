@@ -1,7 +1,7 @@
 import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MoreThan, Repository } from 'typeorm';
+import { EntityManager, MoreThan, Repository } from 'typeorm';
 import { FichaGrupoEntity } from '../../entity/ficha-grupo.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/ficha-tipo.entity';
@@ -17,6 +17,7 @@ import { ETables } from 'src/utils/global.interface';
 @Injectable()
 export class FichaService {
   constructor(
+    private readonly entityManager: EntityManager,
     @InjectRepository(BackupEntity)
     private readonly backupRepository: Repository<BackupEntity>,
 
@@ -339,5 +340,11 @@ export class FichaService {
     const tarjetaFamiliar = this.tarjetaFamiliarRepository.create(familyCard);
     tarjetaFamiliar.ficha = ficha;
     return await this.tarjetaFamiliarRepository.save(tarjetaFamiliar);
+  }
+
+  public async loadFormsDetail(): Promise<FichaEntity[]> {
+    return await this.fichaRepository.find({
+      relations: ['tarjetasFamiliares', 'psicosocialPersonas.persona']
+    });
   }
 }
