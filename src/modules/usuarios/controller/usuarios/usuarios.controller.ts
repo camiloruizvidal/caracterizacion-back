@@ -39,7 +39,6 @@ export class UsuariosController {
     try {
       return this.usuariosService.createUser(newUser);
     } catch (error) {
-      console.log({ error });
       return error;
     }
   }

@@ -348,7 +348,6 @@ export class FichaService {
     usuarioId: string;
     municipio: string;
   }): Promise<FichaEntity[]> {
-    console.log({ filtros });
     const { fechaInicio, fechaFin, usuarioId, municipio } = filtros;
     const query = this.fichaRepository
       .createQueryBuilder('ficha')
@@ -371,7 +370,6 @@ export class FichaService {
     }
 
     if (usuarioId && usuarioId != '') {
-      console.log({ usuarioId });
       query.andWhere('ficha.usuario_creacion_id = :usuarioId', { usuarioId });
     }
 

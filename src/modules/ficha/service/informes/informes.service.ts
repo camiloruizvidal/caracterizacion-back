@@ -34,7 +34,6 @@ export class InformesService {
             resultadoItem[descripcion.label] = informeItem[key];
           } else {
             resultadoItem[key] = informeItem[key];
-            console.log({ key });
           }
         }
 
@@ -42,7 +41,6 @@ export class InformesService {
       };
       return await this.exportToExcel(informe.map(mapearItem));
     } catch (error) {
-      console.log({ error });
       throw error;
     }
   }

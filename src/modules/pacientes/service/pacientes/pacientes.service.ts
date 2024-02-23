@@ -74,7 +74,6 @@ export class PacientesService {
       })
     );
 
-    console.log({ registrosPacienteEntity });
     for (const pacienteData of registrosPacienteEntity) {
       const existingPaciente = await this.pacienteRepository.findOne({
         where: { documento_numero: pacienteData.documento_numero }
