@@ -85,8 +85,8 @@ export class UsuariosService {
     if (updatedUser.password) {
       updatedUser.password = await this.hashPassword(updatedUser.password);
     }
-
     const mergedUser = this.userRepository.merge(existingUser, updatedUser);
+    console.log({ mergedUser });
     const result = await this.userRepository.save(mergedUser);
     delete result.password;
     return result;

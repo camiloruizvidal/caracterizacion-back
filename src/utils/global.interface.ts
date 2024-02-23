@@ -5,7 +5,7 @@ export interface ISearchPagination {
 
 export interface IPaginationResult {
   data: any;
-  page: number;
+  currentPage: number;
   itemsPerPage: number;
   totalItems: number;
   totalPages: number;

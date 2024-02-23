@@ -34,6 +34,9 @@ export class UserEntity {
   @Column({ name: 'rol_id' })
   rolId: number;
 
+  @Column({ default: false })
+  inactivo: boolean;
+
   @OneToOne(() => UserRolesEntity, userRoles => userRoles.user)
   roles: UserRolesEntity;
 

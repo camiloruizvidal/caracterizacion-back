@@ -29,7 +29,7 @@ export class PacientesService {
 
       return {
         data,
-        page: search.page,
+        currentPage: Number(search.page),
         itemsPerPage: search.perPage,
         totalItems,
         totalPages
