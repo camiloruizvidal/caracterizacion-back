@@ -6,12 +6,15 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Query,
   Res
 } from '@nestjs/common';
 import { InformesService } from '../../service/informes/informes.service';
 import { Response } from 'express';
+import { FichaEntity } from '../../entity/ficha.entity';
+import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -103,5 +106,12 @@ export class FichaController {
   @Get('detalle')
   public async verFichasDetalle() {
     return await this.fichaService.loadFormsDetail();
+  }
+
+  @Get(':id')
+  public async obtenerFichaPorId(
+    @Param('id') id: number
+  ): Promise<{ ficha: FichaEntity; descripcion: FichaDescripcionEntity[] }> {
+    return await this.fichaService.loadFormDetail(id);
   }
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRolesEntity } from './user-roles.entity';
 
 @Entity({ name: 'user' })
@@ -9,7 +9,7 @@ export class UserEntity {
   @Column()
   username: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({ name: 'nombre_primero' })

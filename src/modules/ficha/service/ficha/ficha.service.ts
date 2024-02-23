@@ -344,7 +344,22 @@ export class FichaService {
 
   public async loadFormsDetail(): Promise<FichaEntity[]> {
     return await this.fichaRepository.find({
+      relations: ['tarjetasFamiliares', 'psicosocialPersonas.persona'],
+      order: {
+        codigo: 'DESC',
+        fecha_registro: 'ASC'
+      }
+    });
+  }
+
+  public async loadFormDetail(
+    id: number
+  ): Promise<{ ficha: FichaEntity; descripcion: FichaDescripcionEntity[] }> {
+    const ficha = await this.fichaRepository.findOne({
+      where: { id },
       relations: ['tarjetasFamiliares', 'psicosocialPersonas.persona']
     });
+    const descripcion = await this.fichaDescripcionRepository.find();
+    return { ficha, descripcion };
   }
 }

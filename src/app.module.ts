@@ -3,8 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PacientesModule } from './modules/pacientes/pacientes.module';
 import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { FichaModule } from './modules/ficha/ficha.module';
-import { ServeStaticModule } from '@nestjs/serve-static';
-import { join } from 'path';
+import { DataModule } from './modules/data/data.module';
 import typeOrmConfig from 'config/type-orm-config';
 import * as dotenv from 'dotenv';
 
@@ -16,10 +15,7 @@ dotenv.config();
     PacientesModule,
     UsuariosModule,
     FichaModule,
-
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'public')
-    })
+    DataModule
   ],
   controllers: [],
   providers: []
