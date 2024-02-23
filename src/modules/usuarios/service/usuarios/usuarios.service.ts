@@ -68,6 +68,10 @@ export class UsuariosService {
     return createdUser;
   }
 
+  public async detailUser(idUser: number): Promise<UserEntity> {
+    return await this.userRepository.findOneBy({ id: idUser });
+  }
+
   public async updateUser(
     id: number,
     updatedUser: Partial<UserEntity>

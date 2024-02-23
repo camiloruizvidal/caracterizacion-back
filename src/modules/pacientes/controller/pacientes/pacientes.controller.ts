@@ -2,6 +2,8 @@ import { PacientesService } from './../../service/pacientes/pacientes.service';
 import {
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Post,
   Query,
   UploadedFile,
@@ -22,7 +24,9 @@ export class PacientesController {
         message: 'Archivo Excel subido correctamente',
         data
       };
-    } catch (error) {}
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.BAD_GATEWAY);
+    }
   }
 
   @Get('')

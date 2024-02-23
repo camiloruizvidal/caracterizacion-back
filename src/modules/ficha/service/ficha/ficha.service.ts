@@ -381,7 +381,11 @@ export class FichaService {
   ): Promise<{ ficha: FichaEntity; descripcion: FichaDescripcionEntity[] }> {
     const ficha = await this.fichaRepository.findOne({
       where: { id },
-      relations: ['tarjetasFamiliares', 'psicosocialPersonas.persona']
+      relations: [
+        'tarjetasFamiliares',
+        'psicosocialPersonas.persona',
+        'usuario_creacion'
+      ]
     });
     const descripcion = await this.fichaDescripcionRepository.find();
     return { ficha, descripcion };

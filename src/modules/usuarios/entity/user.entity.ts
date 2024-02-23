@@ -1,5 +1,6 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRolesEntity } from './user-roles.entity';
+import { FichaEntity } from 'src/modules/ficha/entity/ficha.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity {
@@ -35,4 +36,7 @@ export class UserEntity {
 
   @OneToOne(() => UserRolesEntity, userRoles => userRoles.user)
   roles: UserRolesEntity;
+
+  @OneToMany(() => FichaEntity, ficha => ficha.usuario_creacion)
+  fichas: FichaEntity[];
 }

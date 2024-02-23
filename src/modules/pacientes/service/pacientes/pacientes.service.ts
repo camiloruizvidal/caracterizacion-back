@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as XLSX from 'xlsx';
@@ -78,13 +78,19 @@ export class PacientesService {
       const existingPaciente = await this.pacienteRepository.findOne({
         where: { documento_numero: pacienteData.documento_numero }
       });
-
-      if (existingPaciente) {
-        await this.pacienteRepository.update(existingPaciente.id, pacienteData);
-      } else {
-        await this.pacienteRepository.save(
-          this.pacienteRepository.create(pacienteData)
-        );
+      try {
+        if (existingPaciente) {
+          await this.pacienteRepository.update(
+            existingPaciente.id,
+            pacienteData
+          );
+        } else {
+          await this.pacienteRepository.save(
+            this.pacienteRepository.create(pacienteData)
+          );
+        }
+      } catch (error) {
+        throw new BadRequestException(error);
       }
     }
   }

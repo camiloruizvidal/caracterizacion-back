@@ -29,6 +29,11 @@ export class UsuariosController {
     return await this.usuariosService.getRols();
   }
 
+  @Get('/detail/:id')
+  public async detailUser(@Param('id') id: number) {
+    return await this.usuariosService.detailUser(id);
+  }
+
   @Get('/documentoTipo')
   public async documentoTipo() {
     return await this.usuariosService.getDocumentType();

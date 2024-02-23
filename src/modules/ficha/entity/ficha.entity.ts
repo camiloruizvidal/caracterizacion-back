@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +11,7 @@ import {
 } from 'typeorm';
 import { PsicosocialPersonaEntity } from './psicosocial-persona.entity';
 import { TarjetaFamiliarEntity } from './tarjeta-familiar.entity';
+import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 
 @Entity({ name: 'ficha' })
 export class FichaEntity {
@@ -20,6 +23,10 @@ export class FichaEntity {
 
   @Column()
   usuario_creacion_id: number;
+
+  @ManyToOne(() => UserEntity, user => user.fichas)
+  @JoinColumn({ name: 'usuario_creacion_id' })
+  usuario_creacion: UserEntity;
 
   @Column()
   codigo: number;
