@@ -342,14 +342,40 @@ export class FichaService {
     return await this.tarjetaFamiliarRepository.save(tarjetaFamiliar);
   }
 
-  public async loadFormsDetail(): Promise<FichaEntity[]> {
-    return await this.fichaRepository.find({
-      relations: ['tarjetasFamiliares', 'psicosocialPersonas.persona'],
-      order: {
-        codigo: 'DESC',
-        fecha_registro: 'ASC'
-      }
-    });
+  public async loadFormsDetail(filtros: {
+    fechaInicio: string;
+    fechaFin: string;
+    usuarioId: string;
+    municipio: string;
+  }): Promise<FichaEntity[]> {
+    console.log({ filtros });
+    const { fechaInicio, fechaFin, usuarioId, municipio } = filtros;
+    const query = this.fichaRepository
+      .createQueryBuilder('ficha')
+      .leftJoinAndSelect('ficha.tarjetasFamiliares', 'tarjetasFamiliares')
+      .leftJoinAndSelect('ficha.psicosocialPersonas', 'psicosocialPersonas')
+      .leftJoinAndSelect('psicosocialPersonas.persona', 'persona')
+      .orderBy('ficha.codigo', 'DESC')
+      .addOrderBy('ficha.fecha_registro', 'ASC');
+
+    if (fechaInicio && fechaInicio != '') {
+      query.andWhere('date(ficha.fecha_registro) >= date(:fechaInicio)', {
+        fechaInicio
+      });
+    }
+
+    if (fechaFin && fechaFin != '') {
+      query.andWhere('date(ficha.fecha_registro) <= date(:fechaFin)', {
+        fechaFin
+      });
+    }
+
+    if (usuarioId && usuarioId != '') {
+      console.log({ usuarioId });
+      query.andWhere('ficha.usuario_creacion_id = :usuarioId', { usuarioId });
+    }
+
+    return await query.getMany();
   }
 
   public async loadFormDetail(

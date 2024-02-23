@@ -104,8 +104,18 @@ export class FichaController {
   }
 
   @Get('detalle')
-  public async verFichasDetalle() {
-    return await this.fichaService.loadFormsDetail();
+  public async verFichasDetalle(
+    @Query('fechaInicio') fechaInicio: string = '',
+    @Query('fechaFin') fechaFin: string = '',
+    @Query('usuarioId') usuarioId: string = '',
+    @Query('municipio') municipio: string = ''
+  ) {
+    return await this.fichaService.loadFormsDetail({
+      fechaInicio,
+      fechaFin,
+      usuarioId,
+      municipio
+    });
   }
 
   @Get(':id')
