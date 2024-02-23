@@ -48,9 +48,9 @@ export class UsuariosService {
         return userData;
       }),
       totalItems,
-      currentPage: page,
+      currentPage: Number(page),
       totalPages: Math.ceil(totalItems / pageSize),
-      itemsPerPage: pageSize
+      itemsPerPage: Number(pageSize)
     };
   }
 

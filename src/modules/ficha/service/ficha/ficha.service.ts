@@ -147,9 +147,9 @@ export class FichaService {
     return {
       data: dataResponse,
       totalItems,
-      currentPage: page,
+      currentPage: Number(page),
       totalPages: Math.ceil(totalItems / pageSize),
-      itemsPerPage: pageSize
+      itemsPerPage: Number(pageSize)
     };
   }
   private async addUsers(data: any[], users: UserEntity[]) {

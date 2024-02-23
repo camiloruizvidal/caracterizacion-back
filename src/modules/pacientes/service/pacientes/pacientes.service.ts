@@ -30,7 +30,7 @@ export class PacientesService {
       return {
         data,
         currentPage: Number(search.page),
-        itemsPerPage: search.perPage,
+        itemsPerPage: Number(search.perPage),
         totalItems,
         totalPages
       };
