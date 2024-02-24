@@ -12,7 +12,7 @@ import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entit
 import { FichaEntity } from '../../entity/ficha.entity';
 import { TarjetaFamiliarEntity } from '../../entity/tarjeta-familiar.entity';
 import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
-import { ETables } from 'src/utils/global.interface';
+import { ETables, IPagination } from 'src/utils/global.interface';
 
 @Injectable()
 export class FichaService {
@@ -347,8 +347,11 @@ export class FichaService {
     fechaFin: string;
     usuarioId: string;
     municipio: string;
-  }): Promise<FichaEntity[]> {
-    const { fechaInicio, fechaFin, usuarioId, municipio } = filtros;
+    page: number;
+    pageSize: number;
+  }): Promise<IPagination<FichaEntity>> {
+    const { fechaInicio, fechaFin, usuarioId, municipio, page, pageSize } =
+      filtros;
     const query = this.fichaRepository
       .createQueryBuilder('ficha')
       .leftJoinAndSelect('ficha.tarjetasFamiliares', 'tarjetasFamiliares')
@@ -373,7 +376,21 @@ export class FichaService {
       query.andWhere('ficha.usuario_creacion_id = :usuarioId', { usuarioId });
     }
 
-    return await query.getMany();
+    const [items, totalItems] = await query
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getManyAndCount();
+
+    const totalPages = Math.ceil(totalItems / pageSize);
+
+    const paginationInfo: IPagination<FichaEntity> = {
+      data: items,
+      totalItems: Number(totalItems),
+      currentPage: Number(page),
+      totalPages: Number(totalPages),
+      itemsPerPage: Number(pageSize)
+    };
+    return paginationInfo;
   }
 
   public async loadFormDetail(

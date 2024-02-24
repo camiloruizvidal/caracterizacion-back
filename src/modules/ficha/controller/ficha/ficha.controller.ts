@@ -108,13 +108,17 @@ export class FichaController {
     @Query('fechaInicio') fechaInicio: string = '',
     @Query('fechaFin') fechaFin: string = '',
     @Query('usuarioId') usuarioId: string = '',
-    @Query('municipio') municipio: string = ''
+    @Query('municipio') municipio: string = '',
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10
   ) {
     return await this.fichaService.loadFormsDetail({
       fechaInicio,
       fechaFin,
       usuarioId,
-      municipio
+      municipio,
+      page,
+      pageSize
     });
   }
 
