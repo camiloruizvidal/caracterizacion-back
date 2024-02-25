@@ -1,6 +1,8 @@
 import { UserCodesEntity } from '../../entity/user-codes.entity';
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException
@@ -103,23 +105,40 @@ export class UsuariosService {
     username: string,
     password: string
   ): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ where: { username } });
+    try {
+      const user = await this.userRepository.findOne({
+        where: { username, inactivo: false },
+        select: [
+          'password',
+          'username',
+          'password',
+          'nombrePrimero',
+          'nombreSegundo',
+          'apellidoPrimero',
+          'apellidoSegundo',
+          'documento',
+          'rolId'
+        ]
+      });
 
-    if (!user) {
-      throw new UnauthorizedException('User not found');
+      if (!user) {
+        throw new UnauthorizedException('Usurio no inválido.');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Contraseña inválida.');
+      }
+
+      delete user.password;
+      user['codes'] = await this.findAllCodes(user.id);
+      user['currentCode'] = 1;
+
+      return user;
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    delete user.password;
-    user['codes'] = await this.findAllCodes(user.id);
-    user['currentCode'] = 1;
-
-    return user;
   }
 
   async createCodesByUser(

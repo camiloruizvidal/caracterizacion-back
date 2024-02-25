@@ -72,7 +72,7 @@ export class UsuariosController {
       const user = await this.usuariosService.validateUser(username, password);
       return { success: true, user };
     } catch (error) {
-      throw new UnauthorizedException(error.message);
+      throw new UnauthorizedException(error.response);
     }
   }
 }

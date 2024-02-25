@@ -1,4 +1,10 @@
-import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 import { UserRolesEntity } from './user-roles.entity';
 import { FichaEntity } from 'src/modules/ficha/entity/ficha.entity';
 
