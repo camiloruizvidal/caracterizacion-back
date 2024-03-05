@@ -21,7 +21,7 @@ export class UserCodesEntity {
   @Column()
   user_id: number;
 
-  @ManyToOne(() => UserEntity, user => user.id)
+  @ManyToOne(() => UserEntity, user => user.codigos)
   @JoinColumn({ name: 'user_id' })
   user: UserEntity;
 }

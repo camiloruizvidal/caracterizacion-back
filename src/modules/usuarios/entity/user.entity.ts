@@ -7,6 +7,7 @@ import {
 } from 'typeorm';
 import { UserRolesEntity } from './user-roles.entity';
 import { FichaEntity } from 'src/modules/ficha/entity/ficha.entity';
+import { UserCodesEntity } from './user-codes.entity';
 
 @Entity({ name: 'user' })
 export class UserEntity {
@@ -48,4 +49,7 @@ export class UserEntity {
 
   @OneToMany(() => FichaEntity, ficha => ficha.usuario_creacion)
   fichas: FichaEntity[];
+
+  @OneToMany(() => UserCodesEntity, codes => codes.user_id)
+  codigos: UserCodesEntity[];
 }

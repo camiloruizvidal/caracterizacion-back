@@ -71,13 +71,12 @@ export class UsuariosService {
   }
 
   public async detailUser(idUser: number): Promise<UserEntity> {
-    return await this.userRepository.findOneBy({ id: idUser });
+    const user = await this.userRepository.findOneBy({ id: idUser });
+    user['codigos'] = await this.findAllCodes(idUser);
+    return user;
   }
 
-  public async updateUser(
-    id: number,
-    updatedUser: Partial<UserEntity>
-  ): Promise<UserEntity> {
+  public async updateUser(id: number, updatedUser: any): Promise<UserEntity> {
     const existingUser = await this.userRepository.findOne({ where: { id } });
 
     if (!existingUser) {
@@ -87,8 +86,16 @@ export class UsuariosService {
     if (updatedUser.password) {
       updatedUser.password = await this.hashPassword(updatedUser.password);
     }
+    if (updatedUser?.codigoInicial != '' && updatedUser?.codigoFinal != '') {
+      const codes = this.userCodesRepository.create({
+        user_id: id,
+        start: updatedUser.codigoInicial,
+        finish: updatedUser.codigoFinal
+      });
+      this.createCodesByUser(codes);
+    }
+
     const mergedUser = this.userRepository.merge(existingUser, updatedUser);
-    console.log({ mergedUser });
     const result = await this.userRepository.save(mergedUser);
     delete result.password;
     return result;
