@@ -1,3 +1,4 @@
+import { ManejadorErrorService } from './../../../../utils/manejador-error.service';
 import { PacientesService } from './../../service/pacientes/pacientes.service';
 import {
   Controller,
@@ -13,7 +14,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('api/v1/pacientes')
 export class PacientesController {
-  constructor(private pacientesService: PacientesService) {}
+  constructor(
+    private pacientesService: PacientesService,
+    private readonly manejadorErrorService: ManejadorErrorService
+  ) {}
 
   @Post('carga')
   @UseInterceptors(FileInterceptor('pacientes'))
@@ -32,17 +36,16 @@ export class PacientesController {
   @Get('')
   async verPacientes(
     @Query('page') page: number = 1,
-    @Query('perPage') perPage: number = 10
+    @Query('pageSize') pageSize: number = 10
   ) {
+    console.log({ page, pageSize });
     try {
       return await this.pacientesService.paginarPacientes({
-        page,
-        perPage
+        page: Number(page),
+        pageSize: Number(pageSize)
       });
     } catch (error) {
-      return {
-        error: 'Ocurrió un error al obtener los pacientes paginados.'
-      };
+      this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 

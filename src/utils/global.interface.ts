@@ -1,6 +1,6 @@
 export interface ISearchPagination {
   page: number;
-  perPage: number;
+  pageSize: number;
 }
 
 export interface IPaginationResult {

@@ -21,16 +21,16 @@ export class PacientesService {
   ): Promise<IPaginationResult> {
     try {
       const [data, totalItems] = await this.pacienteRepository.findAndCount({
-        take: search.perPage,
-        skip: search.perPage * (search.page - 1)
+        take: search.pageSize,
+        skip: search.pageSize * (search.page - 1)
       });
 
-      const totalPages = Math.ceil(totalItems / search.perPage);
+      const totalPages = Math.ceil(totalItems / search.pageSize);
 
       return {
         data,
         currentPage: Number(search.page),
-        itemsPerPage: Number(search.perPage),
+        itemsPerPage: Number(search.pageSize),
         totalItems,
         totalPages
       };
