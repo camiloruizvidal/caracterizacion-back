@@ -38,7 +38,6 @@ export class PacientesController {
     @Query('page') page: number = 1,
     @Query('pageSize') pageSize: number = 10
   ) {
-    console.log({ page, pageSize });
     try {
       return await this.pacientesService.paginarPacientes({
         page: Number(page),
