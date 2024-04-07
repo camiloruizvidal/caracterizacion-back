@@ -13,6 +13,7 @@ import { FichaEntity } from '../../entity/ficha.entity';
 import { TarjetaFamiliarEntity } from '../../entity/tarjeta-familiar.entity';
 import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables, IPagination } from 'src/utils/global.interface';
+import { FichaJsonEntity } from '../../entity/ficha-json.entity';
 
 @Injectable()
 export class FichaService {
@@ -46,7 +47,10 @@ export class FichaService {
     private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>,
 
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
+    private readonly userRepository: Repository<UserEntity>,
+
+    @InjectRepository(FichaJsonEntity)
+    private readonly fichaJsonEntity: Repository<FichaJsonEntity>
   ) {}
 
   public async getFichaFormat(): Promise<IFichaCard> {
@@ -406,5 +410,28 @@ export class FichaService {
     });
     const descripcion = await this.fichaDescripcionRepository.find();
     return { ficha, descripcion };
+  }
+
+  public async getGroups() {
+    try {
+      return await this.fichaGrupoRepository.find();
+    } catch (error) {
+      console.log({ error });
+    }
+  }
+
+  public async nuevoFormatoFicha(dataFamilyCard: any) {
+    const create = this.fichaJsonEntity.create({
+      isFinish: dataFamilyCard.isFinish,
+      version: dataFamilyCard.version,
+      dateLastVersion: dataFamilyCard.dateLastVersion,
+      familyCard: dataFamilyCard.familyCard,
+      personCard: dataFamilyCard.personCard
+    });
+    return await this.fichaJsonEntity.save(create);
+  }
+
+  public obtenerFichaJson(id: number) {
+    return this.fichaJsonEntity.findOne({ where: { id } });
   }
 }

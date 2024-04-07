@@ -128,4 +128,25 @@ export class FichaController {
   ): Promise<{ ficha: FichaEntity; descripcion: FichaDescripcionEntity[] }> {
     return await this.fichaService.loadFormDetail(id);
   }
+
+  @Get('obtener/grupos')
+  public async obtenerGrupos() {
+    return await this.fichaService.getGroups();
+  }
+
+  @Post('ficha/nueva')
+  public async nuevaFicha(@Body() dataFamilyCard: any) {
+    return {
+      response: await this.fichaService.nuevoFormatoFicha(dataFamilyCard)
+    };
+  }
+
+  @Get('ficha/obtenerJson/:id')
+  public async obtenerFichaJson(@Param('id') id: number) {
+    try {
+      return { data: await this.fichaService.obtenerFichaJson(id) };
+    } catch (error) {
+      return error;
+    }
+  }
 }

@@ -24,7 +24,6 @@ export class PacientesService {
         take: search.pageSize,
         skip: search.pageSize * (search.page - 1)
       });
-
       const totalPages = Math.ceil(totalItems / search.pageSize);
 
       return {
