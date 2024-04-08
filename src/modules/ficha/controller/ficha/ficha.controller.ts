@@ -149,4 +149,11 @@ export class FichaController {
       return error;
     }
   }
+
+  @Post('/ficha/grupo_nuevo')
+  public async nuevoGrupo(@Body() data: any) {
+    return {
+      data: await this.fichaService.nuevoGrupo(data)
+    };
+  }
 }

@@ -434,4 +434,9 @@ export class FichaService {
   public obtenerFichaJson(id: number) {
     return this.fichaJsonEntity.findOne({ where: { id } });
   }
+
+  public async nuevoGrupo(data: any) {
+    const response = this.fichaGrupoRepository.create(data);
+    return await this.fichaGrupoRepository.save(response);
+  }
 }
