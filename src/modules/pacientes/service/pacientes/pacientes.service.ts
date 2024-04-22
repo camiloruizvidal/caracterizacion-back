@@ -27,11 +27,11 @@ export class PacientesService {
       const totalPages = Math.ceil(totalItems / search.pageSize);
 
       return {
-        data,
+        data: [data[0]],
         currentPage: Number(search.page),
         itemsPerPage: Number(search.pageSize),
-        totalItems,
-        totalPages
+        totalItems: 1,
+        totalPages: 1
       };
     } catch (error) {
       throw 'Ocurrió un error al obtener los pacientes paginados.';

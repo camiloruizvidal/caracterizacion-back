@@ -29,7 +29,7 @@ export class FichaController {
       return {
         code: 200,
         msj: 'success',
-        data: await this.fichaService.getFichaFormat()
+        data: await this.fichaService.obtenerFichaJson(2) //getFichaFormat()
       };
     } catch (error) {
       throw new HttpException(

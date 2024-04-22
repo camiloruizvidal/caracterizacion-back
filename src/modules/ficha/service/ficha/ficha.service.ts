@@ -421,18 +421,38 @@ export class FichaService {
   }
 
   public async nuevoFormatoFicha(dataFamilyCard: any) {
-    const create = this.fichaJsonEntity.create({
+    const values = await this.fichaJsonEntity.findOne({
+      where: { id: dataFamilyCard.id }
+    });
+    const dataForm = this.fichaJsonEntity.create({
       isFinish: dataFamilyCard.isFinish,
       version: dataFamilyCard.version,
       dateLastVersion: dataFamilyCard.dateLastVersion,
       familyCard: dataFamilyCard.familyCard,
       personCard: dataFamilyCard.personCard
     });
-    return await this.fichaJsonEntity.save(create);
+    if (values) {
+      return await this.fichaJsonEntity.update(dataFamilyCard.id, dataForm);
+    } else {
+      return await this.fichaJsonEntity.save(dataForm);
+    }
   }
 
-  public obtenerFichaJson(id: number) {
-    return this.fichaJsonEntity.findOne({ where: { id } });
+  public async obtenerFichaJson(id: number) {
+    let values = await this.fichaJsonEntity.findOne({ where: { id } });
+    if (!values) {
+      values = {
+        id: null,
+        isFinish: false,
+        version: null,
+        dateLastVersion: new Date(),
+        familyCard: [],
+        personCard: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    return values;
   }
 
   public async nuevoGrupo(data: any) {
