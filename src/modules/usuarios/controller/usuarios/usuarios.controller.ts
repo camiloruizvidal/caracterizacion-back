@@ -19,9 +19,16 @@ export class UsuariosController {
   @Get('')
   public getUsers(
     @Query('page') page: number,
-    @Query('pageSize') pageSize: number
+    @Query('pageSize') pageSize: number,
+    @Query('rolId') rolId: number,
+    @Query('buscar') buscar: string
   ) {
-    return this.usuariosService.loadUsersPage(page, pageSize);
+    return this.usuariosService.loadUsersPage(
+      page,
+      pageSize,
+      Number(rolId),
+      buscar
+    );
   }
 
   @Get('/roles')

@@ -8,7 +8,7 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { UserEntity } from '../../entity/user.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, Raw, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRolesEntity } from '../../entity/user-roles.entity';
@@ -29,7 +29,9 @@ export class UsuariosService {
 
   public async loadUsersPage(
     page: number = 1,
-    pageSize: number = 10
+    pageSize: number = 10,
+    rolId: number = 0,
+    buscar: string = ''
   ): Promise<{
     data: UserEntity[];
     totalItems: number;
@@ -37,11 +39,32 @@ export class UsuariosService {
     totalPages: number;
     itemsPerPage: number;
   }> {
+    let where = [];
+    if (rolId !== 0) {
+      where.push({ rolId });
+    }
+
+    //if (buscar.trim() !== '') {
+    //  where.push(
+    //    Raw(
+    //      alias =>
+    //        `(LOWER(${alias}.username) LIKE LOWER(:buscar) OR
+    //  LOWER(${alias}.nombrePrimero) LIKE LOWER(:buscar) OR
+    //  LOWER(${alias}.nombreSegundo) LIKE LOWER(:buscar) OR
+    //  LOWER(${alias}.apellidoPrimero) LIKE LOWER(:buscar) OR
+    //  LOWER(${alias}.apellidoSegundo) LIKE LOWER(:buscar) OR
+    //  LOWER(${alias}.documento) LIKE LOWER(:buscar))`,
+    //      { buscar: `%${buscar}%` }
+    //    )
+    //  );
+    //}
+
     const skip = (page - 1) * pageSize;
     const [data, totalItems] = await this.userRepository.findAndCount({
       take: pageSize,
       skip,
-      relations: ['roles', 'codigos']
+      relations: ['roles', 'codigos'],
+      where
     });
 
     return {
