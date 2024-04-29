@@ -41,7 +41,7 @@ export class UsuariosService {
     const [data, totalItems] = await this.userRepository.findAndCount({
       take: pageSize,
       skip,
-      relations: ['roles']
+      relations: ['roles', 'codigos']
     });
 
     return {
@@ -72,8 +72,10 @@ export class UsuariosService {
   }
 
   public async detailUser(idUser: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOneBy({ id: idUser });
-    user['codigos'] = await this.findAllCodes(idUser);
+    const user = await this.userRepository.findOne({
+      where: { id: idUser },
+      relations: ['fichas', 'codigos']
+    });
     return user;
   }
 

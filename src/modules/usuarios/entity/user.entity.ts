@@ -50,8 +50,10 @@ export class UserEntity {
   roles: UserRolesEntity;
 
   @OneToMany(() => FichaEntity, ficha => ficha.usuario_creacion)
+  @JoinColumn({ name: 'id' })
   fichas: FichaEntity[];
 
-  @OneToMany(() => UserCodesEntity, codes => codes.user_id)
+  @OneToMany(() => UserCodesEntity, codes => codes.user)
+  @JoinColumn({ name: 'id' })
   codigos: UserCodesEntity[];
 }
