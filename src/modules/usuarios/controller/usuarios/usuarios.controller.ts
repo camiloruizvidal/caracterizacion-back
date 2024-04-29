@@ -75,4 +75,14 @@ export class UsuariosController {
       throw new UnauthorizedException(error.response);
     }
   }
+
+  @Post('cambiarPass')
+  async cambiarPass(@Body() { id }: { id: number }) {
+    try {
+      await this.usuariosService.cambiarPass(id);
+      return { success: true };
+    } catch (error) {
+      throw new UnauthorizedException(error.response);
+    }
+  }
 }

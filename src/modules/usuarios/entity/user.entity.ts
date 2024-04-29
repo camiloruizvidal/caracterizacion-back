@@ -2,7 +2,8 @@ import {
   Column,
   Entity,
   OneToMany,
-  OneToOne,
+  ManyToOne,
+  JoinColumn,
   PrimaryGeneratedColumn
 } from 'typeorm';
 import { UserRolesEntity } from './user-roles.entity';
@@ -44,7 +45,8 @@ export class UserEntity {
   @Column({ default: false })
   inactivo: boolean;
 
-  @OneToOne(() => UserRolesEntity, userRoles => userRoles.user)
+  @ManyToOne(() => UserRolesEntity, userRole => userRole.id)
+  @JoinColumn({ name: 'rol_id', referencedColumnName: 'id' })
   roles: UserRolesEntity;
 
   @OneToMany(() => FichaEntity, ficha => ficha.usuario_creacion)

@@ -40,7 +40,8 @@ export class UsuariosService {
     const skip = (page - 1) * pageSize;
     const [data, totalItems] = await this.userRepository.findAndCount({
       take: pageSize,
-      skip
+      skip,
+      relations: ['roles']
     });
 
     return {
@@ -108,6 +109,22 @@ export class UsuariosService {
     return hashedPassword;
   }
 
+  public async cambiarPass(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new Error('Usuario no encontrado');
+    }
+
+    const nuevaContrasenna = user.documento;
+    const hashedPassword = await bcrypt.hash(nuevaContrasenna, 10);
+    user.password = hashedPassword;
+
+    await this.userRepository.save(user);
+
+    return user;
+  }
+
   public async validateUser(
     username: string,
     password: string
@@ -135,7 +152,7 @@ export class UsuariosService {
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
-        throw new UnauthorizedException('Contraseña inválida.');
+        throw new UnauthorizedException('Contrasenna inválida.');
       }
 
       delete user.password;
