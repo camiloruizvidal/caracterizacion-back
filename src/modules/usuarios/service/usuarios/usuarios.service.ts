@@ -39,33 +39,32 @@ export class UsuariosService {
     totalPages: number;
     itemsPerPage: number;
   }> {
-    let where = [];
+    const qb = this.userRepository.createQueryBuilder('user');
+    const where = [];
     if (rolId !== 0) {
-      where.push({ rolId });
+      where.push(`rol_id = ${rolId}`);
     }
 
-    //if (buscar.trim() !== '') {
-    //  where.push(
-    //    Raw(
-    //      alias =>
-    //        `(LOWER(${alias}.username) LIKE LOWER(:buscar) OR
-    //  LOWER(${alias}.nombrePrimero) LIKE LOWER(:buscar) OR
-    //  LOWER(${alias}.nombreSegundo) LIKE LOWER(:buscar) OR
-    //  LOWER(${alias}.apellidoPrimero) LIKE LOWER(:buscar) OR
-    //  LOWER(${alias}.apellidoSegundo) LIKE LOWER(:buscar) OR
-    //  LOWER(${alias}.documento) LIKE LOWER(:buscar))`,
-    //      { buscar: `%${buscar}%` }
-    //    )
-    //  );
-    //}
+    if (buscar.trim() !== '') {
+      buscar = buscar.trim().toLowerCase();
+      where.push(
+        `(
+        TRIM(LOWER(user.username)) LIKE LOWER('%${buscar}%') OR
+        TRIM(LOWER(user.nombrePrimero)) LIKE LOWER('%${buscar}%') OR
+        TRIM(LOWER(user.nombreSegundo)) LIKE LOWER('%${buscar}%') OR
+        TRIM(LOWER(user.apellidoPrimero)) LIKE LOWER('%${buscar}%') OR
+        TRIM(LOWER(user.apellidoSegundo)) LIKE LOWER('%${buscar}%') OR
+        TRIM(LOWER(user.documento)) LIKE LOWER('%${buscar}%'))`
+      );
+    }
 
     const skip = (page - 1) * pageSize;
-    const [data, totalItems] = await this.userRepository.findAndCount({
-      take: pageSize,
-      skip,
-      relations: ['roles', 'codigos'],
-      where
-    });
+    const [data, totalItems] = await qb
+      .leftJoinAndSelect('user.roles', 'roles')
+      .where(where.join(' AND '))
+      .skip(skip)
+      .take(pageSize)
+      .getManyAndCount();
 
     return {
       data: data.map(user => {
