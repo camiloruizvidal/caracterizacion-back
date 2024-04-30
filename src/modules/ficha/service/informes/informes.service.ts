@@ -289,7 +289,7 @@ export class InformesService {
   }
 
   private async generarHeader(): Promise<any[]> {
-    let headers: any[] = [];
+    const headers: any[] = [];
     const data = await this.fichaJsonEntityRepository.findOneBy({
       version: '1',
       isFinish: true
@@ -303,16 +303,13 @@ export class InformesService {
 
     const personCard = data.personCard.map(registro => {
       registro.values.forEach(reg => {
-        segundoHeader.push({ value: reg.label, colSpan: 1 });
+        segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
-    //console.log({ data: JSON.stringify(data) });
-
-    headers.push(...familyCard);
-    //headers.push(segundoHeader);
-    //console.log({ headers: JSON.stringify(headers, null, 2) });
+    headers.push([...familyCard, ...personCard]);
+    headers.push([...segundoHeader]);
     return headers;
   }
 
@@ -321,23 +318,25 @@ export class InformesService {
     const worksheet = workbook.addWorksheet('Caracterizacion');
     let currentColumn = 1;
 
-    //for (let index = 0; index < header.length; index++) {
-    const headers = header;
-    console.log({ headers });
+    const headers = header[0];
     headers.forEach(row => {
-      // Añadir fila con el valor correspondiente
       const startColumn = currentColumn;
       const endColumn = startColumn + row.colSpan - 1;
       worksheet.mergeCells(1, startColumn, 1, endColumn);
-
       const cell = worksheet.getCell(1, startColumn);
       cell.value = row.value;
       cell.alignment = { horizontal: 'center' };
 
       currentColumn = endColumn + 1;
     });
-    //}
 
+    [header[1]].forEach(registro => {
+      worksheet.addRow(registro);
+    });
+
+    data.forEach(registro => {
+      worksheet.addRow(registro);
+    });
     return workbook.xlsx.writeBuffer();
   }
 }
