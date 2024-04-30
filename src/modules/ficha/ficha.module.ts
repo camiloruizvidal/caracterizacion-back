@@ -14,6 +14,7 @@ import { TarjetaFamiliarEntity } from './entity/tarjeta-familiar.entity';
 import { InformesService } from './service/informes/informes.service';
 import { PacienteEntity } from '../pacientes/entity/pacientes.entity';
 import { FichaJsonEntity } from './entity/ficha-json.entity';
+import { FichaProcesadaEntity } from './entity/ficha-procesada.entity';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { FichaJsonEntity } from './entity/ficha-json.entity';
       PsicosocialPersonaEntity,
       TarjetaFamiliarEntity,
       PacienteEntity,
-      FichaJsonEntity
+      FichaJsonEntity,
+      FichaProcesadaEntity
     ])
   ],
   providers: [FichaService, InformesService],
