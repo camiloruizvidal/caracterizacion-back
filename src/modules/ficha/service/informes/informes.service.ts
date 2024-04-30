@@ -269,20 +269,26 @@ export class InformesService {
     const resultados = [];
 
     datos.forEach(data => {
+      const registrosAnnadidos = [];
+      registrosAnnadidos.push(data.codigo.toString());
+      registrosAnnadidos.push('Camilo');
+      registrosAnnadidos.push('Ruiz');
+      registrosAnnadidos.push(data.updated_at.toISOString());
+      registrosAnnadidos.push(data.dateRegister.toISOString());
+
       data.familyCard.forEach(element => {
-        const resultado = [];
         element.values.forEach(value => {
-          resultado.push(value.value === null ? '' : value.value);
+          registrosAnnadidos.push(value.value === null ? '-' : value.value);
         });
-        resultados.push(resultado);
       });
+
       data.personCard.forEach(element => {
-        const resultado = [];
         element.forEach(value => {
-          resultado.push(value.value === null ? '' : value.value);
+          registrosAnnadidos.push(value.value === null ? '-' : value.value);
         });
-        resultados.push(resultado);
       });
+
+      resultados.push(registrosAnnadidos);
     });
 
     return resultados;
@@ -297,6 +303,17 @@ export class InformesService {
 
     const segundoHeader: any[] = [];
 
+    const datosIniciales = [
+      { value: 'Codigo', colSpan: 1 },
+      { value: 'Caracterizador', colSpan: 2 },
+      { value: 'Fechas', colSpan: 2 }
+    ];
+
+    segundoHeader.push('Numero');
+    segundoHeader.push('Nombres');
+    segundoHeader.push('apellidos');
+    segundoHeader.push('Fecha de creacion');
+    segundoHeader.push('Fecha de envio');
     const familyCard = data.familyCard.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
@@ -311,7 +328,7 @@ export class InformesService {
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
-    headers.push([...familyCard, ...personCard]);
+    headers.push([...datosIniciales, ...familyCard, ...personCard]);
     headers.push([...segundoHeader]);
     return headers;
   }
