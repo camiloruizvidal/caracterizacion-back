@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as ExcelJS from 'exceljs';
+import { FichaJsonEntity } from '../../entity/ficha-json.entity';
 
 @Injectable()
 export class InformesService {
@@ -12,12 +13,24 @@ export class InformesService {
     @InjectRepository(PsicosocialPersonaEntity)
     private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>,
     @InjectRepository(FichaDescripcionEntity)
-    private readonly fichaDescripcionEntityRepository: Repository<FichaDescripcionEntity>
+    private readonly fichaDescripcionEntityRepository: Repository<FichaDescripcionEntity>,
+    @InjectRepository(FichaJsonEntity)
+    private readonly fichaJsonEntityRepository: Repository<FichaJsonEntity>
   ) {}
 
   public async generarInformes() {
     return await this.verInforme();
   }
+
+  public async verInformeDinamico() {
+    const data = await this.fichaJsonEntityRepository.findOneBy({
+      version: '1',
+      isFinish: true
+    });
+    console.log({ data });
+    return data;
+  }
+
   private async verInforme() {
     try {
       const informe: any[] = await this.findAllForms();
@@ -248,5 +261,39 @@ export class InformesService {
       worksheet.addRow(row);
     });
     return workbook.xlsx.writeBuffer();
+  }
+
+  private async generarExcel(
+    header: { value: string; colSpan: number }[],
+    data: any[]
+  ): Promise<any> {
+    // Crear un nuevo workbook de Excel
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Datos');
+
+    // Agregar el encabezado
+    header.forEach((cell, index) => {
+      worksheet.getCell(1, index + 1).value = cell.value;
+      if (cell.colSpan && cell.colSpan > 1) {
+        worksheet.mergeCells(1, index + 1, 1, index + cell.colSpan);
+      }
+    });
+
+    // Agregar los datos
+    data.forEach((row, rowIndex) => {
+      row.forEach((value, colIndex) => {
+        worksheet.getCell(rowIndex + 2, colIndex + 1).value = value;
+      });
+    });
+
+    // Guardar el archivo
+    workbook.xlsx
+      .writeFile('datos.xlsx')
+      .then(() => {
+        console.log('Archivo guardado correctamente.');
+      })
+      .catch(error => {
+        console.error('Error al guardar el archivo:', error);
+      });
   }
 }
