@@ -230,11 +230,13 @@ export class FichaService {
     });
   }
 
-  private async loadLastCards(versionId: number) {
+  private async loadLastCards(versionId: number = 0) {
     const cards: any[] = await this.backupRepository.find({
       where: { status: IStatus.Almacenado }
     });
-    return cards.filter(card => Number(card.data.version) == versionId);
+    return versionId === 0
+      ? cards
+      : cards.filter(card => Number(card.data.version) == versionId);
   }
 
   private extractDataTable(
@@ -465,7 +467,34 @@ export class FichaService {
   }
 
   public async procesarFicha() {
-    const cards = await this.loadLastCards(1);
+    const cards = await this.loadLastCards();
+
+    try {
+      cards.forEach(async card => {
+        const {
+          version,
+          dateLastVersion,
+          dateRegister,
+          code: codigo
+        } = card.data;
+        const { familyCard, personCard } = card.data.data;
+
+        await this.fichaProcesadaEntity.save({
+          usuarioCreacionId: 1,
+          version,
+          dateLastVersion,
+          dateRegister,
+          codigo,
+          familyCard,
+          personCard
+        });
+        await this.backupRepository.update(card.id, {
+          status: IStatus.Guardado
+        });
+      });
+    } catch (error) {
+      throw error;
+    }
     return cards;
   }
 }

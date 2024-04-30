@@ -59,23 +59,6 @@ export class FichaController {
   @Get('procesarTodas')
   public async procesarTodaslasFichasSubidas() {}
 
-  @Get('procesar')
-  public async procesarFichasSubidasConUltimaVersion() {
-    try {
-      const data =
-        await this.fichaService.procesarFichasSubidasConUltimaVersion();
-      return {
-        status: 200,
-        msj:
-          'Solo se procesan las fichas que tengan la última version: ' +
-          data.id.toString(),
-        data
-      };
-    } catch (error) {
-      throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
-    }
-  }
-
   @Get('informecompleto')
   public async generarInformes(@Res() res: Response) {
     try {
@@ -157,10 +140,11 @@ export class FichaController {
     };
   }
 
-  @Post('/procesarFicha')
+  @Post('/procesar')
   public async procesarFichaDinamica() {
+    await this.fichaService.procesarFicha();
     return {
-      data: await this.fichaService.procesarFicha()
+      data: 'success'
     };
   }
 }

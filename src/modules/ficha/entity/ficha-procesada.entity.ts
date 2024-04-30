@@ -14,17 +14,26 @@ export class FichaProcesadaEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ name: 'usuario_creacion_id' })
+  usuarioCreacionId: number;
+
   @Column()
   version: number;
 
   @Column()
-  usuario_creacion_id: number;
+  dateLastVersion: Date;
+
+  @Column()
+  dateRegister: Date;
 
   @Column()
   codigo: number;
 
   @Column({ type: 'json' })
-  registro: any;
+  familyCard: any;
+
+  @Column({ type: 'json' })
+  personCard: any;
 
   @CreateDateColumn({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
