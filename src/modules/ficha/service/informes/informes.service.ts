@@ -298,6 +298,9 @@ export class InformesService {
     const segundoHeader: any[] = [];
 
     const familyCard = data.familyCard.map(registro => {
+      registro.values.forEach(reg => {
+        segundoHeader.push(reg.label);
+      });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
