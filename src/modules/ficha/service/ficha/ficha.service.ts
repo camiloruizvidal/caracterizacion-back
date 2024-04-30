@@ -14,6 +14,7 @@ import { TarjetaFamiliarEntity } from '../../entity/tarjeta-familiar.entity';
 import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables, IPagination } from 'src/utils/global.interface';
 import { FichaJsonEntity } from '../../entity/ficha-json.entity';
+import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
 
 @Injectable()
 export class FichaService {
@@ -50,7 +51,10 @@ export class FichaService {
     private readonly userRepository: Repository<UserEntity>,
 
     @InjectRepository(FichaJsonEntity)
-    private readonly fichaJsonEntity: Repository<FichaJsonEntity>
+    private readonly fichaJsonEntity: Repository<FichaJsonEntity>,
+
+    @InjectRepository(FichaProcesadaEntity)
+    private readonly fichaProcesadaEntity: Repository<FichaProcesadaEntity>
   ) {}
 
   public async getFichaFormat(): Promise<IFichaCard> {
@@ -458,5 +462,10 @@ export class FichaService {
   public async nuevoGrupo(data: any) {
     const response = this.fichaGrupoRepository.create(data);
     return await this.fichaGrupoRepository.save(response);
+  }
+
+  public async procesarFicha() {
+    const cards = await this.loadLastCards(1);
+    return cards;
   }
 }

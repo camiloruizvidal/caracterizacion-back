@@ -156,4 +156,11 @@ export class FichaController {
       data: await this.fichaService.nuevoGrupo(data)
     };
   }
+
+  @Post('/procesarFicha')
+  public async procesarFichaDinamica() {
+    return {
+      data: await this.fichaService.procesarFicha()
+    };
+  }
 }
