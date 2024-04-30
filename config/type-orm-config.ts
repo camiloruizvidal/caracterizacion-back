@@ -12,7 +12,7 @@ const typeOrmConfig: TypeOrmModuleOptions = {
   port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
   synchronize: JSON.parse(process.env.DEVELOP || 'false'),
   entities: ['dist/**/*.entity{.ts,.js}'],
-  logging: true
+  logging: false
 };
 
 export default typeOrmConfig;

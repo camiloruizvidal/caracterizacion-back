@@ -60,20 +60,20 @@ export class FichaController {
   public async procesarTodaslasFichasSubidas() {}
 
   @Get('informecompleto')
-  public async generarInformes(/*@Res() res: Response*/) {
+  public async generarInformes(@Res() res: Response) {
     try {
       const informe = await this.informesService.verInformeDinamico();
-      /*res.setHeader(
+      res.setHeader(
         'Content-Type',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
       );
       res.setHeader(
         'Content-Disposition',
         'attachment; filename=exported-data.xlsx'
-      );*/
-      return { data: informe };
+      );
+      //return { data: informe };
 
-      //res.send(informe);
+      res.send(informe);
     } catch (error) {
       console.error(error);
       throw new HttpException(

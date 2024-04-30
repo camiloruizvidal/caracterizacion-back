@@ -112,3 +112,8 @@ export interface IOptionsSelectFilterRelaciones {
   origen: string;
   destino: string;
 }
+
+export interface IHeaderExcel {
+  value: string;
+  colSpan: number;
+}

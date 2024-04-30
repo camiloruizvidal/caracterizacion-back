@@ -5,6 +5,8 @@ import { EntityManager, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as ExcelJS from 'exceljs';
 import { FichaJsonEntity } from '../../entity/ficha-json.entity';
+import { IHeaderExcel } from '../../interface/ficha.interface';
+import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
 
 @Injectable()
 export class InformesService {
@@ -15,20 +17,13 @@ export class InformesService {
     @InjectRepository(FichaDescripcionEntity)
     private readonly fichaDescripcionEntityRepository: Repository<FichaDescripcionEntity>,
     @InjectRepository(FichaJsonEntity)
-    private readonly fichaJsonEntityRepository: Repository<FichaJsonEntity>
+    private readonly fichaJsonEntityRepository: Repository<FichaJsonEntity>,
+    @InjectRepository(FichaProcesadaEntity)
+    private readonly fichaProcesadaEntityRepository: Repository<FichaProcesadaEntity>
   ) {}
 
   public async generarInformes() {
     return await this.verInforme();
-  }
-
-  public async verInformeDinamico() {
-    const data = await this.fichaJsonEntityRepository.findOneBy({
-      version: '1',
-      isFinish: true
-    });
-    console.log({ data });
-    return data;
   }
 
   private async verInforme() {
@@ -263,37 +258,86 @@ export class InformesService {
     return workbook.xlsx.writeBuffer();
   }
 
-  private async generarExcel(
-    header: { value: string; colSpan: number }[],
-    data: any[]
-  ): Promise<any> {
-    // Crear un nuevo workbook de Excel
+  public async verInformeDinamico() {
+    const header: any[] = await this.generarHeader();
+    const data = await this.generarData();
+    return this.generarExcel(header, data);
+  }
+
+  private async generarData() {
+    const datos = await this.fichaProcesadaEntityRepository.find();
+    const resultados = [];
+
+    datos.forEach(data => {
+      data.familyCard.forEach(element => {
+        const resultado = [];
+        element.values.forEach(value => {
+          resultado.push(value.value === null ? '' : value.value);
+        });
+        resultados.push(resultado);
+      });
+      data.personCard.forEach(element => {
+        const resultado = [];
+        element.forEach(value => {
+          resultado.push(value.value === null ? '' : value.value);
+        });
+        resultados.push(resultado);
+      });
+    });
+
+    return resultados;
+  }
+
+  private async generarHeader(): Promise<any[]> {
+    let headers: any[] = [];
+    const data = await this.fichaJsonEntityRepository.findOneBy({
+      version: '1',
+      isFinish: true
+    });
+
+    const segundoHeader: any[] = [];
+
+    const familyCard = data.familyCard.map(registro => {
+      return { value: registro.title, colSpan: registro.values.length };
+    }) as IHeaderExcel[];
+
+    const personCard = data.personCard.map(registro => {
+      registro.values.forEach(reg => {
+        segundoHeader.push({ value: reg.label, colSpan: 1 });
+      });
+      return { value: registro.title, colSpan: registro.values.length };
+    }) as IHeaderExcel[];
+
+    //console.log({ data: JSON.stringify(data) });
+
+    headers.push(...familyCard);
+    //headers.push(segundoHeader);
+    //console.log({ headers: JSON.stringify(headers, null, 2) });
+    return headers;
+  }
+
+  private async generarExcel(header: any[], data: any[]): Promise<any> {
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Datos');
+    const worksheet = workbook.addWorksheet('Caracterizacion');
+    let currentColumn = 1;
 
-    // Agregar el encabezado
-    header.forEach((cell, index) => {
-      worksheet.getCell(1, index + 1).value = cell.value;
-      if (cell.colSpan && cell.colSpan > 1) {
-        worksheet.mergeCells(1, index + 1, 1, index + cell.colSpan);
-      }
+    //for (let index = 0; index < header.length; index++) {
+    const headers = header;
+    console.log({ headers });
+    headers.forEach(row => {
+      // Añadir fila con el valor correspondiente
+      const startColumn = currentColumn;
+      const endColumn = startColumn + row.colSpan - 1;
+      worksheet.mergeCells(1, startColumn, 1, endColumn);
+
+      const cell = worksheet.getCell(1, startColumn);
+      cell.value = row.value;
+      cell.alignment = { horizontal: 'center' };
+
+      currentColumn = endColumn + 1;
     });
+    //}
 
-    // Agregar los datos
-    data.forEach((row, rowIndex) => {
-      row.forEach((value, colIndex) => {
-        worksheet.getCell(rowIndex + 2, colIndex + 1).value = value;
-      });
-    });
-
-    // Guardar el archivo
-    workbook.xlsx
-      .writeFile('datos.xlsx')
-      .then(() => {
-        console.log('Archivo guardado correctamente.');
-      })
-      .catch(error => {
-        console.error('Error al guardar el archivo:', error);
-      });
+    return workbook.xlsx.writeBuffer();
   }
 }
