@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 export class Config {
   public static readonly DIALECT = process.env.DATABASE_TYPE;
   public static readonly DB_HOST = process.env.DATABASE_HOST;
