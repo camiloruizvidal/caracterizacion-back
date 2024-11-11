@@ -6,6 +6,9 @@
   "singleQuote": true,
   "trailingComma": "none",
   "bracketSpacing": true,
-  "jsxBracketSameLine": false,
-  "arrowParens": "avoid"
+  "arrowParens": "avoid",
+  "endOfLine": "auto",
+  "rules": {
+    "linebreak-style": ["error", "unix"]
+  }
 }
