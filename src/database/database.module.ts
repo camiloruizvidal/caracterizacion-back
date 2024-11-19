@@ -1,8 +1,23 @@
+import { TarjetaFamiliar } from './../modules/ficha/model/tarjeta-familiar.model';
+import { Ficha } from './../modules/ficha/model/ficha.model';
 import { Config } from 'src/Config/Config';
 import { Sequelize } from 'sequelize-typescript';
 import { Module } from '@nestjs/common';
+import { User } from 'src/modules/usuarios/model/user.model';
+import { UserRoles } from 'src/modules/usuarios/model/user-roles.model';
+import { PsicosocialPersona } from 'src/modules/ficha/model/psicosocial-persona.model';
+import { Paciente } from 'src/modules/pacientes/model/paciente.model';
+import { UserCodes } from 'src/modules/usuarios/model/user-codes.model';
 
-const models = [];
+const models = [
+  PsicosocialPersona,
+  Paciente,
+  UserCodes,
+  TarjetaFamiliar,
+  Ficha,
+  UserRoles,
+  User
+];
 
 const databaseProvider = {
   provide: 'SEQUELIZE_SICP',

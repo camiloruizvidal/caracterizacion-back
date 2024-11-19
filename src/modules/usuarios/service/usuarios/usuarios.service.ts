@@ -13,6 +13,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRolesEntity } from '../../entity/user-roles.entity';
 import { DocumentTypeEntity } from 'src/utils/entity/documento-tipo.entity';
+import { UsuarioRepository } from '../../repository/usuario.repository';
 
 @Injectable()
 export class UsuariosService {
@@ -149,26 +150,12 @@ export class UsuariosService {
     return user;
   }
 
-  public async validateUser(
-    username: string,
+  public async validarUsuario(
+    usuario: string,
     password: string
   ): Promise<UserEntity> {
     try {
-      const user = await this.userRepository.findOne({
-        where: { username, inactivo: false },
-        select: [
-          'password',
-          'username',
-          'password',
-          'nombrePrimero',
-          'nombreSegundo',
-          'apellidoPrimero',
-          'apellidoSegundo',
-          'documento',
-          'rolId'
-        ]
-      });
-
+      const user = await UsuarioRepository.buscarUsuarioConCodigos(usuario);
       if (!user) {
         throw new UnauthorizedException('Usurio no inválido.');
       }
@@ -180,7 +167,6 @@ export class UsuariosService {
       }
 
       delete user.password;
-      user['codes'] = await this.findAllCodes(user.id);
       user['currentCode'] = 1;
 
       return user;

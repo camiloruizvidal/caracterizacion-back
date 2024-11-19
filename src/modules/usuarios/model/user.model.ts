@@ -96,5 +96,5 @@ export class User extends Model {
   fichas: Ficha[];
 
   @HasMany(() => UserCodes)
-  codigos: UserCodes[];
+  codes: UserCodes[];
 }

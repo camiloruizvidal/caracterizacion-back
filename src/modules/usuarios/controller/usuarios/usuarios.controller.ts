@@ -76,7 +76,10 @@ export class UsuariosController {
     @Body() { username, password }: { username: string; password: string }
   ) {
     try {
-      const user = await this.usuariosService.validateUser(username, password);
+      const user = await this.usuariosService.validarUsuario(
+        username,
+        password
+      );
       return { success: true, user };
     } catch (error) {
       throw new UnauthorizedException(error.response);
