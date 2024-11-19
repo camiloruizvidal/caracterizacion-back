@@ -8,6 +8,7 @@ import {
   BelongsTo
 } from 'sequelize-typescript';
 import { Ficha } from './ficha.model';
+import { Paciente } from 'src/modules/pacientes/model/paciente.model';
 
 @Table({ tableName: 'psicosocial_persona' })
 export class PsicosocialPersona extends Model {
@@ -54,8 +55,6 @@ export class PsicosocialPersona extends Model {
 
   @Column({ type: DataType.STRING, field: 'deseos_volver', allowNull: true })
   deseosVolver: string;
-
-  // Continúa con los campos adicionales aquí...
 
   @ForeignKey(() => Ficha)
   @Column({ type: DataType.INTEGER, field: 'ficha_id' })

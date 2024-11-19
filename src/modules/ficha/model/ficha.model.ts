@@ -11,6 +11,7 @@ import {
 } from 'sequelize-typescript';
 import { PsicosocialPersona } from './psicosocial-persona.model';
 import { TarjetaFamiliar } from './tarjeta-familiar.model';
+import { User } from 'src/modules/usuarios/model/user.model';
 
 @Table({ tableName: 'ficha' })
 export class Ficha extends Model<Ficha> {

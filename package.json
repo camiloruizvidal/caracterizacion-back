@@ -8,8 +8,8 @@
   "scripts": {
     "build": "nest build",
     "build:config": "tsc sequelize.config.ts",
-    "db:migrate": "npm run build:config && npx sequelize-cli db:migrate --config ./sequelize.config.js",
-    "db:migrate:undo": "npm run build:config && npx sequelize-cli db:migrate:undo --config ./sequelize.config.js",
+    "db:migrate": "npm run build:config && npx sequelize-cli db:migrate --config sequelize.config.js --env \"development\"",
+    "db:migrate:undo": "npm run build:config && npx sequelize-cli db:migrate:undo --config sequelize.config.js",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
