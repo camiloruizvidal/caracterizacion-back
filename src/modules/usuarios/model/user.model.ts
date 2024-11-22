@@ -11,7 +11,7 @@ import { Ficha } from './../../ficha/model/ficha.model';
 import { UserRoles } from './user-roles.model';
 import { UserCodes } from './user-codes.model';
 
-@Table({ tableName: 'user' })
+@Table({ tableName: 'user', timestamps: false })
 export class User extends Model {
   @Column({
     type: DataType.INTEGER,

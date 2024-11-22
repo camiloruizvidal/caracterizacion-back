@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { UserRolesEntity } from '../../entity/user-roles.entity';
 import { DocumentTypeEntity } from 'src/utils/entity/documento-tipo.entity';
 import { UsuarioRepository } from '../../repository/usuario.repository';
+import { RolesRepository } from '../../repository/roles.repository';
 
 @Injectable()
 export class UsuariosService {
@@ -28,18 +29,12 @@ export class UsuariosService {
     private readonly documentTypeRepository: Repository<DocumentTypeEntity>
   ) {}
 
-  public async loadUsersPage(
+  public async cargarUsuariosPaginados(
     page: number = 1,
     pageSize: number = 10,
     rolId: number = 0,
     buscar: string = ''
-  ): Promise<{
-    data: UserEntity[];
-    totalItems: number;
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-  }> {
+  ) {
     const qb = this.userRepository.createQueryBuilder('user');
     const where = [];
     if (rolId !== 0) {
@@ -67,6 +62,15 @@ export class UsuariosService {
       .take(pageSize)
       .getManyAndCount();
 
+    const usuarios = await UsuarioRepository.buscarUsuariosPaginados(
+      page,
+      pageSize,
+      rolId,
+      buscar
+    );
+
+    console.log({ usuarios });
+    return usuarios;
     return {
       data: data.map(user => {
         const userData = user;
@@ -81,7 +85,7 @@ export class UsuariosService {
   }
 
   public async getRols() {
-    return await this.userRolesRepository.find();
+    return await RolesRepository.verRoles();
   }
 
   public async getDocumentType() {
