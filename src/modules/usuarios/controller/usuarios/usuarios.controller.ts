@@ -1,6 +1,6 @@
 import { UserEntity } from '../../entity/user.entity';
 import { UsuariosService } from './../../service/usuarios/usuarios.service';
-import { plainToClass, plainToInstance } from 'class-transformer';
+import { plainToInstance } from 'class-transformer';
 import {
   Body,
   Controller,
@@ -13,24 +13,30 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { RolesDto } from '../../dto/roles.dto';
+import { UsuariosPaginadosDto } from '../../dto/usuarios-paginados.dto';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
   constructor(private usuariosService: UsuariosService) {}
 
   @Get('')
-  public getUsers(
+  public async getUsers(
     @Query('page') page: number,
     @Query('pageSize') pageSize: number,
     @Query('rolId') rolId: number,
     @Query('buscar') buscar: string
   ) {
-    return this.usuariosService.cargarUsuariosPaginados(
-      page,
-      pageSize,
-      Number(rolId),
-      buscar
-    );
+    try {
+      const usuarios = await this.usuariosService.cargarUsuariosPaginados(
+        page,
+        pageSize,
+        Number(rolId),
+        buscar
+      );
+      return plainToInstance(UsuariosPaginadosDto, usuarios);
+    } catch (error) {
+      return error;
+    }
   }
 
   @Get('/roles')

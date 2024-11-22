@@ -35,53 +35,18 @@ export class UsuariosService {
     rolId: number = 0,
     buscar: string = ''
   ) {
-    const qb = this.userRepository.createQueryBuilder('user');
-    const where = [];
-    if (rolId !== 0) {
-      where.push(`rol_id = ${rolId}`);
-    }
-
-    if (buscar.trim() !== '') {
-      buscar = buscar.trim().toLowerCase();
-      where.push(
-        `(
-        TRIM(LOWER(user.username)) LIKE LOWER('%${buscar}%') OR
-        TRIM(LOWER(user.nombrePrimero)) LIKE LOWER('%${buscar}%') OR
-        TRIM(LOWER(user.nombreSegundo)) LIKE LOWER('%${buscar}%') OR
-        TRIM(LOWER(user.apellidoPrimero)) LIKE LOWER('%${buscar}%') OR
-        TRIM(LOWER(user.apellidoSegundo)) LIKE LOWER('%${buscar}%') OR
-        TRIM(LOWER(user.documento)) LIKE LOWER('%${buscar}%'))`
-      );
-    }
-
-    const skip = (page - 1) * pageSize;
-    const [data, totalItems] = await qb
-      .leftJoinAndSelect('user.roles', 'roles')
-      .where(where.join(' AND '))
-      .skip(skip)
-      .take(pageSize)
-      .getManyAndCount();
-
     const usuarios = await UsuarioRepository.buscarUsuariosPaginados(
       page,
       pageSize,
       rolId,
       buscar
     );
+    usuarios.rows = usuarios.rows.map(usuario => usuario.dataValues);
+    usuarios['currentPage'] = Number(page);
+    usuarios['totalPages'] = Math.ceil(usuarios.count / pageSize);
+    usuarios['itemsPerPage'] = Number(pageSize);
 
-    console.log({ usuarios });
     return usuarios;
-    return {
-      data: data.map(user => {
-        const userData = user;
-        delete userData.password;
-        return userData;
-      }),
-      totalItems,
-      currentPage: Number(page),
-      totalPages: Math.ceil(totalItems / pageSize),
-      itemsPerPage: Number(pageSize)
-    };
   }
 
   public async getRols() {

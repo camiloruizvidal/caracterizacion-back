@@ -5,7 +5,7 @@ export class RolesDto {
   id: number;
 
   @Expose({ name: 'type' })
-  role_type: string;
+  type: string;
 
   @Expose({ name: 'createdAt' })
   created_at: Date;

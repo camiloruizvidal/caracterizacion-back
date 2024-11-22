@@ -109,6 +109,18 @@ export class UsuarioRepository {
 
     return await User.findAndCountAll({
       where,
+      attributes: [
+        'id',
+        'username',
+        'nombrePrimero',
+        'nombreSegundo',
+        'apellidoPrimero',
+        'apellidoSegundo',
+        'documento',
+        'documentoTipoId',
+        'rolId',
+        'inactivo'
+      ],
       include: [{ model: UserRoles }]
     });
   }
