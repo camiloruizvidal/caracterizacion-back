@@ -1,6 +1,7 @@
 import { UserCodesEntity } from '../../entity/user-codes.entity';
 import {
   BadRequestException,
+  ConflictException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -16,6 +17,7 @@ import { DocumentTypeEntity } from 'src/utils/entity/documento-tipo.entity';
 import { UsuarioRepository } from '../../repository/usuario.repository';
 import { RolesRepository } from '../../repository/roles.repository';
 import { DocumentoTipoRepository } from '../../repository/documento-tipo.repository';
+import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -57,10 +59,12 @@ export class UsuariosService {
     return await DocumentoTipoRepository.cargarDocumentosTipos();
   }
 
-  public async createUser(newUser: UserEntity): Promise<UserEntity> {
-    newUser.password = await this.hashPassword(newUser.password);
-    const createdUser = await this.userRepository.save(newUser);
-    return createdUser;
+  public async createUser(usuarioNuevo: UsuarioCrearDto): Promise<any> {
+    if (usuarioNuevo.password !== usuarioNuevo.passwordRepeat) {
+      throw new ConflictException(`Las contraseñas no coinciden`);
+    }
+    usuarioNuevo.password = await this.hashPassword(usuarioNuevo.password);
+    return await UsuarioRepository.crearUsuario(usuarioNuevo);
   }
 
   public async detailUser(idUser: number): Promise<UserEntity> {

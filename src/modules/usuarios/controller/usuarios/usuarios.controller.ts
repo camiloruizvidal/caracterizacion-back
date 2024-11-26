@@ -14,6 +14,7 @@ import {
 } from '@nestjs/common';
 import { RolesDto } from '../../dto/roles.dto';
 import { UsuariosPaginadosDto } from '../../dto/usuarios-paginados.dto';
+import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
@@ -61,7 +62,7 @@ export class UsuariosController {
   }
 
   @Post('')
-  public createUser(@Body() newUser: UserEntity) {
+  public createUser(@Body() newUser: UsuarioCrearDto) {
     try {
       return this.usuariosService.createUser(newUser);
     } catch (error) {

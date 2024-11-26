@@ -123,4 +123,17 @@ export class UsuarioRepository {
     });
     return Transformadores.extraerDataValues(usuarios);
   }
+
+  public static async crearUsuario(usuario: {
+    username: string;
+    password: string;
+    nombrePrimero: string;
+    nombreSegundo?: string;
+    apellidoPrimero: string;
+    apellidoSegundo?: string;
+    documento: string;
+    documentoTipoId: string;
+    rolId: string;
+    inactivo: boolean;
+  }) {}
 }
