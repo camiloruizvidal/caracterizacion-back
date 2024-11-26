@@ -1,3 +1,4 @@
+import { Transformadores } from './../../../utils/helpers';
 import sequelize, { Op } from 'sequelize';
 import { UserCodes } from '../model/user-codes.model';
 import { UserRoles } from '../model/user-roles.model';
@@ -107,21 +108,19 @@ export class UsuarioRepository {
       where['rolId'] = rolId;
     }
 
-    return await User.findAndCountAll({
+    const usuarios = await User.findAndCountAll({
       where,
       attributes: [
         'id',
-        'username',
         'nombrePrimero',
         'nombreSegundo',
         'apellidoPrimero',
         'apellidoSegundo',
         'documento',
-        'documentoTipoId',
-        'rolId',
         'inactivo'
       ],
-      include: [{ model: UserRoles }]
+      include: [{ model: UserRoles, attributes: ['id', 'type'] }]
     });
+    return Transformadores.extraerDataValues(usuarios);
   }
 }

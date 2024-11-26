@@ -8,13 +8,14 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { UserEntity } from '../../entity/user.entity';
-import { Between, Raw, Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserRolesEntity } from '../../entity/user-roles.entity';
 import { DocumentTypeEntity } from 'src/utils/entity/documento-tipo.entity';
 import { UsuarioRepository } from '../../repository/usuario.repository';
 import { RolesRepository } from '../../repository/roles.repository';
+import { DocumentoTipoRepository } from '../../repository/documento-tipo.repository';
 
 @Injectable()
 export class UsuariosService {
@@ -41,7 +42,6 @@ export class UsuariosService {
       rolId,
       buscar
     );
-    usuarios.rows = usuarios.rows.map(usuario => usuario.dataValues);
     usuarios['currentPage'] = Number(page);
     usuarios['totalPages'] = Math.ceil(usuarios.count / pageSize);
     usuarios['itemsPerPage'] = Number(pageSize);
@@ -54,7 +54,7 @@ export class UsuariosService {
   }
 
   public async getDocumentType() {
-    return await this.documentTypeRepository.find();
+    return await DocumentoTipoRepository.cargarDocumentosTipos();
   }
 
   public async createUser(newUser: UserEntity): Promise<UserEntity> {

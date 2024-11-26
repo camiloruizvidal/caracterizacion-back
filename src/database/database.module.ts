@@ -1,3 +1,4 @@
+import { DocumentoTipo } from './../modules/usuarios/model/documento-tipo.model';
 import { TarjetaFamiliar } from './../modules/ficha/model/tarjeta-familiar.model';
 import { Ficha } from './../modules/ficha/model/ficha.model';
 import { Config } from 'src/Config/Config';
@@ -14,6 +15,7 @@ const models = [
   Paciente,
   UserCodes,
   TarjetaFamiliar,
+  DocumentoTipo,
   Ficha,
   UserRoles,
   User
