@@ -63,6 +63,27 @@ export class UsuariosService {
     if (usuarioNuevo.password !== usuarioNuevo.passwordRepeat) {
       throw new ConflictException(`Las contraseñas no coinciden`);
     }
+
+    const usuarioPorDocumento = await UsuarioRepository.buscarPorDocumento(
+      usuarioNuevo.documento
+    );
+
+    if (usuarioPorDocumento) {
+      throw new ConflictException(
+        `El documento ${usuarioNuevo.documento} ya está registrado`
+      );
+    }
+
+    const usuarioPorUsername = await UsuarioRepository.buscarPorUsername(
+      usuarioNuevo.username
+    );
+
+    if (usuarioPorUsername) {
+      throw new ConflictException(
+        `El nombre de usuario ${usuarioNuevo.username} ya está registrado`
+      );
+    }
+
     usuarioNuevo.password = await this.hashPassword(usuarioNuevo.password);
     return await UsuarioRepository.crearUsuario(usuarioNuevo);
   }

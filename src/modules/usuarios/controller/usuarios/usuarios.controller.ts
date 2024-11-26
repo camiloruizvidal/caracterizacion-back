@@ -15,6 +15,7 @@ import {
 import { RolesDto } from '../../dto/roles.dto';
 import { UsuariosPaginadosDto } from '../../dto/usuarios-paginados.dto';
 import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
+import { UsuarioResponseDto } from '../../dto/usuario-response.dto';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
@@ -62,9 +63,10 @@ export class UsuariosController {
   }
 
   @Post('')
-  public createUser(@Body() newUser: UsuarioCrearDto) {
+  public async createUser(@Body() newUser: UsuarioCrearDto) {
     try {
-      return this.usuariosService.createUser(newUser);
+      const usuario = await this.usuariosService.createUser(newUser);
+      return plainToInstance(UsuarioResponseDto, usuario);
     } catch (error) {
       return error;
     }

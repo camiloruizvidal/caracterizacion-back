@@ -135,5 +135,38 @@ export class UsuarioRepository {
     documentoTipoId: string;
     rolId: string;
     inactivo: boolean;
-  }) {}
+  }) {
+    return Transformadores.extraerDataValues(
+      await User.create({
+        username: usuario.username,
+        password: usuario.password,
+        nombrePrimero: usuario.nombrePrimero,
+        nombreSegundo: usuario.nombreSegundo || null,
+        apellidoPrimero: usuario.apellidoPrimero,
+        apellidoSegundo: usuario.apellidoSegundo || null,
+        documento: usuario.documento,
+        documentoTipoId: Number(usuario.documentoTipoId),
+        rolId: Number(usuario.rolId),
+        inactivo: usuario.inactivo
+      })
+    );
+  }
+
+  public static async buscarPorDocumento(documento: string): Promise<any> {
+    return Transformadores.extraerDataValues(
+      await User.findOne({
+        where: { documento },
+        attributes: ['id']
+      })
+    );
+  }
+
+  public static async buscarPorUsername(username: string): Promise<any> {
+    return Transformadores.extraerDataValues(
+      await User.findOne({
+        where: { username },
+        attributes: ['id']
+      })
+    );
+  }
 }
