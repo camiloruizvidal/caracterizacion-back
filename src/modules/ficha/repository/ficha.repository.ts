@@ -80,4 +80,20 @@ export class FichaRepository {
       itemsPerPage: pageSize
     };
   }
+
+  public static async crearFicha(
+    userId: number,
+    version: number,
+    code: number,
+    dateRegister: Date
+  ): Promise<Ficha> {
+    const fichaCreada = await Ficha.create({
+      usuarioCreacionId: userId,
+      version: version,
+      codigo: code,
+      fechaRegistro: dateRegister
+    });
+
+    return Transformadores.extraerDataValues(fichaCreada);
+  }
 }

@@ -1,3 +1,4 @@
+import { FichaRepository } from './../../repository/ficha.repository';
 import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -333,15 +334,13 @@ export class FichaService {
     }
   }
 
-  private async guardarFicha(card: IFamilyCardSave): Promise<FichaEntity> {
-    const fichaCreate = this.fichaRepository.create({
-      usuario_creacion_id: card.userId,
-      version: Number(card.version),
-      codigo: card.code,
-      fecha_registro: card.dateRegister
-    });
-    const data = await this.fichaRepository.save(fichaCreate);
-    return data;
+  private async guardarFicha(card: IFamilyCardSave): Promise<any> {
+    return await FichaRepository.crearFicha(
+      card.userId,
+      Number(card.version),
+      card.code,
+      card.dateRegister
+    );
   }
 
   private async guardarTarjetaFamiliar(
