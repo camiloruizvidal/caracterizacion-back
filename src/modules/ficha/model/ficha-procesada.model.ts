@@ -8,7 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { User } from 'src/modules/usuarios/model/user.model';
 
-@Table({ tableName: 'ficha_procesada' })
+@Table({ tableName: 'ficha_procesada', timestamps: false })
 export class FichaProcesada extends Model {
   @Column({
     type: DataType.INTEGER,

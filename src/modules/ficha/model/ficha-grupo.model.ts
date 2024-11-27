@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
-@Table({ tableName: 'ficha_grupo' })
+@Table({ tableName: 'ficha_grupo', timestamps: false })
 export class FichaGrupo extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -27,11 +27,7 @@ export class FichaGrupo extends Model {
   })
   orden: number;
 
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true
-  })
-  fichaTipoId: number;
+
 
   @Column({
     type: DataType.STRING,

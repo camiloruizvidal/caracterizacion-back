@@ -9,6 +9,9 @@ import { UserRoles } from 'src/modules/usuarios/model/user-roles.model';
 import { PsicosocialPersona } from 'src/modules/ficha/model/psicosocial-persona.model';
 import { Paciente } from 'src/modules/pacientes/model/paciente.model';
 import { UserCodes } from 'src/modules/usuarios/model/user-codes.model';
+import { FichaGrupo } from 'src/modules/ficha/model/ficha-grupo.model';
+import { FichaTipo } from 'src/modules/ficha/model/ficha-tipo.model';
+import { FichaDescripcion } from 'src/modules/ficha/model/ficha-descripcion.model';
 
 const models = [
   PsicosocialPersona,
@@ -17,6 +20,9 @@ const models = [
   TarjetaFamiliar,
   DocumentoTipo,
   Ficha,
+  FichaTipo,
+  FichaGrupo,
+  FichaDescripcion,
   UserRoles,
   User
 ];

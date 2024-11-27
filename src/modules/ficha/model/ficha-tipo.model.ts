@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
-@Table({ tableName: 'ficha_tipo' })
+@Table({ tableName: 'ficha_tipo', timestamps: false })
 export class FichaTipo extends Model {
   @Column({
     type: DataType.INTEGER,
@@ -18,14 +18,14 @@ export class FichaTipo extends Model {
   @Column({
     type: DataType.DATE,
     defaultValue: DataType.NOW,
-    field: 'created_at'
+    field: 'createdAt'
   })
   createdAt: Date;
 
   @Column({
     type: DataType.DATE,
     defaultValue: DataType.NOW,
-    field: 'updated_at'
+    field: 'updatedAt'
   })
   updatedAt: Date;
 }

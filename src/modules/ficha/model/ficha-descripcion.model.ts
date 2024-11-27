@@ -9,7 +9,7 @@ import {
 import { ESteperType } from '../interface/ficha.interface';
 import { FichaGrupo } from './ficha-grupo.model';
 
-@Table({ tableName: 'ficha_descripcion' })
+@Table({ tableName: 'ficha_descripcion', timestamps: false })
 export class FichaDescripcion extends Model {
   @Column({
     type: DataType.INTEGER,

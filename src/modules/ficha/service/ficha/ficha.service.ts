@@ -16,6 +16,9 @@ import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables, IPagination } from 'src/utils/global.interface';
 import { FichaJsonEntity } from '../../entity/ficha-json.entity';
 import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
+import { FichaDescripcionRepository } from '../../repository/ficha-descripcion.repository';
+import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
+import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 
 @Injectable()
 export class FichaService {
@@ -60,18 +63,12 @@ export class FichaService {
 
   public async getFichaFormat(): Promise<IFichaCard> {
     try {
-      const fichasGrupos: FichaGrupoEntity[] =
-        await this.fichaGrupoRepository.find({
-          order: { orden: 'ASC' }
-        });
+      const fichasGrupos: any[] = await FichaGrupoRepository.obtenerGrupos();
 
-      const fichasDescripcion: FichaDescripcionEntity[] =
-        await this.fichaDescripcionRepository.find({
-          order: { orden: 'ASC' }
-        });
+      const fichasDescripcion: any[] =
+        await FichaDescripcionRepository.obtenerFichasDescripcion();
 
-      const fichaTipo: FichaTipoEntity[] =
-        await this.fichaTipoRepository.find();
+      const fichasTipo: any[] = await FichaTipoRepository.obtenerTiposFichas();
 
       const version = await this.versionRepository.findOne({
         where: { id: MoreThan(0) },
@@ -85,7 +82,7 @@ export class FichaService {
         personCard: []
       };
 
-      const fichasResult = fichasGrupos.map((grupos: FichaGrupoEntity) => {
+      const fichasResult = fichasGrupos.map(grupos => {
         grupos['values'] =
           fichasDescripcion
             .filter(
@@ -103,7 +100,7 @@ export class FichaService {
         return grupos;
       });
 
-      fichaTipo.forEach((tipos: FichaTipoEntity) => {
+      fichasTipo.forEach((tipos: FichaTipoEntity) => {
         dataFormat[tipos.nombre] = fichasResult.filter(
           ficha => ficha.ficha_tipo_id === tipos.id
         );

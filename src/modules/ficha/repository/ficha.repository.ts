@@ -20,8 +20,7 @@ export class FichaRepository {
     totalPages: number;
     itemsPerPage: number;
   }> {
-    const { fechaInicio, fechaFin, usuarioId, municipio, page, pageSize } =
-      filtros;
+    const { fechaInicio, fechaFin, usuarioId, page, pageSize } = filtros;
 
     const whereConditions: any = {};
     const offset = (page - 1) * pageSize;
@@ -95,5 +94,13 @@ export class FichaRepository {
     });
 
     return Transformadores.extraerDataValues(fichaCreada);
+  }
+
+  public static async obtenerFicha(): Promise<any[]> {
+    return Transformadores.extraerDataValues(
+      await Ficha.findAll({
+        order: [['orden', 'ASC']]
+      })
+    );
   }
 }
