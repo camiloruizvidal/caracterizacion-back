@@ -109,6 +109,8 @@ export class UsuarioRepository {
       where['rolId'] = rolId;
     }
 
+    const offset = (page - 1) * pageSize;
+
     const usuarios = await User.findAndCountAll({
       where,
       attributes: [
@@ -120,7 +122,9 @@ export class UsuarioRepository {
         'documento',
         'inactivo'
       ],
-      include: [{ model: UserRoles, attributes: ['id', 'type'] }]
+      include: [{ model: UserRoles, attributes: ['id', 'type'] }],
+      limit: pageSize,
+      offset
     });
     return Transformadores.extraerDataValues(usuarios);
   }
