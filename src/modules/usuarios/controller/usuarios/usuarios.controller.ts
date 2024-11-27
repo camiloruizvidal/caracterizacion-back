@@ -1,4 +1,3 @@
-import { UserEntity } from '../../entity/user.entity';
 import { UsuariosService } from './../../service/usuarios/usuarios.service';
 import { plainToInstance } from 'class-transformer';
 import {
@@ -81,8 +80,7 @@ export class UsuariosController {
     @Body() updatedUser: UsuarioActualizarDTO
   ) {
     try {
-      const result = await this.usuariosService.updateUser(id, updatedUser);
-      return result;
+      return await this.usuariosService.updateUser(id, updatedUser);
     } catch (error) {
       if (error instanceof NotFoundException) {
         throw new NotFoundException(error.message);
