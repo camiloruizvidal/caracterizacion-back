@@ -108,7 +108,7 @@ export class UsuariosService {
       throw new ConflictException('La contraseña no es igual');
     }
 
-    if (updatedUser.password) {
+    if (updatedUser.password && updatedUser.password.trim() !== '') {
       updatedUser.password = await this.hashPassword(updatedUser.password);
     }
 
