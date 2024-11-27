@@ -89,11 +89,7 @@ export class UsuariosService {
   }
 
   public async detailUser(idUser: number): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
-      where: { id: idUser },
-      relations: ['fichas', 'codigos']
-    });
-    return user;
+    return await UsuarioRepository.buscarPorId(idUser);
   }
 
   public async updateUser(id: number, updatedUser: any): Promise<UserEntity> {

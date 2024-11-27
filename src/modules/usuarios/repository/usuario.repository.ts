@@ -1,3 +1,4 @@
+import { Ficha } from './../../ficha/model/ficha.model';
 import { Transformadores } from './../../../utils/helpers';
 import sequelize, { Op } from 'sequelize';
 import { UserCodes } from '../model/user-codes.model';
@@ -166,6 +167,35 @@ export class UsuarioRepository {
       await User.findOne({
         where: { username },
         attributes: ['id']
+      })
+    );
+  }
+
+  public static async buscarPorId(id: number) {
+    return Transformadores.extraerDataValues(
+      await User.findOne({
+        attributes: [
+          'id',
+          'username',
+          'nombrePrimero',
+          'nombreSegundo',
+          'apellidoPrimero',
+          'apellidoSegundo',
+          'documento',
+          'documentoTipoId',
+          'rolId',
+          'inactivo'
+        ],
+        where: { id },
+        include: [
+          {
+            model: Ficha
+          },
+          {
+            model: UserCodes,
+            attributes: ['id', 'start', 'finish']
+          }
+        ]
       })
     );
   }

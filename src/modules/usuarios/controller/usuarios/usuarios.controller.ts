@@ -16,6 +16,7 @@ import { RolesDto } from '../../dto/roles.dto';
 import { UsuariosPaginadosDto } from '../../dto/usuarios-paginados.dto';
 import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 import { UsuarioResponseDto } from '../../dto/usuario-response.dto';
+import { UsuarioEditadoDto } from '../../dto/usuario-editado.dto';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
@@ -54,7 +55,8 @@ export class UsuariosController {
 
   @Get('/detail/:id')
   public async detailUser(@Param('id') id: number) {
-    return await this.usuariosService.detailUser(id);
+    const usuario = await this.usuariosService.detailUser(id);
+    return plainToInstance(UsuarioEditadoDto, usuario);
   }
 
   @Get('/documentoTipo')
