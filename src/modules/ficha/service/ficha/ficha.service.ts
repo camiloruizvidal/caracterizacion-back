@@ -15,6 +15,7 @@ import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables, IPagination } from 'src/utils/global.interface';
 import { FichaJsonEntity } from '../../entity/ficha-json.entity';
 import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
+import { FichaRepository } from '../../repository/ficha.repository';
 
 @Injectable()
 export class FichaService {
@@ -359,48 +360,10 @@ export class FichaService {
     municipio: string;
     page: number;
     pageSize: number;
-  }): Promise<IPagination<FichaEntity>> {
-    const { fechaInicio, fechaFin, usuarioId, municipio, page, pageSize } =
-      filtros;
-    const query = this.fichaRepository
-      .createQueryBuilder('ficha')
-      .leftJoinAndSelect('ficha.tarjetasFamiliares', 'tarjetasFamiliares')
-      .leftJoinAndSelect('ficha.psicosocialPersonas', 'psicosocialPersonas')
-      .leftJoinAndSelect('psicosocialPersonas.persona', 'persona')
-      .orderBy('ficha.codigo', 'DESC')
-      .addOrderBy('ficha.fecha_registro', 'ASC');
-
-    if (fechaInicio && fechaInicio != '') {
-      query.andWhere('date(ficha.fecha_registro) >= date(:fechaInicio)', {
-        fechaInicio
-      });
-    }
-
-    if (fechaFin && fechaFin != '') {
-      query.andWhere('date(ficha.fecha_registro) <= date(:fechaFin)', {
-        fechaFin
-      });
-    }
-
-    if (usuarioId && usuarioId != '') {
-      query.andWhere('ficha.usuario_creacion_id = :usuarioId', { usuarioId });
-    }
-
-    const [items, totalItems] = await query
-      .skip((page - 1) * pageSize)
-      .take(pageSize)
-      .getManyAndCount();
-
-    const totalPages = Math.ceil(totalItems / pageSize);
-
-    const paginationInfo: IPagination<FichaEntity> = {
-      data: items,
-      totalItems: Number(totalItems),
-      currentPage: Number(page),
-      totalPages: Number(totalPages),
-      itemsPerPage: Number(pageSize)
-    };
-    return paginationInfo;
+  }): Promise<IPagination<any>> {
+    const fichas: IPagination<any> =
+      await FichaRepository.cargarFichaPaginada(filtros);
+    return fichas;
   }
 
   public async loadFormDetail(
