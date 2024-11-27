@@ -16,7 +16,6 @@ import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables, IPagination } from 'src/utils/global.interface';
 import { FichaJsonEntity } from '../../entity/ficha-json.entity';
 import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
-import { FichaRepository } from '../../repository/ficha.repository';
 
 @Injectable()
 export class FichaService {
