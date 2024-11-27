@@ -233,4 +233,9 @@ export class UsuarioRepository {
       })
     );
   }
+
+  public static async cambiarContrasenna(usuarioId: number, password: string) {
+    const usuarioExistente = await User.findByPk(usuarioId);
+    return await usuarioExistente.update({ password });
+  }
 }

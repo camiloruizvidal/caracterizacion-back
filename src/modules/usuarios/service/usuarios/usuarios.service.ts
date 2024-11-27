@@ -1,6 +1,4 @@
-import { UserCodesEntity } from '../../entity/user-codes.entity';
 import {
-  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -8,12 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
-import { UserEntity } from '../../entity/user.entity';
-import { Between, Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
-import { UserRolesEntity } from '../../entity/user-roles.entity';
-import { DocumentTypeEntity } from 'src/utils/entity/documento-tipo.entity';
 import { UsuarioRepository } from '../../repository/usuario.repository';
 import { RolesRepository } from '../../repository/roles.repository';
 import { DocumentoTipoRepository } from '../../repository/documento-tipo.repository';
@@ -23,17 +16,6 @@ import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
 
 @Injectable()
 export class UsuariosService {
-  constructor(
-    @InjectRepository(UserCodesEntity)
-    private readonly userCodesRepository: Repository<UserCodesEntity>,
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(UserRolesEntity)
-    private readonly userRolesRepository: Repository<UserRolesEntity>,
-    @InjectRepository(DocumentTypeEntity)
-    private readonly documentTypeRepository: Repository<DocumentTypeEntity>
-  ) {}
-
   public async cargarUsuariosPaginados(
     page: number = 1,
     pageSize: number = 10,
@@ -86,18 +68,20 @@ export class UsuariosService {
       );
     }
 
-    usuarioNuevo.password = await this.hashPassword(usuarioNuevo.password);
+    usuarioNuevo.password = await this.encriptarContrasenna(
+      usuarioNuevo.password
+    );
     return await UsuarioRepository.crearUsuario(usuarioNuevo);
   }
 
-  public async detailUser(idUser: number): Promise<UserEntity> {
+  public async detailUser(idUser: number): Promise<any> {
     return await UsuarioRepository.buscarPorId(idUser);
   }
 
   public async updateUser(
     id: number,
     updatedUser: UsuarioActualizarDTO
-  ): Promise<UserEntity> {
+  ): Promise<any> {
     const usuario = await UsuarioRepository.buscarPorId(id);
 
     if (!usuario) {
@@ -109,7 +93,9 @@ export class UsuariosService {
     }
 
     if (updatedUser.password && updatedUser.password.trim() !== '') {
-      updatedUser.password = await this.hashPassword(updatedUser.password);
+      updatedUser.password = await this.encriptarContrasenna(
+        updatedUser.password
+      );
     }
 
     if (updatedUser?.codigoInicial && updatedUser?.codigoFinal) {
@@ -135,33 +121,27 @@ export class UsuariosService {
     return await UsuarioRepository.buscarPorId(id);
   }
 
-  private async hashPassword(password: string): Promise<string> {
+  private async encriptarContrasenna(password: string): Promise<string> {
     const saltRounds = 10;
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
     return hashedPassword;
   }
 
-  public async cambiarPass(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
+  public async cambiarPass(usuarioId: number) {
+    const usuario = await UsuarioRepository.buscarPorId(usuarioId);
 
-    if (!user) {
+    if (!usuario) {
       throw new Error('Usuario no encontrado');
     }
 
-    const nuevaContrasenna = user.documento;
-    const hashedPassword = await bcrypt.hash(nuevaContrasenna, 10);
-    user.password = hashedPassword;
+    const nuevaContrasenna = await this.encriptarContrasenna(usuario.documento);
+    await UsuarioRepository.cambiarContrasenna(usuarioId, nuevaContrasenna);
 
-    await this.userRepository.save(user);
-
-    return user;
+    return usuario;
   }
 
-  public async validarUsuario(
-    usuario: string,
-    password: string
-  ): Promise<UserEntity> {
+  public async validarUsuario(usuario: string, password: string): Promise<any> {
     try {
       const user = await UsuarioRepository.buscarUsuarioConCodigos(usuario);
       if (!user) {
@@ -181,34 +161,5 @@ export class UsuariosService {
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
-  }
-
-  async createCodesByUser(
-    userCodeData: UserCodesEntity
-  ): Promise<UserCodesEntity> {
-    const { start, finish } = userCodeData;
-    const existingCodes = await this.userCodesRepository.find({
-      where: {
-        start: Between(start, finish),
-        finish: Between(start, finish)
-      }
-    });
-
-    if (existingCodes.length > 0) {
-      throw new BadRequestException(
-        'Los códigos se solapan con códigos existentes'
-      );
-    }
-
-    const newUserCodes = this.userCodesRepository.create(userCodeData);
-    return this.userCodesRepository.save(newUserCodes);
-  }
-
-  public async findAllCodes(userId: number): Promise<UserCodesEntity[]> {
-    return this.userCodesRepository.find({
-      select: ['start', 'finish'],
-      where: { user_id: userId },
-      order: { start: 'ASC' }
-    });
   }
 }

@@ -15,4 +15,14 @@ export class UsuarioCodigosRepository {
       })
     );
   }
+
+  public static async verCodigosPorUsuario(usuarioId: number) {
+    return Transformadores.extraerDataValues(
+      await UserCodes.findAll({
+        attributes: ['start', 'finish'],
+        where: { userId: usuarioId },
+        order: ['start']
+      })
+    );
+  }
 }
