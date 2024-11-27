@@ -104,6 +104,10 @@ export class UsuariosService {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
+    if (updatedUser.password.trim() !== updatedUser.passwordRepeat.trim()) {
+      throw new ConflictException('La contraseña no es igual');
+    }
+
     if (updatedUser.password) {
       updatedUser.password = await this.hashPassword(updatedUser.password);
     }
