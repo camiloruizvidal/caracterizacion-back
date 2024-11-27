@@ -17,6 +17,7 @@ import { UsuariosPaginadosDto } from '../../dto/usuarios-paginados.dto';
 import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 import { UsuarioResponseDto } from '../../dto/usuario-response.dto';
 import { UsuarioEditadoDto } from '../../dto/usuario-editado.dto';
+import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
@@ -77,7 +78,7 @@ export class UsuariosController {
   @Put('/:id')
   public async updateUser(
     @Param('id') id: number,
-    @Body() updatedUser: Partial<UserEntity>
+    @Body() updatedUser: UsuarioActualizarDTO
   ) {
     try {
       const result = await this.usuariosService.updateUser(id, updatedUser);

@@ -1,0 +1,18 @@
+import { Transformadores } from 'src/utils/helpers';
+import { UserCodes } from '../model/user-codes.model';
+
+export class UsuarioCodigosRepository {
+  public static async asignarCodigo(
+    start: number,
+    finish: number,
+    userId: number
+  ) {
+    return Transformadores.extraerDataValues(
+      await UserCodes.create({
+        start,
+        finish,
+        userId
+      })
+    );
+  }
+}

@@ -199,4 +199,34 @@ export class UsuarioRepository {
       })
     );
   }
+
+  public static async actualizarUsuario(
+    id: number,
+    usuario: {
+      username: any;
+      nombrePrimero: string;
+      nombreSegundo?: string;
+      apellidoPrimero: string;
+      apellidoSegundo?: string;
+      documento: string;
+      documentoTipoId: number;
+      rolId: number;
+      inactivo: boolean;
+    }
+  ) {
+    const usuarioExistente = await User.findByPk(id);
+    return Transformadores.extraerDataValues(
+      await usuarioExistente.update({
+        username: usuario.username,
+        nombrePrimero: usuario.nombrePrimero,
+        nombreSegundo: usuario.nombreSegundo || null,
+        apellidoPrimero: usuario.apellidoPrimero,
+        apellidoSegundo: usuario.apellidoSegundo || null,
+        documento: usuario.documento,
+        documentoTipoId: usuario.documentoTipoId,
+        rolId: usuario.rolId,
+        inactivo: usuario.inactivo
+      })
+    );
+  }
 }

@@ -6,6 +6,7 @@ import {
   IsNumberString
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 
 export class UsuarioCrearDto {
   @ApiProperty({
@@ -92,17 +93,19 @@ export class UsuarioCrearDto {
     description: 'Código inicial (opcional)',
     example: ''
   })
-  @IsString()
+  @IsNumberString()
   @IsOptional()
-  codigoInicial: string;
+  @Transform(({ value }) => (value.trim() === '' ? null : Number(value)))
+  codigoInicial: number | null;
 
   @ApiPropertyOptional({
     description: 'Código final (opcional)',
     example: ''
   })
-  @IsString()
+  @IsNumberString()
   @IsOptional()
-  codigoFinal: string;
+  @Transform(({ value }) => (value.trim() === '' ? null : Number(value)))
+  codigoFinal: number | null;
 
   @ApiProperty({
     description: 'Estado de inactividad del usuario',

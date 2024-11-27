@@ -18,6 +18,8 @@ import { UsuarioRepository } from '../../repository/usuario.repository';
 import { RolesRepository } from '../../repository/roles.repository';
 import { DocumentoTipoRepository } from '../../repository/documento-tipo.repository';
 import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
+import { UsuarioCodigosRepository } from '../../repository/usuario-codigos.repository';
+import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
 
 @Injectable()
 export class UsuariosService {
@@ -92,29 +94,41 @@ export class UsuariosService {
     return await UsuarioRepository.buscarPorId(idUser);
   }
 
-  public async updateUser(id: number, updatedUser: any): Promise<UserEntity> {
-    const existingUser = await this.userRepository.findOne({ where: { id } });
+  public async updateUser(
+    id: number,
+    updatedUser: UsuarioActualizarDTO
+  ): Promise<UserEntity> {
+    const usuario = await UsuarioRepository.buscarPorId(id);
 
-    if (!existingUser) {
+    if (!usuario) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
 
     if (updatedUser.password) {
       updatedUser.password = await this.hashPassword(updatedUser.password);
     }
-    if (updatedUser?.codigoInicial != '' && updatedUser?.codigoFinal != '') {
-      const codes = this.userCodesRepository.create({
-        user_id: id,
-        start: updatedUser.codigoInicial,
-        finish: updatedUser.codigoFinal
-      });
-      this.createCodesByUser(codes);
+
+    if (updatedUser?.codigoInicial && updatedUser?.codigoFinal) {
+      UsuarioCodigosRepository.asignarCodigo(
+        updatedUser.codigoInicial,
+        updatedUser.codigoFinal,
+        id
+      );
     }
 
-    const mergedUser = this.userRepository.merge(existingUser, updatedUser);
-    const result = await this.userRepository.save(mergedUser);
-    delete result.password;
-    return result;
+    await UsuarioRepository.actualizarUsuario(id, {
+      username: updatedUser.username,
+      nombrePrimero: updatedUser.nombrePrimero,
+      nombreSegundo: updatedUser.nombreSegundo,
+      apellidoPrimero: updatedUser.apellidoPrimero,
+      apellidoSegundo: updatedUser.apellidoSegundo,
+      documento: updatedUser.documento.toString(),
+      documentoTipoId: Number(updatedUser.documentoTipoId),
+      rolId: Number(updatedUser.rolId),
+      inactivo: updatedUser.inactivo
+    });
+
+    return await UsuarioRepository.buscarPorId(id);
   }
 
   private async hashPassword(password: string): Promise<string> {
