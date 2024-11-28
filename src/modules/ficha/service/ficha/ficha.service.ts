@@ -149,10 +149,10 @@ export class FichaService {
       page,
       pageSize
     );
-    const allUser = await UsuarioRepository.obtenerTodosUsuarios();
-    const dataResponse = await this.addUsers(registros.rows, allUser);
+    const usuarios = await UsuarioRepository.obtenerTodosUsuarios();
+    const data = await this.agregarUsuario(registros.rows, usuarios);
     return {
-      data: dataResponse,
+      data,
       totalItems: registros.count,
       currentPage: Number(page),
       totalPages: Math.ceil(registros.count / pageSize),
@@ -160,10 +160,10 @@ export class FichaService {
     };
   }
 
-  private async addUsers(data: any[], users: any[]) {
+  private async agregarUsuario(data: any[], usuarios: any[]) {
     return data.map(IFamilyCard => {
-      IFamilyCard['user'] = users.find(
-        user => IFamilyCard.data.userId === user.id
+      IFamilyCard['user'] = usuarios.find(
+        usuario => IFamilyCard.data.userId === usuario.id
       );
       return IFamilyCard;
     });
