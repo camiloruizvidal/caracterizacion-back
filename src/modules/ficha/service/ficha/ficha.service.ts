@@ -19,6 +19,7 @@ import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
 import { FichaDescripcionRepository } from '../../repository/ficha-descripcion.repository';
 import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
+import { BackupRepository } from '../../repository/backup.repository';
 
 @Injectable()
 export class FichaService {
@@ -143,18 +144,17 @@ export class FichaService {
     totalPages: number;
     itemsPerPage: number;
   }> {
-    const skip = (page - 1) * pageSize;
-    const [data, totalItems] = await this.backupRepository.findAndCount({
-      take: pageSize,
-      skip
-    });
+    const registros = await BackupRepository.verBackupsPaginados(
+      page,
+      pageSize
+    );
     const allUser = await this.userRepository.find();
-    const dataResponse = await this.addUsers(data, allUser);
+    const dataResponse = await this.addUsers(registros.rows, allUser);
     return {
       data: dataResponse,
-      totalItems,
+      totalItems: registros.count,
       currentPage: Number(page),
-      totalPages: Math.ceil(totalItems / pageSize),
+      totalPages: Math.ceil(registros.count / pageSize),
       itemsPerPage: Number(pageSize)
     };
   }
