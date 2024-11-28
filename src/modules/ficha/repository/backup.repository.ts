@@ -7,15 +7,16 @@ export class BackupRepository {
     registrosPorPagina: number = 10
   ) {
     const offset = (paginaActual - 1) * registrosPorPagina;
-    const resultados = await Backup.findAndCountAll({
-      limit: 1,
-      offset: offset,
-      order: [['createdAt', 'DESC']]
-    });
-
-    resultados.rows = Transformadores.extraerDataValues(
-      resultados.rows.map(resultado => JSON.parse(resultado.data))
+    const resultados = Transformadores.extraerDataValues(
+      await Backup.findAndCountAll({
+        limit: registrosPorPagina,
+        offset: offset
+      })
     );
+    resultados.rows.map(row => {
+      row.data = JSON.parse(row.data);
+      return row;
+    });
     return resultados;
   }
 }

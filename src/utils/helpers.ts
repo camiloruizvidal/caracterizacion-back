@@ -32,8 +32,11 @@ export class Transformadores {
     if (result?.dataValues) {
       const data = { ...result.dataValues };
       for (const key in data) {
-        if (data[key] && typeof data[key] === 'object') {
-          data[key] = Transformadores.extraerDataValues(data[key]);
+        if (data[key]) {
+          if (typeof data[key] === 'object' && !(data[key] instanceof Date)) {
+            console.log({ key, data: data[key] });
+            data[key] = Transformadores.extraerDataValues(data[key]);
+          }
         }
       }
       return data;
