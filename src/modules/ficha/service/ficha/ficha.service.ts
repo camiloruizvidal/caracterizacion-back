@@ -1,3 +1,4 @@
+import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { FichaRepository } from './../../repository/ficha.repository';
 import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
@@ -148,7 +149,7 @@ export class FichaService {
       page,
       pageSize
     );
-    const allUser = await this.userRepository.find();
+    const allUser = await UsuarioRepository.obtenerTodosUsuarios();
     const dataResponse = await this.addUsers(registros.rows, allUser);
     return {
       data: dataResponse,
@@ -158,7 +159,8 @@ export class FichaService {
       itemsPerPage: Number(pageSize)
     };
   }
-  private async addUsers(data: any[], users: UserEntity[]) {
+
+  private async addUsers(data: any[], users: any[]) {
     return data.map(IFamilyCard => {
       IFamilyCard['user'] = users.find(
         user => IFamilyCard.data.userId === user.id

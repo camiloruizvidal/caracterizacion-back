@@ -238,4 +238,8 @@ export class UsuarioRepository {
     const usuarioExistente = await User.findByPk(usuarioId);
     return await usuarioExistente.update({ password });
   }
+
+  public static async obtenerTodosUsuarios() {
+    return Transformadores.extraerDataValues(await User.findAll());
+  }
 }
