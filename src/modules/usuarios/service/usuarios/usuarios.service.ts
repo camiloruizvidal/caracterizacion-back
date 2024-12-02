@@ -85,7 +85,9 @@ export class UsuariosService {
     const usuario = await UsuarioRepository.buscarPorId(id);
 
     if (!usuario) {
-      throw new NotFoundException(`User with id ${id} not found`);
+      throw new NotFoundException(
+        `Este usuario no se encuentra en la base de datos`
+      );
     }
 
     if (updatedUser.password.trim() !== updatedUser.passwordRepeat.trim()) {

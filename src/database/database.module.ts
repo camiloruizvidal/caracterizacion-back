@@ -13,6 +13,7 @@ import { FichaGrupo } from 'src/modules/ficha/model/ficha-grupo.model';
 import { FichaTipo } from 'src/modules/ficha/model/ficha-tipo.model';
 import { FichaDescripcion } from 'src/modules/ficha/model/ficha-descripcion.model';
 import { Backup } from 'src/modules/ficha/model/backup.model';
+import { Version } from 'src/modules/ficha/model/version.model';
 
 const models = [
   PsicosocialPersona,
@@ -26,7 +27,8 @@ const models = [
   FichaDescripcion,
   UserRoles,
   User,
-  Backup
+  Backup,
+  Version
 ];
 
 const databaseProvider = {

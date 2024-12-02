@@ -21,11 +21,11 @@ import { FichaDescripcionRepository } from '../../repository/ficha-descripcion.r
 import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
+import { VersionRepository } from '../../repository/version.repository';
 
 @Injectable()
 export class FichaService {
   constructor(
-    private readonly entityManager: EntityManager,
     @InjectRepository(BackupEntity)
     private readonly backupRepository: Repository<BackupEntity>,
 
@@ -53,9 +53,6 @@ export class FichaService {
     @InjectRepository(PsicosocialPersonaEntity)
     private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>,
 
-    @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
-
     @InjectRepository(FichaJsonEntity)
     private readonly fichaJsonEntity: Repository<FichaJsonEntity>,
 
@@ -63,7 +60,7 @@ export class FichaService {
     private readonly fichaProcesadaEntity: Repository<FichaProcesadaEntity>
   ) {}
 
-  public async getFichaFormat(): Promise<IFichaCard> {
+  public async obternerFormatoFicha(): Promise<IFichaCard> {
     try {
       const fichasGrupos: any[] = await FichaGrupoRepository.obtenerGrupos();
 
@@ -72,12 +69,9 @@ export class FichaService {
 
       const fichasTipo: any[] = await FichaTipoRepository.obtenerTiposFichas();
 
-      const version = await this.versionRepository.findOne({
-        where: { id: MoreThan(0) },
-        order: { id: 'DESC' }
-      });
+      const version = await VersionRepository.obtenerUltimaVersion();
 
-      const dataFormat: IFichaCard = {
+      const dataFormateada: IFichaCard = {
         version: version.id.toString(),
         dateLastVersion: version.dateLastVersion,
         familyCard: [],
@@ -87,11 +81,8 @@ export class FichaService {
       const fichasResult = fichasGrupos.map(grupos => {
         grupos['values'] =
           fichasDescripcion
-            .filter(
-              (ficha: FichaDescripcionEntity) =>
-                ficha.ficha_grupo_id == grupos.id
-            )
-            .map((ficha: FichaDescripcionEntity) => {
+            .filter((ficha: any) => ficha.ficha_grupo_id == grupos.id)
+            .map((ficha: any) => {
               ficha.options = JSON.parse(ficha.options);
               ficha.visibility = JSON.parse(ficha.visibility);
               ficha.required = JSON.parse(ficha.required);
@@ -102,13 +93,13 @@ export class FichaService {
         return grupos;
       });
 
-      fichasTipo.forEach((tipos: FichaTipoEntity) => {
-        dataFormat[tipos.nombre] = fichasResult.filter(
+      fichasTipo.forEach((tipos: any) => {
+        dataFormateada[tipos.nombre] = fichasResult.filter(
           ficha => ficha.ficha_tipo_id === tipos.id
         );
       });
 
-      return dataFormat;
+      return dataFormateada;
     } catch (error) {
       throw error.message;
     }
