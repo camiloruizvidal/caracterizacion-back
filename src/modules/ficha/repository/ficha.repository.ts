@@ -1,9 +1,10 @@
 import { Paciente } from './../../pacientes/model/paciente.model';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { Ficha } from '../model/ficha.model';
 import { TarjetaFamiliar } from '../model/tarjeta-familiar.model';
 import { PsicosocialPersona } from '../model/psicosocial-persona.model';
 import { Transformadores } from 'src/utils/helpers';
+import { IStatus } from '../entity/backup.entity';
 
 export class FichaRepository {
   public static async cargarFichaPaginada(filtros: {
@@ -102,5 +103,39 @@ export class FichaRepository {
         order: [['orden', 'ASC']]
       })
     );
+  }
+
+  public static async procesarFichasAlmacenadas(version: number) {
+    const sequelize = Ficha.sequelize;
+    let transaction;
+    const sql = `
+    
+    SELECT
+        (data::jsonb ->> 'version')::integer AS version,
+        data::jsonb ->> 'dateLastVersion' AS date_last_version,
+        data::jsonb ->> 'dateRegister' AS date_register,
+        data::jsonb ->> 'code' AS codigo,
+        (data::jsonb -> 'data' ->> 'familyCard') AS family_card,
+        (data::jsonb -> 'data' ->> 'personCard') AS person_card,
+        backup.status
+    FROM backup
+    WHERE (data::jsonb ->> 'version')::integer = 20
+      AND backup.status = 'almacenado'
+      order by 3`;
+    const almacenado = IStatus.Almacenado;
+
+    try {
+      transaction = await sequelize.transaction();
+
+      await sequelize.query(sql, {
+        replacements: { almacenado, version },
+        type: QueryTypes.INSERT,
+        transaction
+      });
+      await transaction.commit();
+    } catch (error) {
+      if (transaction) await transaction.rollback();
+      throw error;
+    }
   }
 }

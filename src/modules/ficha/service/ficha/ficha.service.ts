@@ -22,6 +22,7 @@ import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
 import { VersionRepository } from '../../repository/version.repository';
+import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
 
 @Injectable()
 export class FichaService {
@@ -418,34 +419,6 @@ export class FichaService {
   }
 
   public async procesarFicha() {
-    const cards = await this.loadLastCards();
-
-    try {
-      cards.forEach(async card => {
-        const {
-          version,
-          dateLastVersion,
-          dateRegister,
-          code: codigo
-        } = card.data;
-        const { familyCard, personCard } = card.data.data;
-
-        await this.fichaProcesadaEntity.save({
-          usuarioCreacionId: 1,
-          version,
-          dateLastVersion,
-          dateRegister,
-          codigo,
-          familyCard,
-          personCard
-        });
-        await this.backupRepository.update(card.id, {
-          status: IStatus.Guardado
-        });
-      });
-    } catch (error) {
-      throw error;
-    }
-    return cards;
+    await FichaProcesadaRepository.procesarBackupsAlmacenadas(1);
   }
 }
