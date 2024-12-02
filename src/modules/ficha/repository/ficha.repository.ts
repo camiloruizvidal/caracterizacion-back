@@ -104,38 +104,4 @@ export class FichaRepository {
       })
     );
   }
-
-  public static async procesarFichasAlmacenadas(version: number) {
-    const sequelize = Ficha.sequelize;
-    let transaction;
-    const sql = `
-    
-    SELECT
-        (data::jsonb ->> 'version')::integer AS version,
-        data::jsonb ->> 'dateLastVersion' AS date_last_version,
-        data::jsonb ->> 'dateRegister' AS date_register,
-        data::jsonb ->> 'code' AS codigo,
-        (data::jsonb -> 'data' ->> 'familyCard') AS family_card,
-        (data::jsonb -> 'data' ->> 'personCard') AS person_card,
-        backup.status
-    FROM backup
-    WHERE (data::jsonb ->> 'version')::integer = 20
-      AND backup.status = 'almacenado'
-      order by 3`;
-    const almacenado = IStatus.Almacenado;
-
-    try {
-      transaction = await sequelize.transaction();
-
-      await sequelize.query(sql, {
-        replacements: { almacenado, version },
-        type: QueryTypes.INSERT,
-        transaction
-      });
-      await transaction.commit();
-    } catch (error) {
-      if (transaction) await transaction.rollback();
-      throw error;
-    }
-  }
 }
