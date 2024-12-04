@@ -16,7 +16,7 @@ export class ExcelService {
     fileName: string = 'archivo excel',
     sheetName: string = 'Hoja 1'
   ): Promise<void> {
-    const ruta = `${Config.FILE_URL}\\${fileName}.xlsx`;
+    const ruta = `${Config.FOLDER_FILES_URL}\\${fileName}.xlsx`;
     this.filePath = path.resolve(ruta);
     if (this.fileExists()) {
       try {

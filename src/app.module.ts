@@ -5,11 +5,12 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { FichaModule } from './modules/ficha/ficha.module';
 import { DataModule } from './modules/data/data.module';
 import typeOrmConfig from 'config/type-orm-config';
-import * as dotenv from 'dotenv';
 import { DatabaseModule } from './database/database.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { Config } from './Config/Config';
+import { join } from 'path';
 
-dotenv.config();
-
+console.log('joinfolder', join(__dirname, '..', '..', Config.FOLDER_FILES_URL));
 @Module({
   imports: [
     DatabaseModule,
@@ -17,7 +18,11 @@ dotenv.config();
     PacientesModule,
     UsuariosModule,
     FichaModule,
-    DataModule
+    DataModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', Config.FOLDER_FILES_URL),
+      serveRoot: `/${Config.FOLDER_PUBLIC_URL}`
+    })
   ],
   controllers: [],
   providers: []

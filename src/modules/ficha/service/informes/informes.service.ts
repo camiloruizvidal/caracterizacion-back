@@ -8,9 +8,9 @@ import { ExcelService } from 'src/utils/excel.service';
 export class InformesService {
   constructor() {}
 
-  public async verInformeDinamico(): Promise<string> {
+  public async verInformeDinamico(nombreArchivo: string): Promise<string> {
     const excelService = new ExcelService();
-    await excelService.iniciar('Caracterizacion' + new Date().getTime());
+    await excelService.iniciar(nombreArchivo);
     const header: any[] = await this.generarHeader();
 
     excelService.agregarHeader(header);

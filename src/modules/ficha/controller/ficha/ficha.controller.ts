@@ -10,12 +10,14 @@ import {
   Param,
   Post,
   Query,
+  Req,
   Res
 } from '@nestjs/common';
 import { InformesService } from '../../service/informes/informes.service';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { FichaEntity } from '../../entity/ficha.entity';
 import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
+import { Config } from 'src/Config/Config';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -61,13 +63,18 @@ export class FichaController {
   public async procesarTodaslasFichasSubidas() {}
 
   @Get('informecompleto')
-  public async generarInformes() {
+  public async generarInformes(@Req() req: Request, @Res() res: Response) {
     try {
-      return await this.informesService.verInformeDinamico();
+      const protocolo = req.protocol;
+      const host = req.get('host'); // localhost:3000
+      const dominio = `${protocolo}://${host}`;
+      const url = 'Caracterizacion' + new Date().getTime();
+      res.send({ url: `${dominio}/${Config.FOLDER_PUBLIC_URL}/${url}.xlsx` });
+      await this.informesService.verInformeDinamico(url);
     } catch (error) {
       console.error(error);
       throw new HttpException(
-        'Error al generar el PDF',
+        'Error al generar el PDF. ' + error.message,
         HttpStatus.BAD_REQUEST
       );
     }
