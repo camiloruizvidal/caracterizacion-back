@@ -1,30 +1,34 @@
 import { Config } from 'src/Config/Config';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
-import * as path from 'path';
+import path from 'path';
 
 export class ExcelService {
   private workbook: ExcelJS.Workbook;
-  private worksheet: ExcelJS.Worksheet;
-  private filePath: string;
+  private worksheet: ExcelJS.Worksheet | null = null;
+  private filePath: string = '';
 
-  constructor(fileName: string = 'reporte', sheetName: string = 'Hoja 1') {
+  constructor() {
+    this.workbook = new ExcelJS.Workbook();
+  }
+
+  public async iniciar(
+    fileName: string = 'archivo excel',
+    sheetName: string = 'Hoja 1'
+  ): Promise<void> {
     const ruta = `${Config.FILE_URL}\\${fileName}.xlsx`;
     this.filePath = path.resolve(ruta);
-    this.workbook = new ExcelJS.Workbook();
     if (this.fileExists()) {
-      this.workbook.xlsx
-        .readFile(this.filePath)
-        .then(() => {
-          this.worksheet = this.workbook.getWorksheet(sheetName);
-          if (!this.worksheet) {
-            this.worksheet = this.workbook.addWorksheet(sheetName);
-          }
-        })
-        .catch(error => {
-          console.error(`Error al leer el archivo Excel: ${error.message}`);
-          throw error;
-        });
+      try {
+        await this.workbook.xlsx.readFile(this.filePath);
+        this.worksheet = this.workbook.getWorksheet(sheetName);
+        if (!this.worksheet) {
+          this.worksheet = this.workbook.addWorksheet(sheetName);
+        }
+      } catch (error) {
+        console.error(`Error al leer el archivo Excel: ${error.message}`);
+        throw error;
+      }
     } else {
       this.worksheet = this.workbook.addWorksheet(sheetName);
     }
@@ -34,12 +38,7 @@ export class ExcelService {
     return this.filePath;
   }
 
-  private fileExists(): boolean {
-    return fs.existsSync(this.filePath);
-  }
-
   public agregarHeader(header: any[]): void {
-    console.log(this.worksheet?.getRow(1)?.actualCellCount);
     if (this.fileExists() && this.worksheet?.getRow(1)?.actualCellCount > 0) {
       return;
     }
@@ -86,5 +85,9 @@ export class ExcelService {
       console.error(`Error al guardar el archivo: ${error.message}`);
       throw error;
     }
+  }
+
+  private fileExists(): boolean {
+    return fs.existsSync(this.filePath);
   }
 }

@@ -9,7 +9,8 @@ export class InformesService {
   constructor() {}
 
   public async verInformeDinamico(): Promise<string> {
-    const excelService = new ExcelService('Caracterizacion');
+    const excelService = new ExcelService();
+    await excelService.iniciar('Caracterizacion' + new Date().getTime());
     const header: any[] = await this.generarHeader();
 
     excelService.agregarHeader(header);
