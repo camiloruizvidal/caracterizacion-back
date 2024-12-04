@@ -10,41 +10,34 @@ export class InformesService {
 
   public async verInformeDinamico() {
     const header: any[] = await this.generarHeader();
-    const data = await this.generarData();
-    return this.generarExcel(header, data);
-  }
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Caracterizacion');
 
-  private async generarData() {
-    const datos = await FichaProcesadaRepository.obtenerFichasProcesadas();
-    console.log({ datos });
-    const resultados = [];
+    this.agregarHeader(worksheet, header);
 
-    datos.rows.forEach(data => {
-      const registrosAnnadidos = [];
-      registrosAnnadidos.push(data.codigo.toString());
-      registrosAnnadidos.push('Camilo');
-      registrosAnnadidos.push('Ruiz');
-      registrosAnnadidos.push(new Date(data.updated_at ?? null).toISOString());
-      registrosAnnadidos.push(
-        new Date(data.dateRegister ?? null).toISOString()
+    const registrosXPagina = 500;
+    let pagina = 1;
+    let totalPaginas: number;
+
+    do {
+      const datos = await FichaProcesadaRepository.obtenerFichasProcesadas(
+        pagina,
+        registrosXPagina
       );
 
-      data.familyCard.forEach(element => {
-        element.values.forEach(value => {
-          registrosAnnadidos.push(value.value === null ? '-' : value.value);
-        });
+      const data = this.procesarBloque(datos.rows);
+      data.forEach(registro => {
+        worksheet.addRow(registro);
       });
 
-      data.personCard.forEach(element => {
-        element.forEach(value => {
-          registrosAnnadidos.push(value.value === null ? '-' : value.value);
-        });
-      });
+      if (!totalPaginas) {
+        totalPaginas = Math.ceil(datos.totalRegistros / registrosXPagina);
+      }
 
-      resultados.push(registrosAnnadidos);
-    });
+      pagina++;
+    } while (pagina <= totalPaginas);
 
-    return resultados;
+    return workbook.xlsx.writeBuffer();
   }
 
   private async generarHeader(): Promise<any[]> {
@@ -85,9 +78,7 @@ export class InformesService {
     return headers;
   }
 
-  private async generarExcel(header: any[], data: any[]): Promise<any> {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Caracterizacion');
+  private agregarHeader(worksheet: ExcelJS.Worksheet, header: any[]): void {
     let currentColumn = 1;
 
     const headers = header[0];
@@ -102,13 +93,37 @@ export class InformesService {
       currentColumn = endColumn + 1;
     });
 
-    [header[1]].forEach(registro => {
-      worksheet.addRow(registro);
+    worksheet.addRow(header[1]);
+  }
+
+  private procesarBloque(rows: any[]): any[] {
+    const resultados = [];
+
+    rows.forEach(data => {
+      const registrosAnnadidos = [];
+      registrosAnnadidos.push(data.codigo.toString());
+      registrosAnnadidos.push('Camilo');
+      registrosAnnadidos.push('Ruiz');
+      registrosAnnadidos.push(new Date(data.updated_at ?? null).toISOString());
+      registrosAnnadidos.push(
+        new Date(data.dateRegister ?? null).toISOString()
+      );
+
+      data.familyCard.forEach(element => {
+        element.values.forEach(value => {
+          registrosAnnadidos.push(value.value === null ? '-' : value.value);
+        });
+      });
+
+      data.personCard.forEach(element => {
+        element.forEach(value => {
+          registrosAnnadidos.push(value.value === null ? '-' : value.value);
+        });
+      });
+
+      resultados.push(registrosAnnadidos);
     });
 
-    data.forEach(registro => {
-      worksheet.addRow(registro);
-    });
-    return workbook.xlsx.writeBuffer();
+    return resultados;
   }
 }
