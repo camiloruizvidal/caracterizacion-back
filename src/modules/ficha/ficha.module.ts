@@ -15,6 +15,7 @@ import { InformesService } from './service/informes/informes.service';
 import { PacienteEntity } from '../pacientes/entity/pacientes.entity';
 import { FichaJsonEntity } from './entity/ficha-json.entity';
 import { FichaProcesadaEntity } from './entity/ficha-procesada.entity';
+import { ExcelService } from 'src/utils/excel.service';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { FichaProcesadaEntity } from './entity/ficha-procesada.entity';
       FichaProcesadaEntity
     ])
   ],
-  providers: [FichaService, InformesService],
+  providers: [FichaService, InformesService, ExcelService],
+  exports: [ExcelService],
   controllers: [FichaController]
 })
 export class FichaModule {}

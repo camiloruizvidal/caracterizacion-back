@@ -70,7 +70,7 @@ export class FichaController {
       const dominio = `${protocolo}://${host}`;
       const url = 'Caracterizacion' + new Date().getTime();
       res.send({ url: `${dominio}/${Config.FOLDER_PUBLIC_URL}/${url}.xlsx` });
-      await this.informesService.verInformeDinamico(url);
+      await this.informesService.generarInformeDinamico(url);
     } catch (error) {
       console.error(error);
       throw new HttpException(

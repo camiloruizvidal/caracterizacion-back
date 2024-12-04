@@ -24,3 +24,9 @@ export enum ETables {
   TARJETA_FAMILIAR = 'tarjeta_familiar',
   PSICOSOCIAL_PERSONA = 'psicosocial_persona'
 }
+
+export enum EFileStatus {
+  NOT_STARTED = 'not-started',
+  IN_PROGRESS = 'in-progress',
+  COMPLETED = 'completed'
+}

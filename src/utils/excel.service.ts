@@ -2,21 +2,28 @@ import { Config } from 'src/Config/Config';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import path from 'path';
+import { CacheService } from './cache.service';
+import { EFileStatus } from './global.interface';
 
 export class ExcelService {
   private workbook: ExcelJS.Workbook;
   private worksheet: ExcelJS.Worksheet | null = null;
   private filePath: string = '';
+  private fileName: string = '';
 
-  constructor() {
-    this.workbook = new ExcelJS.Workbook();
-  }
+  constructor() {}
 
   public async iniciar(
     fileName: string = 'archivo excel',
     sheetName: string = 'Hoja 1'
   ): Promise<void> {
-    const ruta = `${Config.FOLDER_FILES_URL}\\${fileName}.xlsx`;
+    this.worksheet = null;
+    this.workbook = new ExcelJS.Workbook();
+    console.log({ worksheet: this.worksheet });
+    console.log('Iniciando');
+    this.fileName = `${fileName}.xlsx`;
+    CacheService.setFileStatus(this.fileName, EFileStatus.IN_PROGRESS);
+    const ruta = `${Config.FOLDER_FILES_URL}\\${this.fileName}`;
     this.filePath = path.resolve(ruta);
     if (this.fileExists()) {
       try {
@@ -34,8 +41,15 @@ export class ExcelService {
     }
   }
 
-  public getFilePath(): string {
-    return this.filePath;
+  public finalizarExcel(): void {
+    console.log('finalizando excel');
+    CacheService.setFileStatus(this.fileName, EFileStatus.COMPLETED);
+    const status = CacheService.getFileStatus(this.fileName);
+    if (status !== EFileStatus.COMPLETED) {
+      throw new Error(
+        `El archivo aún está en estado "${status}". Espere a que finalice.`
+      );
+    }
   }
 
   public agregarHeader(header: any[]): void {
@@ -75,10 +89,10 @@ export class ExcelService {
       console.error(`Error al agregar datos: ${error.message}`);
       throw error;
     }
-    await this.guardar();
+    await this.guardarEnArchivo();
   }
 
-  private async guardar(): Promise<void> {
+  private async guardarEnArchivo(): Promise<void> {
     try {
       await this.workbook.xlsx.writeFile(this.filePath);
     } catch (error) {

@@ -6,14 +6,13 @@ import { ExcelService } from 'src/utils/excel.service';
 
 @Injectable()
 export class InformesService {
-  constructor() {}
+  constructor(private readonly excelService: ExcelService) {}
 
-  public async verInformeDinamico(nombreArchivo: string): Promise<string> {
-    const excelService = new ExcelService();
-    await excelService.iniciar(nombreArchivo);
+  public async generarInformeDinamico(nombreArchivo: string): Promise<void> {
+    await this.excelService.iniciar(nombreArchivo);
     const header: any[] = await this.generarHeader();
 
-    excelService.agregarHeader(header);
+    this.excelService.agregarHeader(header);
 
     const registrosXPagina = 500;
     let pagina = 1;
@@ -26,7 +25,7 @@ export class InformesService {
       );
 
       const data = this.procesarBloque(datos.rows);
-      await excelService.agregarDatos(data);
+      await this.excelService.agregarDatos(data);
 
       if (!totalPaginas) {
         totalPaginas = Math.ceil(datos.totalRegistros / registrosXPagina);
@@ -35,7 +34,7 @@ export class InformesService {
       pagina++;
     } while (pagina <= totalPaginas);
 
-    return excelService.getFilePath();
+    this.excelService.finalizarExcel();
   }
 
   private async generarHeader(): Promise<any[]> {

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PacientesModule } from './modules/pacientes/pacientes.module';
 import { UsuariosModule } from './modules/usuarios/usuarios.module';
@@ -9,6 +9,8 @@ import { DatabaseModule } from './database/database.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { Config } from './Config/Config';
 import { join } from 'path';
+import { FileReadyMiddleware } from './utils/middleware/file-read.middleware';
+import { ExcelService } from './utils/excel.service';
 
 console.log('joinfolder', join(__dirname, '..', '..', Config.FOLDER_FILES_URL));
 @Module({
@@ -25,6 +27,13 @@ console.log('joinfolder', join(__dirname, '..', '..', Config.FOLDER_FILES_URL));
     })
   ],
   controllers: [],
-  providers: []
+  providers: [ExcelService],
+  exports: [ExcelService]
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(FileReadyMiddleware)
+      .forRoutes(`/${Config.FOLDER_PUBLIC_URL}/*`);
+  }
+}
