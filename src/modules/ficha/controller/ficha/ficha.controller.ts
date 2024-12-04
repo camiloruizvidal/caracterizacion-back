@@ -66,7 +66,7 @@ export class FichaController {
   public async generarInformes(@Req() req: Request, @Res() res: Response) {
     try {
       const protocolo = req.protocol;
-      const host = req.get('host'); // localhost:3000
+      const host = req.get('host');
       const dominio = `${protocolo}://${host}`;
       const url = 'Caracterizacion' + new Date().getTime();
       res.send({ url: `${dominio}/${Config.FOLDER_PUBLIC_URL}/${url}.xlsx` });
