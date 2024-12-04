@@ -13,8 +13,18 @@ export class ExcelService {
     this.filePath = path.resolve(ruta);
     this.workbook = new ExcelJS.Workbook();
     if (this.fileExists()) {
-      this.workbook.xlsx.readFile(this.filePath);
-      this.worksheet = this.workbook.getWorksheet(sheetName);
+      this.workbook.xlsx
+        .readFile(this.filePath)
+        .then(() => {
+          this.worksheet = this.workbook.getWorksheet(sheetName);
+          if (!this.worksheet) {
+            this.worksheet = this.workbook.addWorksheet(sheetName);
+          }
+        })
+        .catch(error => {
+          console.error(`Error al leer el archivo Excel: ${error.message}`);
+          throw error;
+        });
     } else {
       this.worksheet = this.workbook.addWorksheet(sheetName);
     }
@@ -29,38 +39,52 @@ export class ExcelService {
   }
 
   public agregarHeader(header: any[]): void {
-    if (!this.fileExists()) {
-      let currentColumn = 1;
-
-      const headers = header[0];
-      headers.forEach(row => {
-        const startColumn = currentColumn;
-        const endColumn = startColumn + row.colSpan - 1;
-        this.worksheet.mergeCells(1, startColumn, 1, endColumn);
-        const cell = this.worksheet.getCell(1, startColumn);
-        cell.value = row.value;
-        cell.alignment = { horizontal: 'center' };
-
-        currentColumn = endColumn + 1;
-      });
-
-      this.worksheet.addRow(header[1]);
+    console.log(this.worksheet?.getRow(1)?.actualCellCount);
+    if (this.fileExists() && this.worksheet?.getRow(1)?.actualCellCount > 0) {
+      return;
     }
+
+    let currentColumn = 1;
+
+    const headers = header[0];
+    headers.forEach(row => {
+      const startColumn = currentColumn;
+      const endColumn = startColumn + row.colSpan - 1;
+      this.worksheet.mergeCells(1, startColumn, 1, endColumn);
+      const cell = this.worksheet.getCell(1, startColumn);
+      cell.value = row.value;
+      cell.alignment = { horizontal: 'center' };
+
+      currentColumn = endColumn + 1;
+    });
+
+    this.worksheet.addRow(header[1]);
   }
 
   public async agregarDatos(data: any[]): Promise<void> {
+    if (!this.worksheet) {
+      throw new Error(
+        'Worksheet no inicializado. Verifica el nombre de la hoja.'
+      );
+    }
+
     try {
       data.forEach(registro => {
         this.worksheet.addRow(registro);
       });
     } catch (error) {
-      console.error({ error });
+      console.error(`Error al agregar datos: ${error.message}`);
       throw error;
     }
     await this.guardar();
   }
 
   private async guardar(): Promise<void> {
-    await this.workbook.xlsx.writeFile(this.filePath);
+    try {
+      await this.workbook.xlsx.writeFile(this.filePath);
+    } catch (error) {
+      console.error(`Error al guardar el archivo: ${error.message}`);
+      throw error;
+    }
   }
 }

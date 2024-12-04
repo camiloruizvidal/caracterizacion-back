@@ -61,7 +61,7 @@ export class FichaController {
   public async procesarTodaslasFichasSubidas() {}
 
   @Get('informecompleto')
-  public async generarInformes(@Res() res: Response) {
+  public async generarInformes() {
     try {
       return await this.informesService.verInformeDinamico();
     } catch (error) {
