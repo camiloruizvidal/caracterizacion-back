@@ -1,6 +1,8 @@
 import { QueryTypes } from 'sequelize';
 import { Ficha } from '../model/ficha.model';
 import { IStatus } from '../entity/backup.entity';
+import { Transformadores } from 'src/utils/helpers';
+import { FichaProcesada } from '../model/ficha-procesada.model';
 
 export class FichaProcesadaRepository {
   public static async procesarBackupsAlmacenadas(
@@ -62,5 +64,26 @@ export class FichaProcesadaRepository {
       if (transaction) await transaction.rollback();
       throw error;
     }
+  }
+
+  public static async obtenerFichasProcesadas(
+    pagina: number = 1,
+    registrosXPagina: number = 10
+  ) {
+    const offset = (pagina - 1) * registrosXPagina;
+    const limit = registrosXPagina;
+
+    const { count, rows } = await FichaProcesada.findAndCountAll({
+      limit,
+      offset
+    });
+
+    return Transformadores.extraerDataValues({
+      rows,
+      totalRegistros: count,
+      registrosXPagina: limit,
+      totalPaginas: Math.ceil(count / registrosXPagina),
+      paginaActual: pagina
+    });
   }
 }

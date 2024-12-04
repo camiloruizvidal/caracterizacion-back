@@ -43,4 +43,10 @@ export class FichaJsonRepository {
   ) {
     return await FichaJson.update(data, { where: { id: idFichaJson } });
   }
+
+  public static async obtenerXVersionFichaJson(version: string) {
+    return await Transformadores.extraerDataValues(
+      await FichaJson.findOne({ where: { version } })
+    );
+  }
 }

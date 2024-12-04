@@ -72,7 +72,6 @@ export class FichaController {
         'Content-Disposition',
         'attachment; filename=exported-data.xlsx'
       );
-      //return { data: informe };
 
       res.send(informe);
     } catch (error) {

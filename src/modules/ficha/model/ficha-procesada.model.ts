@@ -60,12 +60,14 @@ export class FichaProcesada extends Model {
   personCard: any;
 
   @Column({
+    field: 'created_at',
     type: DataType.DATE,
     defaultValue: DataType.NOW
   })
   createdAt: Date;
 
   @Column({
+    field: 'updated_at',
     type: DataType.DATE,
     defaultValue: DataType.NOW
   })

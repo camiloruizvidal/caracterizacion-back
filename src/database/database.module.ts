@@ -15,6 +15,7 @@ import { FichaDescripcion } from 'src/modules/ficha/model/ficha-descripcion.mode
 import { Backup } from 'src/modules/ficha/model/backup.model';
 import { Version } from 'src/modules/ficha/model/version.model';
 import { FichaJson } from 'src/modules/ficha/model/ficha-json.model';
+import { FichaProcesada } from 'src/modules/ficha/model/ficha-procesada.model';
 
 const models = [
   PsicosocialPersona,
@@ -30,7 +31,8 @@ const models = [
   User,
   Backup,
   Version,
-  FichaJson
+  FichaJson,
+  FichaProcesada
 ];
 
 const databaseProvider = {
