@@ -63,7 +63,6 @@ export class FichaController {
   public async generarInformes(@Res() res: Response) {
     try {
       const informe = await this.informesService.verInformeDinamico();
-      console.log({ informe });
       res.setHeader(
         'Content-Type',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

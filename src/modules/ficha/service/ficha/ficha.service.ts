@@ -3,13 +3,12 @@ import { FichaRepository } from './../../repository/ficha.repository';
 import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, MoreThan, Repository } from 'typeorm';
+import { MoreThan, Repository } from 'typeorm';
 import { FichaGrupoEntity } from '../../entity/ficha-grupo.entity';
 import { VersionEntity } from '../../entity/version.entity';
 import { FichaTipoEntity } from '../../entity/ficha-tipo.entity';
 import { IFamilyCardSave, IFichaCard } from '../../interface/ficha.interface';
 import { BackupEntity, IStatus } from '../../entity/backup.entity';
-import { UserEntity } from 'src/modules/usuarios/entity/user.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
 import { FichaEntity } from '../../entity/ficha.entity';
 import { TarjetaFamiliarEntity } from '../../entity/tarjeta-familiar.entity';
@@ -23,6 +22,7 @@ import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
 import { VersionRepository } from '../../repository/version.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
+import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 
 @Injectable()
 export class FichaService {
@@ -64,7 +64,6 @@ export class FichaService {
   public async obternerFormatoFicha(): Promise<IFichaCard> {
     try {
       const fichasGrupos: any[] = await FichaGrupoRepository.obtenerGrupos();
-
       const fichasDescripcion: any[] =
         await FichaDescripcionRepository.obtenerFichasDescripcion();
 
@@ -374,7 +373,8 @@ export class FichaService {
     try {
       return await this.fichaGrupoRepository.find();
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
+      throw error;
     }
   }
 
@@ -397,20 +397,7 @@ export class FichaService {
   }
 
   public async obtenerFichaJson(id: number) {
-    let values = await this.fichaJsonEntity.findOne({ where: { id } });
-    if (!values) {
-      values = {
-        id: null,
-        isFinish: false,
-        version: null,
-        dateLastVersion: new Date(),
-        familyCard: [],
-        personCard: [],
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-    }
-    return values;
+    return await FichaJsonRepository.obtenerFichaJson(id);
   }
 
   public async nuevoGrupo(data: any) {
