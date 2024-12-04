@@ -22,7 +22,7 @@ export class ManejadorErrorService {
       error,
       mensajeTiempoExcedido
     );
-    console.log(error);
+    console.error(error);
 
     if (esTiempoExcedido) {
       //Timeout

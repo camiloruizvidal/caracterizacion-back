@@ -58,7 +58,7 @@ export class FichaProcesadaRepository {
       });
       await transaction.commit();
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       if (transaction) await transaction.rollback();
       throw error;
     }

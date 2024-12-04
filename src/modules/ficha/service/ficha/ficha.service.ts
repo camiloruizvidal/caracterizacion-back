@@ -379,7 +379,6 @@ export class FichaService {
   }
 
   public async agregarNuevoFormatoFicha(dataFamilyCard: any) {
-    console.log({ dataFamilyCard });
     const ficha = await FichaJsonRepository.obtenerFichaJson(dataFamilyCard.id);
     if (ficha) {
       return await FichaJsonRepository.actualizarFichaJson(dataFamilyCard.id, {

@@ -1,6 +1,5 @@
 import { Config } from './src/Config/Config';
 
-console.log({ Config });
 const config = {
   development: {
     username: Config.DB_USERNAME,
@@ -27,5 +26,4 @@ const config = {
     dialect: 'postgres'
   }
 };
-console.log({config2: config})
 export default config;
