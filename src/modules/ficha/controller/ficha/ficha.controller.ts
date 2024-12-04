@@ -4,6 +4,7 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
   HttpException,
   HttpStatus,
   Param,
@@ -119,14 +120,17 @@ export class FichaController {
 
   @Get('obtener/grupos')
   public async obtenerGrupos() {
-    return await this.fichaService.getGroups();
+    return await this.fichaService.obtenerGrupos();
   }
 
   @Post('ficha/nueva')
+  @HttpCode(204)
   public async nuevaFicha(@Body() dataFamilyCard: any) {
-    return {
-      response: await this.fichaService.nuevoFormatoFicha(dataFamilyCard)
-    };
+    try {
+      await this.fichaService.agregarNuevoFormatoFicha(dataFamilyCard);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get('ficha/obtenerJson/:id')
@@ -140,9 +144,13 @@ export class FichaController {
 
   @Post('/ficha/grupo_nuevo')
   public async nuevoGrupo(@Body() data: any) {
-    return {
-      data: await this.fichaService.nuevoGrupo(data)
-    };
+    try {
+      return {
+        data: await this.fichaService.guardarNuevoGrupo(data)
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Post('/procesar')

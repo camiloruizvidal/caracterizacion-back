@@ -27,7 +27,11 @@ export class FichaGrupo extends Model {
   })
   orden: number;
 
-
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true
+  })
+  ficha_tipo_id: number;
 
   @Column({
     type: DataType.STRING,

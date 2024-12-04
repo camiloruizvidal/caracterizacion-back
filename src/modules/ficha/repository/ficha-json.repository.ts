@@ -20,4 +20,27 @@ export class FichaJsonRepository {
     }
     return values;
   }
+
+  public static async agregarFichaJson(data: {
+    isFinish: any;
+    version: any;
+    dateLastVersion: any;
+    familyCard: any;
+    personCard: any;
+  }) {
+    return await FichaJson.create(data);
+  }
+
+  public static async actualizarFichaJson(
+    idFichaJson: number,
+    data: {
+      isFinish: any;
+      version: any;
+      dateLastVersion: any;
+      familyCard: any;
+      personCard: any;
+    }
+  ) {
+    return await FichaJson.update(data, { where: { id: idFichaJson } });
+  }
 }

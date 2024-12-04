@@ -369,30 +369,34 @@ export class FichaService {
     return { ficha, descripcion };
   }
 
-  public async getGroups() {
+  public async obtenerGrupos() {
     try {
-      return await this.fichaGrupoRepository.find();
+      return await FichaGrupoRepository.obtenerGrupos();
     } catch (error) {
       console.error({ error });
       throw error;
     }
   }
 
-  public async nuevoFormatoFicha(dataFamilyCard: any) {
-    const values = await this.fichaJsonEntity.findOne({
-      where: { id: dataFamilyCard.id }
-    });
-    const dataForm = this.fichaJsonEntity.create({
-      isFinish: dataFamilyCard.isFinish,
-      version: dataFamilyCard.version,
-      dateLastVersion: dataFamilyCard.dateLastVersion,
-      familyCard: dataFamilyCard.familyCard,
-      personCard: dataFamilyCard.personCard
-    });
-    if (values) {
-      return await this.fichaJsonEntity.update(dataFamilyCard.id, dataForm);
+  public async agregarNuevoFormatoFicha(dataFamilyCard: any) {
+    console.log({ dataFamilyCard });
+    const ficha = await FichaJsonRepository.obtenerFichaJson(dataFamilyCard.id);
+    if (ficha) {
+      return await FichaJsonRepository.actualizarFichaJson(dataFamilyCard.id, {
+        isFinish: dataFamilyCard.isFinish,
+        version: dataFamilyCard.version,
+        dateLastVersion: dataFamilyCard.dateLastVersion,
+        familyCard: dataFamilyCard.familyCard,
+        personCard: dataFamilyCard.personCard
+      });
     } else {
-      return await this.fichaJsonEntity.save(dataForm);
+      return await FichaJsonRepository.agregarFichaJson({
+        isFinish: dataFamilyCard.isFinish,
+        version: dataFamilyCard.version,
+        dateLastVersion: dataFamilyCard.dateLastVersion,
+        familyCard: dataFamilyCard.familyCard,
+        personCard: dataFamilyCard.personCard
+      });
     }
   }
 
@@ -400,9 +404,8 @@ export class FichaService {
     return await FichaJsonRepository.obtenerFichaJson(id);
   }
 
-  public async nuevoGrupo(data: any) {
-    const response = this.fichaGrupoRepository.create(data);
-    return await this.fichaGrupoRepository.save(response);
+  public async guardarNuevoGrupo(data: any) {
+    return await FichaGrupoRepository.guardarNuevoGrupo(data);
   }
 
   public async procesarFicha() {
