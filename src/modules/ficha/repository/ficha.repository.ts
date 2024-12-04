@@ -1,10 +1,9 @@
 import { Paciente } from './../../pacientes/model/paciente.model';
-import { Op, QueryTypes } from 'sequelize';
+import { Op } from 'sequelize';
 import { Ficha } from '../model/ficha.model';
 import { TarjetaFamiliar } from '../model/tarjeta-familiar.model';
 import { PsicosocialPersona } from '../model/psicosocial-persona.model';
 import { Transformadores } from 'src/utils/helpers';
-import { IStatus } from '../entity/backup.entity';
 
 export class FichaRepository {
   public static async cargarFichaPaginada(filtros: {
