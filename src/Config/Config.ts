@@ -12,4 +12,5 @@ export class Config {
   public static readonly DB_PASSWORD = process.env.DATABASE_PASS;
   public static readonly DB_DATABASE = process.env.DATABASE_NAME;
   public static readonly puerto = process.env.PORT;
+  public static readonly FILE_URL = process.env.FILE_URL;
 }

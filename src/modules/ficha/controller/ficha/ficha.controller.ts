@@ -63,17 +63,7 @@ export class FichaController {
   @Get('informecompleto')
   public async generarInformes(@Res() res: Response) {
     try {
-      const informe = await this.informesService.verInformeDinamico();
-      res.setHeader(
-        'Content-Type',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      );
-      res.setHeader(
-        'Content-Disposition',
-        'attachment; filename=exported-data.xlsx'
-      );
-
-      res.send(informe);
+      return await this.informesService.verInformeDinamico();
     } catch (error) {
       console.error(error);
       throw new HttpException(

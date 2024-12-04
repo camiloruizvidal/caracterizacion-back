@@ -1,16 +1,16 @@
-import { ExcelService } from './../../../../utils/excel.service';
 import { Injectable } from '@nestjs/common';
 import { IHeaderExcel } from '../../interface/ficha.interface';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
+import { ExcelService } from 'src/utils/excel.service';
 
 @Injectable()
 export class InformesService {
   constructor() {}
 
-  public async verInformeDinamico() {
-    const header: any[] = await this.generarHeader();
+  public async verInformeDinamico(): Promise<string> {
     const excelService = new ExcelService('Caracterizacion');
+    const header: any[] = await this.generarHeader();
 
     excelService.agregarHeader(header);
 
@@ -24,7 +24,8 @@ export class InformesService {
         registrosXPagina
       );
 
-      excelService.agregarDatos(this.procesarBloque(datos.rows));
+      const data = this.procesarBloque(datos.rows);
+      await excelService.agregarDatos(data);
 
       if (!totalPaginas) {
         totalPaginas = Math.ceil(datos.totalRegistros / registrosXPagina);
@@ -33,7 +34,7 @@ export class InformesService {
       pagina++;
     } while (pagina <= totalPaginas);
 
-    return excelService.generarBuffer();
+    return excelService.getFilePath();
   }
 
   private async generarHeader(): Promise<any[]> {
