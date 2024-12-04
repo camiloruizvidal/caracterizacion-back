@@ -1,5 +1,5 @@
+import { ExcelService } from './../../../../utils/excel.service';
 import { Injectable } from '@nestjs/common';
-import * as ExcelJS from 'exceljs';
 import { IHeaderExcel } from '../../interface/ficha.interface';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
@@ -10,10 +10,9 @@ export class InformesService {
 
   public async verInformeDinamico() {
     const header: any[] = await this.generarHeader();
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet('Caracterizacion');
+    const excelService = new ExcelService('Caracterizacion');
 
-    this.agregarHeader(worksheet, header);
+    excelService.agregarHeader(header);
 
     const registrosXPagina = 500;
     let pagina = 1;
@@ -25,10 +24,7 @@ export class InformesService {
         registrosXPagina
       );
 
-      const data = this.procesarBloque(datos.rows);
-      data.forEach(registro => {
-        worksheet.addRow(registro);
-      });
+      excelService.agregarDatos(this.procesarBloque(datos.rows));
 
       if (!totalPaginas) {
         totalPaginas = Math.ceil(datos.totalRegistros / registrosXPagina);
@@ -37,7 +33,7 @@ export class InformesService {
       pagina++;
     } while (pagina <= totalPaginas);
 
-    return workbook.xlsx.writeBuffer();
+    return excelService.generarBuffer();
   }
 
   private async generarHeader(): Promise<any[]> {
@@ -76,24 +72,6 @@ export class InformesService {
     headers.push([...datosIniciales, ...familyCard, ...personCard]);
     headers.push([...segundoHeader]);
     return headers;
-  }
-
-  private agregarHeader(worksheet: ExcelJS.Worksheet, header: any[]): void {
-    let currentColumn = 1;
-
-    const headers = header[0];
-    headers.forEach(row => {
-      const startColumn = currentColumn;
-      const endColumn = startColumn + row.colSpan - 1;
-      worksheet.mergeCells(1, startColumn, 1, endColumn);
-      const cell = worksheet.getCell(1, startColumn);
-      cell.value = row.value;
-      cell.alignment = { horizontal: 'center' };
-
-      currentColumn = endColumn + 1;
-    });
-
-    worksheet.addRow(header[1]);
   }
 
   private procesarBloque(rows: any[]): any[] {
