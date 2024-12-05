@@ -19,4 +19,8 @@ export class BackupRepository {
     });
     return resultados;
   }
+
+  public static async guardarBackup(data: string) {
+    await Backup.create({ data });
+  }
 }

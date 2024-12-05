@@ -22,29 +22,6 @@ import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 
 @Injectable()
 export class FichaService {
-  constructor(
-    @InjectRepository(BackupEntity)
-    private readonly backupRepository: Repository<BackupEntity>,
-
-    @InjectRepository(FichaDescripcionEntity)
-    private readonly fichaDescripcionRepository: Repository<FichaDescripcionEntity>,
-
-    @InjectRepository(FichaEntity)
-    private readonly fichaRepository: Repository<FichaEntity>,
-
-    @InjectRepository(TarjetaFamiliarEntity)
-    private readonly tarjetaFamiliarRepository: Repository<TarjetaFamiliarEntity>,
-
-    @InjectRepository(VersionEntity)
-    private readonly versionRepository: Repository<VersionEntity>,
-
-    @InjectRepository(PacienteEntity)
-    private readonly pacienteRepository: Repository<PacienteEntity>,
-
-    @InjectRepository(PsicosocialPersonaEntity)
-    private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>
-  ) {}
-
   public async obternerFormatoFicha(): Promise<IFichaCard> {
     try {
       const fichasGrupos: any[] = await FichaGrupoRepository.obtenerGrupos();
@@ -89,21 +66,9 @@ export class FichaService {
     }
   }
 
-  public async getPeopelData(): Promise<PacienteEntity[]> {
-    try {
-      const paciente: PacienteEntity[] = await this.pacienteRepository.find();
-      return paciente;
-    } catch (error) {
-      throw error.message;
-    }
-  }
-
   public async saveRegisterBackup(data: any): Promise<boolean> {
     try {
-      const backup = this.backupRepository.create({
-        data
-      });
-      await this.backupRepository.save(backup);
+      await BackupRepository.guardarBackup(data);
       return true;
     } catch (error) {
       throw error;
@@ -113,13 +78,7 @@ export class FichaService {
   public async loadFormsPage(
     page: number = 1,
     pageSize: number = 10
-  ): Promise<{
-    data: any[];
-    totalItems: number;
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-  }> {
+  ): Promise<IPagination<any>> {
     const registros = await BackupRepository.verBackupsPaginados(
       page,
       pageSize
@@ -144,187 +103,6 @@ export class FichaService {
     });
   }
 
-  public async procesarFichasSubidasConUltimaVersion() {
-    try {
-      const version: VersionEntity = await this.versionRepository.findOne({
-        where: { id: MoreThan(0) },
-        order: { id: 'DESC' }
-      });
-
-      const cards = await this.loadLastCards(version.id);
-      const registers: any[] = [];
-      cards
-        .map(card => ({ card: card.data.data, id: card.id }))
-        .forEach(async (card: any, index: number) => {
-          const register = await this.createRegister(
-            card.card,
-            cards,
-            index,
-            card.id
-          );
-          registers.push(register);
-        });
-      return version;
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  private async createRegister(card, cards, index, backupId) {
-    const personsEncuesta = this.extractDataTable({
-      card,
-      typeCard: 'personCard',
-      table: ETables.PSICOSOCIAL_PERSONA
-    });
-    const persons = this.extractDataTable({
-      card,
-      typeCard: 'personCard',
-      table: ETables.PACIENTE
-    });
-    const familyCard = this.extractDataTable(
-      {
-        card,
-        typeCard: 'familyCard',
-        table: ETables.TARJETA_FAMILIAR
-      },
-      false
-    );
-    return await this.saveRegisters({
-      card: {
-        version: cards[index].data.version,
-        dateLastVersion: cards[index].data.dateLastVersion,
-        dateRegister: cards[index].data.dateRegister,
-        code: cards[index].data.code,
-        userId: cards[index].data.userId,
-        familyCard
-      },
-      persons,
-      personsEncuesta,
-      familyCard,
-      backupId
-    });
-  }
-
-  private async loadLastCards(versionId: number = 0) {
-    const cards: any[] = await this.backupRepository.find({
-      where: { status: IStatus.Almacenado }
-    });
-    return versionId === 0
-      ? cards
-      : cards.filter(card => Number(card.data.version) == versionId);
-  }
-
-  private extractDataTable(
-    data: {
-      card: any;
-      typeCard: string;
-      table: string;
-    },
-    isArray: boolean = true
-  ): any {
-    const { card, typeCard, table } = data;
-    let result;
-    if (isArray) {
-      result = card[typeCard].flatMap(valueCard =>
-        valueCard
-          .filter(items => items.table === table)
-          .map(item =>
-            item.values.reduce(
-              (acc, value) => ({ ...acc, [value.columnName]: value.value }),
-              {}
-            )
-          )
-      );
-    } else {
-      result = card[typeCard].reduce((result, card) => {
-        const valuesSets = card.values;
-        valuesSets.forEach(values => {
-          result[values.columnName] = values.value;
-        });
-        return result;
-      }, {});
-    }
-    return result;
-  }
-
-  private async saveRegisters(dataToSave: {
-    persons: any[];
-    personsEncuesta: any[];
-    card: any;
-    familyCard: any;
-    backupId: number;
-  }) {
-    const { familyCard, card, persons, personsEncuesta, backupId } = dataToSave;
-    const ficha = await this.guardarFicha(card);
-    this.guardarTarjetaFamiliar(familyCard, ficha);
-    for (let index = 0; index < persons.length; index++) {
-      try {
-        const personSave = await this.guardarPersona(persons[index]);
-        const personEncuesta: PsicosocialPersonaEntity = personsEncuesta[index];
-        personEncuesta.fichaId = ficha.id;
-        personEncuesta.personaId = personSave.id;
-        await this.guardarEncuesta(personEncuesta);
-        const backup = await this.backupRepository.findOne({
-          where: { id: backupId }
-        });
-      } catch (error) {
-        throw error;
-      }
-    }
-
-    const backup = await this.backupRepository.findOne({
-      where: { id: backupId }
-    });
-    if (backup) {
-      backup.status = IStatus.Guardado;
-      return await this.backupRepository.save(backup);
-    }
-    return ficha;
-  }
-
-  private async guardarEncuesta(personEncuesta: PsicosocialPersonaEntity) {
-    const create = this.psicosocialPersonaRepository.create(personEncuesta);
-    return await this.psicosocialPersonaRepository.save(create);
-  }
-
-  private async guardarPersona(
-    personaData: PacienteEntity
-  ): Promise<PacienteEntity> {
-    const existente = await this.pacienteRepository.findOne({
-      where: {
-        documento_numero: personaData?.documento_numero
-      }
-    });
-
-    if (existente) {
-      return await this.pacienteRepository.save({
-        ...existente,
-        ...personaData
-      });
-    } else {
-      const nuevaPersona = this.pacienteRepository.create(personaData);
-      return await this.pacienteRepository.save(nuevaPersona);
-    }
-  }
-
-  private async guardarFicha(card: IFamilyCardSave): Promise<any> {
-    return await FichaRepository.crearFicha(
-      card.userId,
-      Number(card.version),
-      card.code,
-      card.dateRegister
-    );
-  }
-
-  private async guardarTarjetaFamiliar(
-    familyCard: TarjetaFamiliarEntity,
-    ficha: FichaEntity
-  ) {
-    const tarjetaFamiliar = this.tarjetaFamiliarRepository.create(familyCard);
-    tarjetaFamiliar.ficha = ficha;
-    return await this.tarjetaFamiliarRepository.save(tarjetaFamiliar);
-  }
-
   public async loadFormsDetail(filtros: {
     fechaInicio: string;
     fechaFin: string;
@@ -336,21 +114,6 @@ export class FichaService {
     const fichas: IPagination<any> =
       await FichaRepository.cargarFichaPaginada(filtros);
     return fichas;
-  }
-
-  public async loadFormDetail(
-    id: number
-  ): Promise<{ ficha: FichaEntity; descripcion: FichaDescripcionEntity[] }> {
-    const ficha = await this.fichaRepository.findOne({
-      where: { id },
-      relations: [
-        'tarjetasFamiliares',
-        'psicosocialPersonas.persona',
-        'usuario_creacion'
-      ]
-    });
-    const descripcion = await this.fichaDescripcionRepository.find();
-    return { ficha, descripcion };
   }
 
   public async obtenerGrupos() {

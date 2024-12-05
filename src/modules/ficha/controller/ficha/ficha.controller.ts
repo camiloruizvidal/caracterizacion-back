@@ -123,13 +123,6 @@ export class FichaController {
     });
   }
 
-  @Get(':id')
-  public async obtenerFichaPorId(
-    @Param('id') id: number
-  ): Promise<{ ficha: FichaEntity; descripcion: FichaDescripcionEntity[] }> {
-    return await this.fichaService.loadFormDetail(id);
-  }
-
   @Get('obtener/grupos')
   public async obtenerGrupos() {
     return await this.fichaService.obtenerGrupos();

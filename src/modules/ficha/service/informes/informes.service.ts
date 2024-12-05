@@ -11,10 +11,10 @@ export class InformesService {
   constructor(private readonly excelService: ExcelService) {}
 
   public async generarInformeDinamico(nombreArchivo: string): Promise<void> {
-    await this.excelService.iniciar(nombreArchivo);
+    await this.excelService.iniciarEscritura(nombreArchivo);
     const header: any[] = await this.generarHeader();
 
-    this.excelService.agregarHeader(header);
+    this.excelService.agregarHeaderEscritura(header);
 
     const registrosXPagina = 500;
     let pagina = 1;
@@ -27,7 +27,7 @@ export class InformesService {
       );
 
       const data = this.procesarBloque(datos.rows);
-      await this.excelService.agregarDatos(data);
+      await this.excelService.agregarDatosEscritura(data);
 
       if (!totalPaginas) {
         totalPaginas = Math.ceil(datos.totalRegistros / registrosXPagina);
@@ -36,7 +36,7 @@ export class InformesService {
       pagina++;
     } while (pagina <= totalPaginas);
 
-    this.excelService.finalizarExcel();
+    this.excelService.finalizarEscritura();
   }
 
   private async generarHeader(): Promise<any[]> {

@@ -1,3 +1,4 @@
+import { IPagination } from './../../../utils/global.interface';
 import { Paciente } from './../../pacientes/model/paciente.model';
 import { Op } from 'sequelize';
 import { Ficha } from '../model/ficha.model';
@@ -13,13 +14,7 @@ export class FichaRepository {
     municipio: string;
     page: number;
     pageSize: number;
-  }): Promise<{
-    data: any[];
-    totalItems: number;
-    currentPage: number;
-    totalPages: number;
-    itemsPerPage: number;
-  }> {
+  }): Promise<IPagination<any>> {
     const { fechaInicio, fechaFin, usuarioId, page, pageSize } = filtros;
 
     const whereConditions: any = {};
@@ -96,11 +91,9 @@ export class FichaRepository {
     return Transformadores.extraerDataValues(fichaCreada);
   }
 
-  public static async obtenerFicha(): Promise<any[]> {
+  public static async obtenerFicha(id: number): Promise<any[]> {
     return Transformadores.extraerDataValues(
-      await Ficha.findAll({
-        order: [['orden', 'ASC']]
-      })
+      await Ficha.findOne({ where: { id } })
     );
   }
 }
