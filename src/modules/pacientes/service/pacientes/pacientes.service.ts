@@ -1,8 +1,5 @@
 import { ArchivosService } from './../../../../utils/archivos.service';
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PacienteEntity } from '../../entity/pacientes.entity';
 import { IPacienteImportExcel } from '../../interface/pacientes.interdace';
 import { ISearchPagination, IPagination } from 'src/utils/global.interface';
 import { PacienteRepository } from '../../repository/paciente.repository';
@@ -10,11 +7,6 @@ import { ExcelService } from 'src/utils/excel.service';
 
 @Injectable()
 export class PacientesService {
-  constructor(
-    @InjectRepository(PacienteEntity)
-    private readonly pacienteRepository: Repository<PacienteEntity>
-  ) {}
-
   public async paginarPacientes(
     parametros: ISearchPagination
   ): Promise<IPagination<any>> {
@@ -34,11 +26,25 @@ export class PacientesService {
     try {
       const ruta = archivosService.guardarArchivo(file);
       const registrosXGrupos = 100;
+
+      console.log('Va iniciar la lectura');
       await excelService.iniciarLectura(ruta, registrosXGrupos);
-      const totalRegistros: number = excelService.obtenerTotalRegistros();
-      for (let i = 0; i < totalRegistros / registrosXGrupos; i++) {
-        this.insertarDatos(excelService.obtenerRegistrosXGrupos(i));
+      console.log('Inicio la lectura');
+
+      const totalRegistros = await excelService.obtenerTotalRegistros();
+      console.log({ totalRegistros });
+      const totalGrupos = Math.ceil(totalRegistros / registrosXGrupos);
+      console.log({ totalGrupos });
+      const grupos = Array.from({ length: totalGrupos }, (_, index) => index);
+
+      for (const i of grupos) {
+        console.log(`Procesando grupo ${i} de ${totalGrupos}.`);
+        const registros = await excelService.obtenerRegistrosXGrupos(i);
+        console.log('Finalizando grupo ${i} de ${totalGrupos}.');
+        await this.insertarDatos(registros);
+        throw 'error';
       }
+      console.log('Finalizo');
     } catch (error) {
       console.log({ error });
       throw error.message;

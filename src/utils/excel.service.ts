@@ -110,65 +110,95 @@ export class ExcelService {
     const ruta = path.join(this.fileName);
     this.filePath = path.resolve(ruta);
 
-    if (fs.existsSync(this.filePath)) {
-      try {
-        await this.workbook.xlsx.readFile(this.filePath);
-        this.worksheet = this.workbook.worksheets[0];
-      } catch (error) {
-        console.error(`Error al leer el archivo Excel: ${error.message}`);
-        throw error;
-      }
-    } else {
+    if (!fs.existsSync(this.filePath)) {
       throw new Error('El archivo no existe.');
     }
   }
 
-  public obtenerTotalRegistros(): number {
-    if (!this.worksheet) {
-      throw new Error('Worksheet no inicializado. Verifica el archivo y hoja.');
+  public async obtenerRegistrosXGrupos(grupo: number): Promise<any[]> {
+    if (!this.filePath) {
+      throw new Error(
+        'Archivo no inicializado. Llama a iniciarLectura primero.'
+      );
     }
 
-    return this.worksheet.rowCount - 1;
-  }
-
-  public obtenerRegistrosXGrupos(grupo: number): any[] {
-    if (!this.worksheet) {
-      throw new Error('Worksheet no inicializado. Verifica el archivo y hoja.');
-    }
-
-    const inicio = grupo * this.chunkSize + 2;
+    const inicio = grupo * this.chunkSize + 2; // Comienza en la fila correspondiente al grupo
     const fin = inicio + this.chunkSize - 1;
-    const totalRows = this.worksheet.rowCount;
-
-    if (inicio > totalRows) {
-      return [];
-    }
-
-    let headers = this.worksheet.getRow(1).values as string[];
-    if (!Array.isArray(headers)) {
-      throw new Error('No se pudieron obtener los encabezados de la hoja.');
-    }
-
-    headers = headers.slice(1);
-
     const registros: any[] = [];
-    for (
-      let rowIndex = inicio;
-      rowIndex <= fin && rowIndex <= totalRows;
-      rowIndex++
-    ) {
-      const row = this.worksheet.getRow(rowIndex);
-      const rowData = Array.isArray(row.values) ? row.values.slice(1) : [];
+    let headers: string[] = [];
+    let currentRow = 0;
 
-      const registro: any = {};
-      headers.forEach((header, index) => {
-        registro[header] = rowData[index] ?? null;
-      });
+    const stream = fs.createReadStream(this.filePath);
+    const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(stream, {
+      entries: 'emit',
+      worksheets: 'emit',
+      styles: 'cache',
+      sharedStrings: 'cache'
+    });
 
-      registros.push(registro);
+    for await (const worksheet of workbookReader) {
+      let headerProcessed = false;
+
+      for await (const row of worksheet) {
+        currentRow++;
+
+        if (currentRow === 1 && !headerProcessed) {
+          headers = Array.isArray(row.values)
+            ? (row.values.slice(1) as string[])
+            : [];
+          headerProcessed = true;
+          continue;
+        }
+
+        if (currentRow >= inicio && currentRow <= fin) {
+          const rowData = Array.isArray(row.values) ? row.values.slice(1) : [];
+          const registro: any = {};
+          headers.forEach((header, index) => {
+            registro[header] = rowData[index] ?? null;
+          });
+          registros.push(registro);
+        }
+
+        if (currentRow > fin) {
+          return registros;
+        }
+      }
     }
 
     return registros;
+  }
+
+  public async obtenerTotalRegistros(): Promise<number> {
+    if (!this.filePath) {
+      throw new Error(
+        'Archivo no inicializado. Llama a iniciarLectura primero.'
+      );
+    }
+
+    const stream = fs.createReadStream(this.filePath);
+    const workbookReader = new ExcelJS.stream.xlsx.WorkbookReader(stream, {
+      entries: 'emit',
+      worksheets: 'emit',
+      styles: 'cache',
+      sharedStrings: 'cache'
+    });
+
+    let totalRows = 0;
+    let primeraHojaProcesada = false;
+
+    for await (const worksheet of workbookReader) {
+      if (!primeraHojaProcesada) {
+        primeraHojaProcesada = true;
+
+        for await (const row of worksheet) {
+          totalRows++;
+        }
+
+        break;
+      }
+    }
+
+    return totalRows > 1 ? totalRows - 1 : 0;
   }
 
   private fileExists(): boolean {

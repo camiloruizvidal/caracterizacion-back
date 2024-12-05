@@ -16,8 +16,6 @@ import {
 } from '@nestjs/common';
 import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
-import { FichaEntity } from '../../entity/ficha.entity';
-import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Config } from 'src/Config/Config';
 
 @Controller('api/v1/ficha')
