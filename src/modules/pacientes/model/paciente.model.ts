@@ -12,15 +12,18 @@ export class Paciente extends Model {
 
   @Column({
     type: DataType.STRING,
+    field: 'documento_tipo',
     allowNull: true
   })
   documentoTipo: string;
 
   @Column({
+    field: 'documento_numero',
     type: DataType.STRING,
-    allowNull: true
+    allowNull: true,
+    unique: true
   })
-  documentoNumero: string;
+  documento_numero: string;
 
   @Column({
     type: DataType.STRING,
@@ -30,36 +33,42 @@ export class Paciente extends Model {
 
   @Column({
     type: DataType.STRING,
+    field: 'nombre_primero',
     allowNull: false
   })
   nombrePrimero: string;
 
   @Column({
     type: DataType.STRING,
+    field: 'nombre_segundo',
     allowNull: true
   })
   nombreSegundo: string;
 
   @Column({
     type: DataType.STRING,
+    field: 'apellido_primero',
     allowNull: false
   })
   apellidoPrimero: string;
 
   @Column({
     type: DataType.STRING,
+    field: 'apellido_segundo',
     allowNull: true
   })
   apellidoSegundo: string;
 
   @Column({
     type: DataType.DATE,
+    field: 'fecha_nacimiento',
     allowNull: true
   })
   fechaNacimiento: Date;
 
   @Column({
     type: DataType.STRING,
+    field: 'estado_civil',
     allowNull: true
   })
   estadoCivil: string;
@@ -78,24 +87,28 @@ export class Paciente extends Model {
 
   @Column({
     type: DataType.STRING,
+    field: 'aporta_ingresos',
     allowNull: true
   })
   aportaIngresos: string;
 
   @Column({
     type: DataType.STRING,
+    field: 'nivel_escolaridad',
     allowNull: true
   })
   nivelEscolaridad: string;
 
   @Column({
     type: DataType.STRING,
+    field: 'tipo_afiliacion_salud',
     allowNull: true
   })
   tipoAfiliacionSalud: string;
 
   @Column({
     type: DataType.STRING,
+    field: 'grupo_atencion_especial',
     allowNull: true
   })
   grupoAtencionEspecial: string;

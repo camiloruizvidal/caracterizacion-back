@@ -3,14 +3,6 @@ export interface ISearchPagination {
   pageSize: number;
 }
 
-export interface IPaginationResult {
-  data: any;
-  currentPage: number;
-  itemsPerPage: number;
-  totalItems: number;
-  totalPages: number;
-}
-
 export interface IPagination<T> {
   data: T[];
   totalItems: number;

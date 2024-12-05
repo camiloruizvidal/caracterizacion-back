@@ -107,10 +107,10 @@ export class ExcelService {
     this.workbook = new ExcelJS.Workbook();
     this.fileName = fileName;
     this.chunkSize = chunkSize;
-    const ruta = `${Config.FOLDER_FILES_URL}\\${this.fileName}`;
+    const ruta = path.join(this.fileName);
     this.filePath = path.resolve(ruta);
 
-    if (this.fileExists()) {
+    if (fs.existsSync(this.filePath)) {
       try {
         await this.workbook.xlsx.readFile(this.filePath);
         this.worksheet = this.workbook.worksheets[0];
@@ -131,7 +131,7 @@ export class ExcelService {
     return this.worksheet.rowCount - 1;
   }
 
-  public obtenerRegistros(grupo: number): any[] {
+  public obtenerRegistrosXGrupos(grupo: number): any[] {
     if (!this.worksheet) {
       throw new Error('Worksheet no inicializado. Verifica el archivo y hoja.');
     }

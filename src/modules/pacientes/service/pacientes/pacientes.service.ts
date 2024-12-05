@@ -1,13 +1,14 @@
+import { ArchivosService } from './../../../../utils/archivos.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as XLSX from 'xlsx';
 import { PacienteEntity } from '../../entity/pacientes.entity';
 import { IPacienteImportExcel } from '../../interface/pacientes.interdace';
-import {
-  IPaginationResult,
-  ISearchPagination
-} from 'src/utils/global.interface';
+import { ISearchPagination, IPagination } from 'src/utils/global.interface';
+import path from 'path';
+import { PacienteRepository } from '../../repository/paciente.repository';
+import { ExcelService } from 'src/utils/excel.service';
 
 @Injectable()
 export class PacientesService {
@@ -18,7 +19,7 @@ export class PacientesService {
 
   public async paginarPacientes(
     search: ISearchPagination
-  ): Promise<IPaginationResult> {
+  ): Promise<IPagination<any>> {
     try {
       const [data, totalItems] = await this.pacienteRepository.findAndCount({
         take: search.pageSize,
@@ -30,8 +31,8 @@ export class PacientesService {
         data: [data[0]],
         currentPage: Number(search.page),
         itemsPerPage: Number(search.pageSize),
-        totalItems: 1,
-        totalPages: 1
+        totalItems,
+        totalPages
       };
     } catch (error) {
       throw 'Ocurrió un error al obtener los pacientes paginados.';
@@ -40,58 +41,48 @@ export class PacientesService {
 
   public async filtrarPorGps() {}
 
-  public cargaExcelMasivo(file: Express.Multer.File) {
+  public async cargaExcelMasivo(file: Express.Multer.File) {
+    const archivosService: ArchivosService = new ArchivosService();
+    const excelService: ExcelService = new ExcelService();
+
     try {
-      const workbook = XLSX.read(file.buffer, { type: 'buffer' });
-      const sheetNames = workbook.SheetNames;
-
-      const worksheet = workbook.Sheets[sheetNames[0]];
-      this.insertarDatos(XLSX.utils.sheet_to_json(worksheet));
-
-      return 'carga exitosa';
+      const ruta = archivosService.guardarArchivo(file);
+      const registrosXGrupos = 100;
+      await excelService.iniciarLectura(ruta, registrosXGrupos);
+      const totalRegistros: number = excelService.obtenerTotalRegistros();
+      for (let i = 0; i < totalRegistros / registrosXGrupos; i++) {
+        this.insertarDatos(excelService.obtenerRegistrosXGrupos(i));
+      }
     } catch (error) {
+      console.log({ error });
       throw error.message;
     }
   }
 
   private async insertarDatos(registrosPaciente: IPacienteImportExcel[]) {
-    const registrosPacienteEntity = registrosPaciente.map(
+    console.log({ registrosPaciente });
+    const registrosDePacientes = registrosPaciente.map(
       (registro: IPacienteImportExcel) => ({
-        nombre_primero: registro.primer_nombre,
-        nombre_segundo: registro?.segundo_nombre,
-        apellido_primero: registro.primer_apellido,
-        apellido_segundo: registro?.segundo_apellido,
-        documento_numero: registro?.documento_numero,
-        fecha_nacimiento: new Date(registro?.fecha_nacimiento),
+        documento_numero: registro.documento_numero,
+        nombrePrimero: registro.primer_nombre,
+        nombreSegundo: registro?.segundo_nombre,
+        apellidoPrimero: registro.primer_apellido,
+        apellidoSegundo: registro?.segundo_apellido,
+        fechaNacimiento: registro?.fecha_nacimiento
+          ? new Date(registro?.fecha_nacimiento)
+          : null,
         sexo: registro?.sexo,
-        parentesco: registro?.parentesco,
+        parentesco:
+          registro?.parentesco === undefined ? null : registro?.parentesco,
         ocupacion: registro?.ocupacion,
-        aporta_ingresos: registro?.aporta_ingresos,
-        nivel_escolaridad: registro?.nivel_escolaridad,
-        afilicion_salud_tipo: registro?.afilicion_salud_tipo,
-        grupo_atencion_especial: registro?.grupo_atencion_especial,
+        aportaIngresos: registro?.aporta_ingresos,
+        nivelEscolaridad: registro?.nivel_escolaridad,
+        tipoAfiliacionSalud: registro?.afilicion_salud_tipo,
+        grupoAtencionEspecial: registro?.grupo_atencion_especial,
         discapacidad: registro?.discapacidad
       })
     );
 
-    for (const pacienteData of registrosPacienteEntity) {
-      const existingPaciente = await this.pacienteRepository.findOne({
-        where: { documento_numero: pacienteData.documento_numero }
-      });
-      try {
-        if (existingPaciente) {
-          await this.pacienteRepository.update(
-            existingPaciente.id,
-            pacienteData
-          );
-        } else {
-          await this.pacienteRepository.save(
-            this.pacienteRepository.create(pacienteData)
-          );
-        }
-      } catch (error) {
-        throw new BadRequestException(error);
-      }
-    }
+    await PacienteRepository.guardarPacientesBulk(registrosDePacientes);
   }
 }

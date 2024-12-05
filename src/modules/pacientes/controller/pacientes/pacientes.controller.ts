@@ -23,7 +23,7 @@ export class PacientesController {
   @UseInterceptors(FileInterceptor('pacientes'))
   async cargarArchivos(@UploadedFile() file: Express.Multer.File) {
     try {
-      const data = this.pacientesService.cargaExcelMasivo(file);
+      const data = await this.pacientesService.cargaExcelMasivo(file);
       return {
         message: 'Archivo Excel subido correctamente',
         data
