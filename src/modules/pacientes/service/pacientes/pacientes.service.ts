@@ -16,22 +16,10 @@ export class PacientesService {
   ) {}
 
   public async paginarPacientes(
-    search: ISearchPagination
+    parametros: ISearchPagination
   ): Promise<IPagination<any>> {
     try {
-      const [data, totalItems] = await this.pacienteRepository.findAndCount({
-        take: search.pageSize,
-        skip: search.pageSize * (search.page - 1)
-      });
-      const totalPages = Math.ceil(totalItems / search.pageSize);
-
-      return {
-        data: [data[0]],
-        currentPage: Number(search.page),
-        itemsPerPage: Number(search.pageSize),
-        totalItems,
-        totalPages
-      };
+      return await PacienteRepository.verPacientesPaginado(parametros);
     } catch (error) {
       throw 'Ocurrió un error al obtener los pacientes paginados.';
     }
@@ -61,7 +49,7 @@ export class PacientesService {
     const registrosDePacientes = registrosPaciente.map(
       (registro: IPacienteImportExcel) => {
         return {
-          documento_numero: registro.documento_numero,
+          documentoNumero: registro.documento_numero,
           nombrePrimero: registro.primer_nombre,
           nombreSegundo: registro?.segundo_nombre,
           apellidoPrimero: registro.primer_apellido,

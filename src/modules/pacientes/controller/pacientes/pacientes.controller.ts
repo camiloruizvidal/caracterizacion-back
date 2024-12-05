@@ -1,3 +1,4 @@
+import { plainToInstance } from 'class-transformer';
 import { ManejadorErrorService } from './../../../../utils/manejador-error.service';
 import { PacientesService } from './../../service/pacientes/pacientes.service';
 import {
@@ -11,6 +12,7 @@ import {
   UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { PacientesPaginadosDto } from '../dto/pacientes-paginados.dto';
 
 @Controller('api/v1/pacientes')
 export class PacientesController {
@@ -39,10 +41,26 @@ export class PacientesController {
     @Query('pageSize') pageSize: number = 10
   ) {
     try {
-      return await this.pacientesService.paginarPacientes({
+      const pacientes = await this.pacientesService.paginarPacientes({
         page: Number(page),
         pageSize: Number(pageSize)
       });
+      pacientes.data = pacientes.data.map(paciente => {
+        paciente['nombre_primero'] = paciente.nombrePrimero;
+        paciente['nombre_segundo'] = paciente.nombreSegundo;
+        paciente['apellido_primero'] = paciente.apellidoPrimero;
+        paciente['apellido_segundo'] = paciente.apellidoSegundo;
+        paciente['documento_tipo'] = paciente.documentoTipo;
+        paciente['documento_numero'] = paciente.documentoNumero;
+        delete paciente.nombrePrimero;
+        delete paciente.nombreSegundo;
+        delete paciente.apellidoPrimero;
+        delete paciente.apellidoSegundo;
+        delete paciente.documentoTipo;
+        delete paciente.documentoNumero;
+        return paciente;
+      });
+      return plainToInstance(PacientesPaginadosDto, pacientes);
     } catch (error) {
       this.manejadorErrorService.resolverErrorApi(error);
     }

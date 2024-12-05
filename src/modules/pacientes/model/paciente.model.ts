@@ -23,7 +23,7 @@ export class Paciente extends Model {
     allowNull: false,
     unique: true
   })
-  documento_numero: string;
+  documentoNumero: string;
 
   @Column({
     type: DataType.STRING,
