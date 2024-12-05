@@ -40,7 +40,6 @@ export class ExcelService {
   }
 
   public finalizarExcel(): void {
-    console.log('finalizando excel');
     CacheService.setFileStatus(this.fileName, EFileStatus.COMPLETED);
     const status = CacheService.getFileStatus(this.fileName);
     if (status !== EFileStatus.COMPLETED) {
