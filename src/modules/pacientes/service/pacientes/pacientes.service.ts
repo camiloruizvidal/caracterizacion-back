@@ -1,9 +1,11 @@
+import { Config } from './../../../../Config/Config';
 import { ArchivosService } from './../../../../utils/archivos.service';
 import { Injectable } from '@nestjs/common';
 import { IPacienteImportExcel } from '../../interface/pacientes.interdace';
 import { ISearchPagination, IPagination } from 'src/utils/global.interface';
 import { PacienteRepository } from '../../repository/paciente.repository';
 import { ExcelService } from 'src/utils/excel.service';
+import { LogRepository } from 'src/modules/data/repository/log.repository';
 
 @Injectable()
 export class PacientesService {
@@ -25,24 +27,32 @@ export class PacientesService {
 
     try {
       const ruta = archivosService.guardarArchivo(file);
-      const registrosXGrupos = 100;
+      const registrosXGrupos = Config.CANTIDAD_REGISTROS_BULK;
 
       console.log('Va iniciar la lectura');
       await excelService.iniciarLectura(ruta, registrosXGrupos);
       console.log('Inicio la lectura');
 
       const totalRegistros = await excelService.obtenerTotalRegistros();
-      console.log({ totalRegistros });
       const totalGrupos = Math.ceil(totalRegistros / registrosXGrupos);
-      console.log({ totalGrupos });
+      console.log({ totalRegistros });
+      console.log({ registrosXGrupos, totalGrupos });
       const grupos = Array.from({ length: totalGrupos }, (_, index) => index);
 
       for (const i of grupos) {
-        console.log(`Procesando grupo ${i} de ${totalGrupos}.`);
-        const registros = await excelService.obtenerRegistrosXGrupos(i);
-        console.log('Finalizando grupo ${i} de ${totalGrupos}.');
-        await this.insertarDatos(registros);
-        throw 'error';
+        try {
+          console.log(`Procesando grupo ${i} de ${totalGrupos}.`);
+          await this.insertarDatos(
+            await excelService.obtenerRegistrosXGrupos(i)
+          );
+          console.log(`Finalizando grupo ${i} de ${totalGrupos}.`);
+        } catch (error) {
+          console.error({ error });
+          await LogRepository.guardarData(
+            JSON.stringify(error),
+            'cargaPacientes'
+          );
+        }
       }
       console.log('Finalizo');
     } catch (error) {

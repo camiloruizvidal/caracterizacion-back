@@ -16,6 +16,7 @@ import { Backup } from 'src/modules/ficha/model/backup.model';
 import { Version } from 'src/modules/ficha/model/version.model';
 import { FichaJson } from 'src/modules/ficha/model/ficha-json.model';
 import { FichaProcesada } from 'src/modules/ficha/model/ficha-procesada.model';
+import { Log } from 'src/modules/data/models/log.model';
 
 const models = [
   PsicosocialPersona,
@@ -32,7 +33,8 @@ const models = [
   Backup,
   Version,
   FichaJson,
-  FichaProcesada
+  FichaProcesada,
+  Log
 ];
 
 const databaseProvider = {
@@ -48,7 +50,7 @@ const databaseProvider = {
       username: Config.DB_USERNAME,
       password: Config.DB_PASSWORD,
       database: Config.DB_DATABASE,
-      logging: true,
+      logging: !true,
       sync: { force: false, alter: false }
     });
     sequelize.addModels(models);

@@ -8,11 +8,13 @@ import {
   HttpStatus,
   Post,
   Query,
+  Res,
   UploadedFile,
   UseInterceptors
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PacientesPaginadosDto } from '../dto/pacientes-paginados.dto';
+import { Response } from 'express';
 
 @Controller('api/v1/pacientes')
 export class PacientesController {
@@ -23,13 +25,16 @@ export class PacientesController {
 
   @Post('carga')
   @UseInterceptors(FileInterceptor('pacientes'))
-  async cargarArchivos(@UploadedFile() file: Express.Multer.File) {
+  async cargarArchivos(
+    @UploadedFile() file: Express.Multer.File,
+    @Res() res: Response
+  ) {
     try {
-      const data = await this.pacientesService.cargaExcelMasivo(file);
-      return {
-        message: 'Archivo Excel subido correctamente',
-        data
-      };
+      res.send({
+        message:
+          'Carga de pacientes en proceso. Esto puede demorar debido a la cantidad de registros a procesar. Por favor revise el log'
+      });
+      await this.pacientesService.cargaExcelMasivo(file);
     } catch (error) {
       throw new HttpException(error, HttpStatus.BAD_GATEWAY);
     }
