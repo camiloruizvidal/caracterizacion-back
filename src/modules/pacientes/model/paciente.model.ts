@@ -20,7 +20,7 @@ export class Paciente extends Model {
   @Column({
     field: 'documento_numero',
     type: DataType.STRING,
-    allowNull: true,
+    allowNull: false,
     unique: true
   })
   documento_numero: string;

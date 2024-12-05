@@ -12,7 +12,6 @@ import { join } from 'path';
 import { FileReadyMiddleware } from './utils/middleware/file-read.middleware';
 import { ExcelService } from './utils/excel.service';
 
-console.log('joinfolder', join(__dirname, '..', '..', Config.FOLDER_FILES_URL));
 @Module({
   imports: [
     DatabaseModule,

@@ -144,6 +144,13 @@ export class ExcelService {
       return [];
     }
 
+    let headers = this.worksheet.getRow(1).values as string[];
+    if (!Array.isArray(headers)) {
+      throw new Error('No se pudieron obtener los encabezados de la hoja.');
+    }
+
+    headers = headers.slice(1);
+
     const registros: any[] = [];
     for (
       let rowIndex = inicio;
@@ -152,7 +159,13 @@ export class ExcelService {
     ) {
       const row = this.worksheet.getRow(rowIndex);
       const rowData = Array.isArray(row.values) ? row.values.slice(1) : [];
-      registros.push(rowData);
+
+      const registro: any = {};
+      headers.forEach((header, index) => {
+        registro[header] = rowData[index] ?? null;
+      });
+
+      registros.push(registro);
     }
 
     return registros;

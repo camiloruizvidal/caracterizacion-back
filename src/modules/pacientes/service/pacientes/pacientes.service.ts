@@ -60,27 +60,28 @@ export class PacientesService {
   }
 
   private async insertarDatos(registrosPaciente: IPacienteImportExcel[]) {
-    console.log({ registrosPaciente });
     const registrosDePacientes = registrosPaciente.map(
-      (registro: IPacienteImportExcel) => ({
-        documento_numero: registro.documento_numero,
-        nombrePrimero: registro.primer_nombre,
-        nombreSegundo: registro?.segundo_nombre,
-        apellidoPrimero: registro.primer_apellido,
-        apellidoSegundo: registro?.segundo_apellido,
-        fechaNacimiento: registro?.fecha_nacimiento
-          ? new Date(registro?.fecha_nacimiento)
-          : null,
-        sexo: registro?.sexo,
-        parentesco:
-          registro?.parentesco === undefined ? null : registro?.parentesco,
-        ocupacion: registro?.ocupacion,
-        aportaIngresos: registro?.aporta_ingresos,
-        nivelEscolaridad: registro?.nivel_escolaridad,
-        tipoAfiliacionSalud: registro?.afilicion_salud_tipo,
-        grupoAtencionEspecial: registro?.grupo_atencion_especial,
-        discapacidad: registro?.discapacidad
-      })
+      (registro: IPacienteImportExcel) => {
+        return {
+          documento_numero: registro.documento_numero,
+          nombrePrimero: registro.primer_nombre,
+          nombreSegundo: registro?.segundo_nombre,
+          apellidoPrimero: registro.primer_apellido,
+          apellidoSegundo: registro?.segundo_apellido,
+          fechaNacimiento: registro?.fecha_nacimiento
+            ? new Date(registro?.fecha_nacimiento)
+            : null,
+          sexo: registro?.sexo,
+          parentesco:
+            registro?.parentesco === undefined ? null : registro?.parentesco,
+          ocupacion: registro?.ocupacion,
+          aportaIngresos: registro?.aporta_ingresos,
+          nivelEscolaridad: registro?.nivel_escolaridad,
+          tipoAfiliacionSalud: registro?.afilicion_salud_tipo,
+          grupoAtencionEspecial: registro?.grupo_atencion_especial,
+          discapacidad: registro?.discapacidad
+        };
+      }
     );
 
     await PacienteRepository.guardarPacientesBulk(registrosDePacientes);
