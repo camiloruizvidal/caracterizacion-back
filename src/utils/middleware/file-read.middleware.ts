@@ -16,7 +16,7 @@ export class FileReadyMiddleware implements NestMiddleware {
     const archivo = req.params['0'];
     const ruta = join(__dirname, '..', '..', Config.FOLDER_FILES_URL, archivo);
 
-    if (!fs.existsSync(ruta)) {
+    if (fs.existsSync(ruta)) {
       throw new HttpException(
         `El archivo "${archivo}" no existe.`,
         HttpStatus.NOT_FOUND
