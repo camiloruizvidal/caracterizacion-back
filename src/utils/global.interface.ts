@@ -26,7 +26,7 @@ export enum ETables {
 }
 
 export enum EFileStatus {
-  NOT_STARTED = 'not-started',
-  IN_PROGRESS = 'in-progress',
-  COMPLETED = 'completed'
+  NOT_STARTED = 'Invalido',
+  IN_PROGRESS = 'Procesando',
+  COMPLETED = 'Completo'
 }

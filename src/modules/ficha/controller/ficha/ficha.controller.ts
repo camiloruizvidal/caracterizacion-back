@@ -1,3 +1,4 @@
+import { EFileStatus } from './../../../../utils/global.interface';
 import { IFamilyCardSave } from '../../interface/ficha.interface';
 import { FichaService } from '../../service/ficha/ficha.service';
 import {
@@ -68,15 +69,30 @@ export class FichaController {
       const protocolo = req.protocol;
       const host = req.get('host');
       const dominio = `${protocolo}://${host}`;
-      const url = 'Caracterizacion' + new Date().getTime();
-      res.send({ url: `${dominio}/${Config.FOLDER_PUBLIC_URL}/${url}.xlsx` });
-      await this.informesService.generarInformeDinamico(url);
+      const fileName = 'Caracterizacion' + new Date().getTime() + '.xlsx';
+      res.send({
+        fileName,
+        url: `${dominio}/${Config.FOLDER_PUBLIC_URL}/${fileName}`
+      });
+      await this.informesService.generarInformeDinamico(fileName);
     } catch (error) {
       console.error(error);
       throw new HttpException(
         'Error al generar el PDF. ' + error.message,
         HttpStatus.BAD_REQUEST
       );
+    }
+  }
+
+  @Get('informecompleto/:filename')
+  public async verEstadoExcel(@Param('filename') filename: string) {
+    try {
+      const estado: EFileStatus =
+        this.informesService.verEstadoInformeDinamico(filename);
+      return { estado };
+    } catch (error) {
+      console.log({ error });
+      throw error;
     }
   }
 

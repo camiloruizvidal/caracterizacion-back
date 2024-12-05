@@ -19,9 +19,7 @@ export class ExcelService {
   ): Promise<void> {
     this.worksheet = null;
     this.workbook = new ExcelJS.Workbook();
-    console.log({ worksheet: this.worksheet });
-    console.log('Iniciando');
-    this.fileName = `${fileName}.xlsx`;
+    this.fileName = fileName;
     CacheService.setFileStatus(this.fileName, EFileStatus.IN_PROGRESS);
     const ruta = `${Config.FOLDER_FILES_URL}\\${this.fileName}`;
     this.filePath = path.resolve(ruta);

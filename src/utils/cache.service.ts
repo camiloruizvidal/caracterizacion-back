@@ -8,6 +8,7 @@ export class CacheService {
   }
 
   public static getFileStatus(fileName: string): EFileStatus {
+    console.log(CacheService.fileStatusCache);
     return (
       CacheService.fileStatusCache.get(fileName) || EFileStatus.NOT_STARTED
     );

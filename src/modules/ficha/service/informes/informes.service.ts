@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { IHeaderExcel } from '../../interface/ficha.interface';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
 import { ExcelService } from 'src/utils/excel.service';
+import { CacheService } from 'src/utils/cache.service';
+import { EFileStatus } from 'src/utils/global.interface';
 
 @Injectable()
 export class InformesService {
@@ -104,5 +106,16 @@ export class InformesService {
     });
 
     return resultados;
+  }
+
+  public verEstadoInformeDinamico(fileName: string) {
+    const estado: EFileStatus = CacheService.getFileStatus(fileName);
+    if (estado === EFileStatus.NOT_STARTED) {
+      throw new HttpException(
+        `"${fileName}" no se encuentra en el sistema.`,
+        HttpStatus.NOT_FOUND
+      );
+    }
+    return estado;
   }
 }
