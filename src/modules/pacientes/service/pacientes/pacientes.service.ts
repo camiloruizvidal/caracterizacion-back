@@ -1,12 +1,10 @@
 import { ArchivosService } from './../../../../utils/archivos.service';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as XLSX from 'xlsx';
 import { PacienteEntity } from '../../entity/pacientes.entity';
 import { IPacienteImportExcel } from '../../interface/pacientes.interdace';
 import { ISearchPagination, IPagination } from 'src/utils/global.interface';
-import path from 'path';
 import { PacienteRepository } from '../../repository/paciente.repository';
 import { ExcelService } from 'src/utils/excel.service';
 
