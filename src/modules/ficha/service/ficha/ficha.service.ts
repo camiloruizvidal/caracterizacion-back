@@ -4,9 +4,7 @@ import { FichaDescripcionEntity } from '../../entity/ficha-descripcion.entity';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MoreThan, Repository } from 'typeorm';
-import { FichaGrupoEntity } from '../../entity/ficha-grupo.entity';
 import { VersionEntity } from '../../entity/version.entity';
-import { FichaTipoEntity } from '../../entity/ficha-tipo.entity';
 import { IFamilyCardSave, IFichaCard } from '../../interface/ficha.interface';
 import { BackupEntity, IStatus } from '../../entity/backup.entity';
 import { PsicosocialPersonaEntity } from '../../entity/psicosocial-persona.entity';
@@ -14,8 +12,6 @@ import { FichaEntity } from '../../entity/ficha.entity';
 import { TarjetaFamiliarEntity } from '../../entity/tarjeta-familiar.entity';
 import { PacienteEntity } from 'src/modules/pacientes/entity/pacientes.entity';
 import { ETables, IPagination } from 'src/utils/global.interface';
-import { FichaJsonEntity } from '../../entity/ficha-json.entity';
-import { FichaProcesadaEntity } from '../../entity/ficha-procesada.entity';
 import { FichaDescripcionRepository } from '../../repository/ficha-descripcion.repository';
 import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
@@ -36,12 +32,6 @@ export class FichaService {
     @InjectRepository(FichaEntity)
     private readonly fichaRepository: Repository<FichaEntity>,
 
-    @InjectRepository(FichaGrupoEntity)
-    private readonly fichaGrupoRepository: Repository<FichaGrupoEntity>,
-
-    @InjectRepository(FichaTipoEntity)
-    private readonly fichaTipoRepository: Repository<FichaTipoEntity>,
-
     @InjectRepository(TarjetaFamiliarEntity)
     private readonly tarjetaFamiliarRepository: Repository<TarjetaFamiliarEntity>,
 
@@ -52,13 +42,7 @@ export class FichaService {
     private readonly pacienteRepository: Repository<PacienteEntity>,
 
     @InjectRepository(PsicosocialPersonaEntity)
-    private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>,
-
-    @InjectRepository(FichaJsonEntity)
-    private readonly fichaJsonEntity: Repository<FichaJsonEntity>,
-
-    @InjectRepository(FichaProcesadaEntity)
-    private readonly fichaProcesadaEntity: Repository<FichaProcesadaEntity>
+    private readonly psicosocialPersonaRepository: Repository<PsicosocialPersonaEntity>
   ) {}
 
   public async obternerFormatoFicha(): Promise<IFichaCard> {
