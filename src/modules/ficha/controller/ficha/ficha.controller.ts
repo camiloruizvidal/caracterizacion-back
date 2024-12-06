@@ -17,12 +17,15 @@ import {
 import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
+import { WordToPdfService } from 'src/utils/word-to-pdf.service';
+import * as path from 'path';
 
 @Controller('api/v1/ficha')
 export class FichaController {
   constructor(
     private fichaService: FichaService,
-    private informesService: InformesService
+    private informesService: InformesService,
+    private wordToPdfService: WordToPdfService
   ) {}
 
   @Get('formato_ficha')
@@ -162,5 +165,30 @@ export class FichaController {
     return {
       data: 'success'
     };
+  }
+
+  @Get('todo')
+  public async todo() {
+    const word = path.resolve(
+      path.join(
+        Config.FOLDER_FILES_URL,
+        Config.FOLDER_FILES_TEMPORAL,
+        'ejemplo.docx'
+      )
+    );
+    const pdf = path.resolve(
+      path.join(
+        Config.FOLDER_FILES_URL,
+        Config.FOLDER_FILES_TEMPORAL,
+        'ejemplo.pdf'
+      )
+    );
+    try {
+      const x = await this.wordToPdfService.convertir(word, pdf);
+      return { x };
+    } catch (error) {
+      console.log({ error });
+      return { error };
+    }
   }
 }
