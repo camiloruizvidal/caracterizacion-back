@@ -167,7 +167,7 @@ export class FichaController {
   }
 
   @Get('todo')
-  public async todo() {
+  public async todo(@Req() request: Request) {
     try {
       const datos = {
         nombre: 'Camilo',
@@ -185,7 +185,20 @@ export class FichaController {
         ],
         activo: true
       };
-      return await this.wordAPdfService.generarPdf('ejemplo.docx', datos);
+      const nombreArchivo: string = `documento-${Date.now()}`;
+
+      const pdfGenerado = await this.wordAPdfService.generarPdf(
+        'ejemplo.docx',
+        nombreArchivo,
+        datos
+      );
+
+      const protocol = request.protocol;
+      const host = request.headers.host;
+      const fullHost = `${protocol}://${host}`;
+      return {
+        pdf: `${fullHost}/${Config.FOLDER_PUBLIC_URL}/${Config.FOLDER_FILES_TEMPORAL}/${pdfGenerado.nombreArchivo}`
+      };
     } catch (error) {
       return error;
     }

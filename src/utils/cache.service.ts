@@ -4,6 +4,7 @@ export class CacheService {
   private static fileStatusCache: Map<string, EFileStatus> = new Map();
 
   public static setFileStatus(fileName: string, status: EFileStatus): void {
+    console.log(`Iniciando ${fileName}`);
     CacheService.fileStatusCache.set(fileName, status);
   }
 

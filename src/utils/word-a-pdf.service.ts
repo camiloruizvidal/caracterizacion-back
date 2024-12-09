@@ -1,106 +1,121 @@
-import * as fs from 'fs';
 import { exec } from 'child_process';
+import * as fs from 'fs';
 import * as path from 'path';
-import mammoth from 'mammoth';
-import { PDFDocument } from 'pdf-lib';
+import PizZip from 'pizzip';
+import Docxtemplater from 'docxtemplater';
 import { Config } from 'src/Config/Config';
+import { CacheService } from './cache.service';
+import { EFileStatus } from './global.interface';
 
 export class WordAPdfService {
-  private outputDir: string = path.join(
+  private readonly carpetaSalida: string = path.join(
     Config.FOLDER_FILES_URL,
     Config.FOLDER_FILES_TEMPORAL
   );
 
   constructor() {
-    if (!fs.existsSync(this.outputDir)) {
-      fs.mkdirSync(this.outputDir, { recursive: true });
-    }
+    this.crearCarpetaSiNoExiste(this.carpetaSalida);
   }
 
   public async generarPdf(
-    wordFilePath: string,
-    datos: Record<string, any> | Record<string, any>[]
-  ): Promise<string> {
-    wordFilePath = path.join(
+    nombrePlantilla: string,
+    nombreArchivo: string,
+    datos: Record<string, any>
+  ): Promise<{ rutaCompleta: string; nombreArchivo: string }> {
+    console.log('------------------------------------------------------------');
+    CacheService.setFileStatus(
+      `${Config.FOLDER_FILES_TEMPORAL}/${nombreArchivo}.pdf`,
+      EFileStatus.IN_PROGRESS
+    );
+    console.log('************************************************************');
+    const rutaPlantilla = path.join(
       Config.FOLDER_FILES_URL,
       Config.FOLDER_FILES_PLANTILLAS,
-      wordFilePath
+      nombrePlantilla
     );
 
-    if (!fs.existsSync(wordFilePath)) {
-      throw new Error(`El archivo Word no se encontró: ${wordFilePath}`);
+    if (!fs.existsSync(rutaPlantilla)) {
+      throw new Error(`La plantilla Word no se encontró: ${rutaPlantilla}`);
     }
 
-    const wordContent = fs.readFileSync(wordFilePath);
-    const htmlContent = await this.convertirWordAHtml(wordContent);
+    const rutaWordNuevo = path.join(
+      this.carpetaSalida,
+      `${nombreArchivo}.docx`
+    );
 
-    const htmlConDatos = this.reemplazarMarcadores(htmlContent, datos);
+    this.reemplazarMarcadoresEnWord(rutaPlantilla, rutaWordNuevo, datos);
 
-    const pdfPath = path.join(this.outputDir, 'documento-generado.pdf');
-    await this.convertirHtmlAPdf(htmlConDatos, pdfPath);
-
-    return pdfPath;
+    const rutaPdf = await this.convertirWordAPdf(rutaWordNuevo);
+    CacheService.setFileStatus(
+      `${Config.FOLDER_FILES_TEMPORAL}/${nombreArchivo}.pdf`,
+      EFileStatus.COMPLETED
+    );
+    return rutaPdf;
   }
 
-  private async convertirWordAHtml(buffer: Buffer): Promise<string> {
-    const { value: html } = await mammoth.convertToHtml({ buffer });
-    return html;
-  }
+  private reemplazarMarcadoresEnWord(
+    rutaPlantilla: string,
+    rutaSalida: string,
+    datos: Record<string, any>
+  ): void {
+    const contenidoPlantilla = fs.readFileSync(rutaPlantilla, 'binary');
+    const zip = new PizZip(contenidoPlantilla);
 
-  private reemplazarMarcadores(
-    html: string,
-    datos: Record<string, any> | Record<string, any>[]
-  ): string {
-    let htmlConDatos = html;
-    const datosCompletos = Array.isArray(datos) ? { tabla: datos } : datos;
-
-    Object.keys(datosCompletos).forEach(key => {
-      const valor = datosCompletos[key];
-      if (Array.isArray(valor)) {
-      } else {
-        htmlConDatos = htmlConDatos.replace(
-          new RegExp(`{{${key}}}`, 'g'),
-          valor
-        );
-      }
+    const doc = new Docxtemplater(zip, {
+      paragraphLoop: true,
+      linebreaks: true
     });
 
-    return htmlConDatos;
+    try {
+      doc.render(datos);
+      const buffer = doc.getZip().generate({ type: 'nodebuffer' });
+      fs.writeFileSync(rutaSalida, buffer);
+    } catch (error) {
+      throw new Error(`Error al procesar la plantilla: ${error.message}`);
+    }
   }
 
-  private async convertirHtmlAPdf(html: string, outputPath: string) {
-    const pdfDoc = await PDFDocument.create();
-    const page = pdfDoc.addPage();
-    page.drawText(html);
-    const pdfBytes = await pdfDoc.save();
-    fs.writeFileSync(outputPath, pdfBytes);
-  }
+  public async convertirWordAPdf(
+    rutaWord: string
+  ): Promise<{ rutaCompleta: string; nombreArchivo: string }> {
+    const nombreArchivo = `${path.basename(rutaWord, path.extname(rutaWord))}.pdf`;
+    const rutaPdf = path.join(this.carpetaSalida, nombreArchivo);
 
-  public async convertirWordAPDF(
-    rutaWord: string,
-    rutaSalida: string
-  ): Promise<string> {
-    const pdfFilePath = path.join(
-      rutaSalida,
-      `${path.basename(rutaWord, path.extname(rutaWord))}.pdf`
-    );
-    console.log({ pdfFilePath });
     return new Promise((resolve, reject) => {
-      const command = `/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to pdf "${rutaWord}" --outdir "${rutaSalida}"`;
-      console.log({ command });
-      exec(command, (error, stdout, stderr) => {
-        if (error) {
+      const comandoLibreOffice = this.obtenerComandoLibreOffice(rutaWord);
+      console.log('Ejecutando comando:', comandoLibreOffice);
+
+      exec(comandoLibreOffice, (error, stdout, stderr) => {
+        if (error || stderr) {
           return reject(
-            `Error al convertir el archivo: ${stderr || error.message}`
+            `Error al convertir Word a PDF: ${stderr || error.message}`
           );
         }
 
-        if (!fs.existsSync(pdfFilePath)) {
+        if (!fs.existsSync(rutaPdf)) {
           return reject('El archivo PDF no se generó correctamente.');
         }
 
-        resolve(pdfFilePath);
+        try {
+          fs.unlinkSync(rutaWord);
+          console.log(`Archivo Word eliminado: ${rutaWord}`);
+        } catch (err) {
+          console.warn(`No se pudo eliminar el archivo Word: ${err.message}`);
+        }
+
+        resolve({ rutaCompleta: rutaPdf, nombreArchivo });
       });
     });
+  }
+
+  private obtenerComandoLibreOffice(rutaWord: string): string {
+    const comandoLibreOffice = Config.COMANDO_LIBREOFFICE;
+    return `${comandoLibreOffice} --headless --convert-to pdf "${rutaWord}" --outdir "${this.carpetaSalida}"`;
+  }
+
+  private crearCarpetaSiNoExiste(rutaCarpeta: string): void {
+    if (!fs.existsSync(rutaCarpeta)) {
+      fs.mkdirSync(rutaCarpeta, { recursive: true });
+    }
   }
 }
