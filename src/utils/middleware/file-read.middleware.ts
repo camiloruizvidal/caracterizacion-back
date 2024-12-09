@@ -15,6 +15,12 @@ export class FileReadyMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
     const archivo = req.params['0'];
     const ruta = join(__dirname, '..', '..', Config.FOLDER_FILES_URL, archivo);
+    if (archivo.trim() === '') {
+      throw new HttpException(
+        `No ingresó ningún archivo a visualizar.`,
+        HttpStatus.CONFLICT
+      );
+    }
 
     if (fs.existsSync(ruta)) {
       throw new HttpException(
