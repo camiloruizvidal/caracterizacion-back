@@ -18,4 +18,5 @@ export class Config {
     process.env.CANTIDAD_REGISTROS_BULK
   );
   public static readonly FOLDER_FILES_TEMPORAL = 'temporal';
+  public static readonly FOLDER_FILES_PLANTILLAS = 'plantillas';
 }

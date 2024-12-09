@@ -17,12 +17,14 @@ import {
 import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
+import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 
 @Controller('api/v1/ficha')
 export class FichaController {
   constructor(
     private fichaService: FichaService,
-    private informesService: InformesService
+    private informesService: InformesService,
+    private wordAPdfService: WordAPdfService
   ) {}
 
   @Get('formato_ficha')
@@ -162,5 +164,30 @@ export class FichaController {
     return {
       data: 'success'
     };
+  }
+
+  @Get('todo')
+  public async todo() {
+    try {
+      const datos = {
+        nombre: 'Camilo',
+        apellido: 'Ruiz',
+        edad: 30,
+        fecha: '2024-12-05',
+        productos: [
+          { nombreProducto: 'Laptop', precio: 1200, cantidad: 1, total: 1200 },
+          { nombreProducto: 'Mouse', precio: 25, cantidad: 2, total: 50 },
+          { nombreProducto: 'Teclado', precio: 75, cantidad: 1, total: 75 }
+        ],
+        detalles: [
+          { titulo: 'Garantía', descripcion: '12 meses' },
+          { titulo: 'Entrega', descripcion: 'A domicilio' }
+        ],
+        activo: true
+      };
+      return await this.wordAPdfService.generarPdf('ejemplo.docx', datos);
+    } catch (error) {
+      return error;
+    }
   }
 }
