@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import { exec } from 'child_process';
 import * as path from 'path';
 import mammoth from 'mammoth';
 import { PDFDocument } from 'pdf-lib';
@@ -73,5 +74,33 @@ export class WordAPdfService {
     page.drawText(html);
     const pdfBytes = await pdfDoc.save();
     fs.writeFileSync(outputPath, pdfBytes);
+  }
+
+  public async convertirWordAPDF(
+    rutaWord: string,
+    rutaSalida: string
+  ): Promise<string> {
+    const pdfFilePath = path.join(
+      rutaSalida,
+      `${path.basename(rutaWord, path.extname(rutaWord))}.pdf`
+    );
+    console.log({ pdfFilePath });
+    return new Promise((resolve, reject) => {
+      const command = `/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to pdf "${rutaWord}" --outdir "${rutaSalida}"`;
+      console.log({ command });
+      exec(command, (error, stdout, stderr) => {
+        if (error) {
+          return reject(
+            `Error al convertir el archivo: ${stderr || error.message}`
+          );
+        }
+
+        if (!fs.existsSync(pdfFilePath)) {
+          return reject('El archivo PDF no se generó correctamente.');
+        }
+
+        resolve(pdfFilePath);
+      });
+    });
   }
 }

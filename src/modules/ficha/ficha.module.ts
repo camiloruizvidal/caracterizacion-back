@@ -4,16 +4,9 @@ import { FichaController } from './controller/ficha/ficha.controller';
 import { InformesService } from './service/informes/informes.service';
 import { ExcelService } from 'src/utils/excel.service';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
-import { WordToPdfService } from 'src/utils/word-to-pdf.service';
 
 @Module({
-  providers: [
-    FichaService,
-    InformesService,
-    ExcelService,
-    WordAPdfService,
-    WordToPdfService
-  ],
+  providers: [FichaService, InformesService, ExcelService, WordAPdfService],
   exports: [ExcelService],
   controllers: [FichaController]
 })
