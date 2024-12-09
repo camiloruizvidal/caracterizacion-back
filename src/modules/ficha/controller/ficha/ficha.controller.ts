@@ -17,14 +17,23 @@ import {
 import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
+<<<<<<< HEAD
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
+=======
+import { WordToPdfService } from 'src/utils/word-to-pdf.service';
+import * as path from 'path';
+>>>>>>> 6e3d0e4525e1b3297dcf5b8c561fcea173baaa7b
 
 @Controller('api/v1/ficha')
 export class FichaController {
   constructor(
     private fichaService: FichaService,
     private informesService: InformesService,
+<<<<<<< HEAD
     private wordAPdfService: WordAPdfService
+=======
+    private wordToPdfService: WordToPdfService
+>>>>>>> 6e3d0e4525e1b3297dcf5b8c561fcea173baaa7b
   ) {}
 
   @Get('formato_ficha')
@@ -168,6 +177,7 @@ export class FichaController {
 
   @Get('todo')
   public async todo() {
+<<<<<<< HEAD
     try {
       const datos = {
         nombre: 'Camilo',
@@ -188,6 +198,28 @@ export class FichaController {
       return await this.wordAPdfService.generarPdf('ejemplo.docx', datos);
     } catch (error) {
       return error;
+=======
+    const word = path.resolve(
+      path.join(
+        Config.FOLDER_FILES_URL,
+        Config.FOLDER_FILES_TEMPORAL,
+        'ejemplo.docx'
+      )
+    );
+    const pdf = path.resolve(
+      path.join(
+        Config.FOLDER_FILES_URL,
+        Config.FOLDER_FILES_TEMPORAL,
+        'ejemplo.pdf'
+      )
+    );
+    try {
+      const x = await this.wordToPdfService.convertir(word, pdf);
+      return { x };
+    } catch (error) {
+      console.log({ error });
+      return { error };
+>>>>>>> 6e3d0e4525e1b3297dcf5b8c561fcea173baaa7b
     }
   }
 }
