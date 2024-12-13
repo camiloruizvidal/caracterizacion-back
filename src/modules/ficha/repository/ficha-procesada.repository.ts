@@ -1,6 +1,6 @@
 import { QueryTypes } from 'sequelize';
 import { Ficha } from '../model/ficha.model';
-import { IStatus } from '../entity/backup.entity';
+import { IStatus } from './../../../utils/global.interface';
 import { Transformadores } from 'src/utils/helpers';
 import { FichaProcesada } from '../model/ficha-procesada.model';
 

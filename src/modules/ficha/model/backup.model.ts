@@ -1,4 +1,4 @@
-import { IStatus } from './../entity/backup.entity';
+import { IStatus } from './../../../utils/global.interface';
 import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({ tableName: 'backup' })

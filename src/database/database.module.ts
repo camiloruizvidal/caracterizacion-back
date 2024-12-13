@@ -1,3 +1,4 @@
+import { Log } from './../modules/pacientes/model/log.model';
 import { DocumentoTipo } from './../modules/usuarios/model/documento-tipo.model';
 import { TarjetaFamiliar } from './../modules/ficha/model/tarjeta-familiar.model';
 import { Ficha } from './../modules/ficha/model/ficha.model';
@@ -16,7 +17,6 @@ import { Backup } from 'src/modules/ficha/model/backup.model';
 import { Version } from 'src/modules/ficha/model/version.model';
 import { FichaJson } from 'src/modules/ficha/model/ficha-json.model';
 import { FichaProcesada } from 'src/modules/ficha/model/ficha-procesada.model';
-import { Log } from 'src/modules/data/models/log.model';
 
 const models = [
   PsicosocialPersona,

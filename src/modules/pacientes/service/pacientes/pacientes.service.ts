@@ -5,7 +5,7 @@ import { IPacienteImportExcel } from '../../interface/pacientes.interdace';
 import { ISearchPagination, IPagination } from 'src/utils/global.interface';
 import { PacienteRepository } from '../../repository/paciente.repository';
 import { ExcelService } from 'src/utils/excel.service';
-import { LogRepository } from 'src/modules/data/repository/log.repository';
+import { LogRepository } from '../../repository/log.repository';
 
 @Injectable()
 export class PacientesService {

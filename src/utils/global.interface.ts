@@ -22,3 +22,9 @@ export enum EFileStatus {
   IN_PROGRESS = 'Procesando',
   COMPLETED = 'Completo'
 }
+
+export enum IStatus {
+  Almacenado = 'almacenado',
+  Fallo = 'fallo',
+  Guardado = 'guardado'
+}
