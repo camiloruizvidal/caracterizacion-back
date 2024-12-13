@@ -32,7 +32,8 @@ export class PacientesController {
     try {
       res.send({
         message:
-          'Carga de pacientes en proceso. Esto puede demorar debido a la cantidad de registros a procesar. Por favor revise el log'
+          'Carga de pacientes en proceso. Esto puede demorar debido a la' +
+          'cantidad de registros a procesar. Por favor revise el log'
       });
       await this.pacientesService.cargaExcelMasivo(file);
     } catch (error) {
@@ -49,21 +50,6 @@ export class PacientesController {
       const pacientes = await this.pacientesService.paginarPacientes({
         page: Number(page),
         pageSize: Number(pageSize)
-      });
-      pacientes.data = pacientes.data.map(paciente => {
-        paciente['nombre_primero'] = paciente.nombrePrimero;
-        paciente['nombre_segundo'] = paciente.nombreSegundo;
-        paciente['apellido_primero'] = paciente.apellidoPrimero;
-        paciente['apellido_segundo'] = paciente.apellidoSegundo;
-        paciente['documento_tipo'] = paciente.documentoTipo;
-        paciente['documento_numero'] = paciente.documentoNumero;
-        delete paciente.nombrePrimero;
-        delete paciente.nombreSegundo;
-        delete paciente.apellidoPrimero;
-        delete paciente.apellidoSegundo;
-        delete paciente.documentoTipo;
-        delete paciente.documentoNumero;
-        return paciente;
       });
       return plainToInstance(PacientesPaginadosDto, pacientes);
     } catch (error) {

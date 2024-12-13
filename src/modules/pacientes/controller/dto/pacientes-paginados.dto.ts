@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { PacienteDto } from './pacientes.dto';
-import { Expose } from 'class-transformer';
+import { Expose, plainToInstance, Transform } from 'class-transformer';
 
 export class PacientesPaginadosDto {
   @ApiProperty({ isArray: true, type: PacienteDto })
+  @Transform(({ value }) => plainToInstance(PacienteDto, value))
   @Expose({ name: 'data' })
   data: PacienteDto[];
 
