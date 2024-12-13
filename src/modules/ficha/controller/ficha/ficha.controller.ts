@@ -56,6 +56,7 @@ export class FichaController {
         data
       };
     } catch (error) {
+      console.log({ error });
       throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
     }
   }

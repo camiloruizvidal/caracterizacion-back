@@ -59,7 +59,8 @@ export class FichaService {
 
   public async saveRegisterBackup(data: any): Promise<boolean> {
     try {
-      await BackupRepository.guardarBackup(data);
+      const x = await BackupRepository.guardarBackup(JSON.stringify(data));
+      console.log({ x });
       return true;
     } catch (error) {
       throw error;

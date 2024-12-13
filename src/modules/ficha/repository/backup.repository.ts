@@ -21,6 +21,6 @@ export class BackupRepository {
   }
 
   public static async guardarBackup(data: string) {
-    await Backup.create({ data });
+    return await Backup.create({ data });
   }
 }

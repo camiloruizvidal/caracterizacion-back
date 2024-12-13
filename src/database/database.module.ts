@@ -50,7 +50,7 @@ const databaseProvider = {
       username: Config.DB_USERNAME,
       password: Config.DB_PASSWORD,
       database: Config.DB_DATABASE,
-      logging: !true,
+      logging: true,
       sync: { force: false, alter: false }
     });
     sequelize.addModels(models);
