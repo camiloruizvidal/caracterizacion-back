@@ -22,11 +22,11 @@ module.exports = {
         type: DataTypes.DATE,
         allowNull: false
       },
-      nombreGrupal: {
+      grupalNombre: {
         type: DataTypes.JSON,
         allowNull: false
       },
-      nombreIndividual: {
+      individualNombre: {
         type: DataTypes.JSON,
         allowNull: false
       },

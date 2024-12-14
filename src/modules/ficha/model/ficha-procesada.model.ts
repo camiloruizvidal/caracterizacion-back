@@ -52,12 +52,12 @@ export class FichaProcesada extends Model {
   @Column({
     type: DataType.JSON
   })
-  nombreGrupal: any;
+  grupalNombre: any;
 
   @Column({
     type: DataType.JSON
   })
-  nombreIndividual: any;
+  individualNombre: any;
 
   @Column({
     field: 'created_at',

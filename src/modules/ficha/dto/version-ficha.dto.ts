@@ -19,7 +19,7 @@ export class VersionFichaDto {
   })
   @IsString({ message: 'Debe ser de tipo string' })
   @IsNotEmpty({ message: 'No puede ser vacio' })
-  nombreGrupal: string;
+  grupalNombre: string;
 
   @Expose({ name: 'nombre_individual' })
   @ApiProperty({
@@ -28,5 +28,5 @@ export class VersionFichaDto {
   })
   @IsString({ message: 'Debe ser de tipo string' })
   @IsNotEmpty({ message: 'No puede ser vacio' })
-  nombreIndividual: string;
+  individualNombre: string;
 }

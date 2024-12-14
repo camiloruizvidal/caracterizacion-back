@@ -12,8 +12,8 @@ export class FichaJsonRepository {
         isFinish: false,
         version: null,
         dateLastVersion: new Date(),
-        nombreGrupal: '',
-        nombreIndividual: '',
+        grupalNombre: '',
+        individualNombre: '',
         grupalData: [],
         individualData: [],
         createdAt: new Date(),
@@ -32,8 +32,8 @@ export class FichaJsonRepository {
     isFinish: any;
     version: any;
     dateLastVersion: any;
-    nombreGrupal: any;
-    nombreIndividual: any;
+    grupalNombre: any;
+    individualNombre: any;
   }) {
     return await FichaJson.create(data);
   }
@@ -44,8 +44,8 @@ export class FichaJsonRepository {
       isFinish: any;
       version: any;
       dateLastVersion: any;
-      nombreGrupal: any;
-      nombreIndividual: any;
+      grupalNombre: any;
+      individualNombre: any;
     }
   ) {
     return await FichaJson.update(data, { where: { id: idFichaJson } });
@@ -60,7 +60,7 @@ export class FichaJsonRepository {
   public static async verVersiones(isFinish: boolean = false) {
     return Transformadores.extraerDataValues(
       await FichaJson.findAll({
-        attributes: ['nombre', 'version', 'nombreGrupal', 'nombreIndividual'],
+        attributes: ['nombre', 'version', 'grupalNombre', 'individualNombre'],
         where: { isFinish }
       })
     );
@@ -68,8 +68,8 @@ export class FichaJsonRepository {
 
   public static async crearNuevaVersion(data: {
     nombre: string;
-    nombreGrupal: string;
-    nombreIndividual: string;
+    grupalNombre: string;
+    individualNombre: string;
   }) {
     const maxVersion = await FichaJson.max('version', {
       where: {
@@ -84,8 +84,8 @@ export class FichaJsonRepository {
       version: nuevaVersion,
       isFinish: false,
       dateLastVersion: new Date(),
-      nombreGrupal: [],
-      nombreIndividual: []
+      grupalNombre: [],
+      individualNombre: []
     });
   }
 }

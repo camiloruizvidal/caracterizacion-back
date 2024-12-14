@@ -22,10 +22,10 @@ export class FichaJson extends Model {
   dateLastVersion: Date;
 
   @Column({ type: DataType.STRING, field: 'nombre_grupal' })
-  nombreGrupal: string;
+  grupalNombre: string;
 
   @Column({ type: DataType.STRING, field: 'nombre_individual' })
-  nombreIndividual: string;
+  individualNombre: string;
 
   @Column({
     type: DataType.JSONB,

@@ -30,11 +30,11 @@ module.exports = {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      nombreGrupal: {
+      grupalNombre: {
         type: DataTypes.JSON,
         allowNull: false
       },
-      nombreIndividual: {
+      individualNombre: {
         type: DataTypes.JSON,
         allowNull: false
       },

@@ -58,21 +58,21 @@ export class InformesService {
     segundoHeader.push('Fecha de creacion');
     segundoHeader.push('Fecha de envio');
 
-    const nombreGrupal = data.nombreGrupal.map(registro => {
+    const grupalNombre = data.grupalNombre.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
-    const nombreIndividual = data.nombreIndividual.map(registro => {
+    const individualNombre = data.individualNombre.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
-    headers.push([...datosIniciales, ...nombreGrupal, ...nombreIndividual]);
+    headers.push([...datosIniciales, ...grupalNombre, ...individualNombre]);
     headers.push([...segundoHeader]);
     return headers;
   }
@@ -90,13 +90,13 @@ export class InformesService {
         new Date(data.dateRegister ?? null).toISOString()
       );
 
-      data.nombreGrupal.forEach(element => {
+      data.grupalNombre.forEach(element => {
         element.values.forEach(value => {
           registrosAnnadidos.push(value.value === null ? '-' : value.value);
         });
       });
 
-      data.nombreIndividual.forEach(element => {
+      data.individualNombre.forEach(element => {
         element.forEach(value => {
           registrosAnnadidos.push(value.value === null ? '-' : value.value);
         });
