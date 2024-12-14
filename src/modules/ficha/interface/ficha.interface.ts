@@ -1,8 +1,8 @@
 export interface IFichaCard {
   version: string;
   dateLastVersion: Date;
-  familyCard: IStepers[];
-  personCard: IStepers[];
+  nombreGrupal: IStepers[];
+  nombreIndividual: IStepers[];
 }
 
 export interface IStepers {
@@ -88,8 +88,8 @@ export interface IFamilyCardSave {
   data: IDataFamilyCard;
 }
 export interface IDataFamilyCard {
-  familyCard: IStepers[];
-  personCard: IStepers[][];
+  nombreGrupal: IStepers[];
+  nombreIndividual: IStepers[][];
 }
 
 export interface IValueColumn {

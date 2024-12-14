@@ -30,11 +30,11 @@ module.exports = {
         type: DataTypes.INTEGER,
         allowNull: false
       },
-      familyCard: {
+      nombreGrupal: {
         type: DataTypes.JSON,
         allowNull: false
       },
-      personCard: {
+      nombreIndividual: {
         type: DataTypes.JSON,
         allowNull: false
       },

@@ -18,6 +18,7 @@ import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
+import { VersionFichaDto } from '../../dto/version-ficha.dto';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -138,6 +139,16 @@ export class FichaController {
   public async nuevaFicha(@Body() dataFamilyCard: any) {
     try {
       await this.fichaService.agregarNuevoFormatoFicha(dataFamilyCard);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Post('nueva_version')
+  @HttpCode(204)
+  public async nuevaVersionFicha(@Body() versionData: VersionFichaDto) {
+    try {
+      await this.fichaService.agregarNuevaVersion(versionData);
     } catch (error) {
       throw error;
     }

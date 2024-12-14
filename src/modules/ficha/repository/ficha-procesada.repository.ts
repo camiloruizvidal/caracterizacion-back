@@ -28,8 +28,8 @@ export class FichaProcesadaRepository {
           "dateLastVersion",
           "dateRegister",
           "codigo",
-          "familyCard",
-          "personCard"
+          "nombreGrupal",
+          "nombreIndividual"
         )
       SELECT
         :usuarioCreacionId as usuario_creacion_id,
@@ -37,8 +37,8 @@ export class FichaProcesadaRepository {
         (data::jsonb ->> 'dateLastVersion')::timestamp  AS date_last_version,
         (data::jsonb ->> 'dateRegister')::timestamp  AS date_register,
         (data::jsonb ->> 'code')::integer AS codigo,
-        (data::jsonb -> 'data' ->> 'familyCard')::JSON AS family_card,
-        (data::jsonb -> 'data' ->> 'personCard')::JSON AS person_card
+        (data::jsonb -> 'data' ->> 'nombreGrupal')::JSON AS family_card,
+        (data::jsonb -> 'data' ->> 'nombreIndividual')::JSON AS person_card
       FROM backup
       WHERE
         backup.status = :almacenado ${whereVersion}

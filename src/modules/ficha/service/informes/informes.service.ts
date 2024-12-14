@@ -58,21 +58,21 @@ export class InformesService {
     segundoHeader.push('Fecha de creacion');
     segundoHeader.push('Fecha de envio');
 
-    const familyCard = data.familyCard.map(registro => {
+    const nombreGrupal = data.nombreGrupal.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
-    const personCard = data.personCard.map(registro => {
+    const nombreIndividual = data.nombreIndividual.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IHeaderExcel[];
 
-    headers.push([...datosIniciales, ...familyCard, ...personCard]);
+    headers.push([...datosIniciales, ...nombreGrupal, ...nombreIndividual]);
     headers.push([...segundoHeader]);
     return headers;
   }
@@ -90,13 +90,13 @@ export class InformesService {
         new Date(data.dateRegister ?? null).toISOString()
       );
 
-      data.familyCard.forEach(element => {
+      data.nombreGrupal.forEach(element => {
         element.values.forEach(value => {
           registrosAnnadidos.push(value.value === null ? '-' : value.value);
         });
       });
 
-      data.personCard.forEach(element => {
+      data.nombreIndividual.forEach(element => {
         element.forEach(value => {
           registrosAnnadidos.push(value.value === null ? '-' : value.value);
         });

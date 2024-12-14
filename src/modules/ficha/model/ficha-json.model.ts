@@ -22,10 +22,10 @@ export class FichaJson extends Model {
   dateLastVersion: Date;
 
   @Column({ type: DataType.JSON })
-  familyCard: Record<string, any>;
+  nombreGrupal: Record<string, any>;
 
   @Column({ type: DataType.JSON })
-  personCard: Record<string, any>;
+  nombreIndividual: Record<string, any>;
 
   @Column({
     type: DataType.STRING,

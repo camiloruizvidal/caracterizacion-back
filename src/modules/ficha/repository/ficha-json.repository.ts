@@ -1,5 +1,6 @@
 import { Transformadores } from 'src/utils/helpers';
 import { FichaJson } from '../model/ficha-json.model';
+import { Op } from 'sequelize';
 
 export class FichaJsonRepository {
   public static async obtenerFichaJson(idFicha: number) {
@@ -10,8 +11,8 @@ export class FichaJsonRepository {
         isFinish: false,
         version: null,
         dateLastVersion: new Date(),
-        familyCard: [],
-        personCard: [],
+        nombreGrupal: [],
+        nombreIndividual: [],
         createdAt: new Date(),
         updatedAt: new Date()
       };
@@ -25,8 +26,8 @@ export class FichaJsonRepository {
     isFinish: any;
     version: any;
     dateLastVersion: any;
-    familyCard: any;
-    personCard: any;
+    nombreGrupal: any;
+    nombreIndividual: any;
   }) {
     return await FichaJson.create(data);
   }
@@ -37,8 +38,8 @@ export class FichaJsonRepository {
       isFinish: any;
       version: any;
       dateLastVersion: any;
-      familyCard: any;
-      personCard: any;
+      nombreGrupal: any;
+      nombreIndividual: any;
     }
   ) {
     return await FichaJson.update(data, { where: { id: idFichaJson } });
@@ -57,5 +58,28 @@ export class FichaJsonRepository {
         where: { isFinish }
       })
     );
+  }
+
+  public static async crearNuevaVersion(data: {
+    nombre: string;
+    nombreGrupal: string;
+    nombreIndividual: string;
+  }) {
+    const maxVersion = await FichaJson.max('version', {
+      where: {
+        version: { [Op.ne]: null }
+      }
+    });
+
+    const nuevaVersion = maxVersion ? (Number(maxVersion) + 1).toString() : '1';
+
+    return await FichaJson.create({
+      ...data,
+      version: nuevaVersion,
+      isFinish: false,
+      dateLastVersion: new Date(),
+      nombreGrupal: [],
+      nombreIndividual: []
+    });
   }
 }

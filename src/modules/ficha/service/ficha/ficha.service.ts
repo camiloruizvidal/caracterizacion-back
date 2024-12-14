@@ -26,8 +26,8 @@ export class FichaService {
       const dataFormateada: IFichaCard = {
         version: version.id.toString(),
         dateLastVersion: version.dateLastVersion,
-        familyCard: [],
-        personCard: []
+        nombreGrupal: [],
+        nombreIndividual: []
       };
 
       const fichasResult = fichasGrupos.map(grupos => {
@@ -124,16 +124,16 @@ export class FichaService {
         isFinish: dataFamilyCard.isFinish,
         version: dataFamilyCard.version,
         dateLastVersion: dataFamilyCard.dateLastVersion,
-        familyCard: dataFamilyCard.familyCard,
-        personCard: dataFamilyCard.personCard
+        nombreGrupal: dataFamilyCard.nombreGrupal,
+        nombreIndividual: dataFamilyCard.nombreIndividual
       });
     } else {
       return await FichaJsonRepository.agregarFichaJson({
         isFinish: dataFamilyCard.isFinish,
         version: dataFamilyCard.version,
         dateLastVersion: dataFamilyCard.dateLastVersion,
-        familyCard: dataFamilyCard.familyCard,
-        personCard: dataFamilyCard.personCard
+        nombreGrupal: dataFamilyCard.nombreGrupal,
+        nombreIndividual: dataFamilyCard.nombreIndividual
       });
     }
   }
@@ -152,5 +152,13 @@ export class FichaService {
 
   public async obtenerVersiones() {
     return await FichaJsonRepository.verVersiones();
+  }
+
+  public async agregarNuevaVersion(data: {
+    nombre: string;
+    nombreGrupal: string;
+    nombreIndividual: string;
+  }) {
+    return await FichaJsonRepository.crearNuevaVersion(data);
   }
 }

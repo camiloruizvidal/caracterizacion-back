@@ -22,11 +22,11 @@ module.exports = {
         type: DataTypes.DATE,
         allowNull: false
       },
-      familyCard: {
+      nombreGrupal: {
         type: DataTypes.JSON,
         allowNull: false
       },
-      personCard: {
+      nombreIndividual: {
         type: DataTypes.JSON,
         allowNull: false
       },
