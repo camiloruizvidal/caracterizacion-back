@@ -49,4 +49,13 @@ export class FichaJsonRepository {
       await FichaJson.findOne({ where: { version } })
     );
   }
+
+  public static async verVersiones(isFinish: boolean = true) {
+    return Transformadores.extraerDataValues(
+      await FichaJson.findAll({
+        attributes: ['id', 'version', 'nombreGrupal', 'nombreIndividual'],
+        where: { isFinish }
+      })
+    );
+  }
 }

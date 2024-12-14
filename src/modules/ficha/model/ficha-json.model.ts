@@ -37,6 +37,23 @@ export class FichaJson extends Model {
   })
   personCard: Record<string, any>;
 
+  @Column({ type: DataType.BOOLEAN, defaultValue: false, field: 'si_finalizo' })
+  siFinalizo: boolean;
+
+  @Column({
+    type: DataType.STRING,
+    defaultValue: 'Tarjeta Familiar',
+    field: 'nombre_grupal'
+  })
+  nombreGrupal: string;
+
+  @Column({
+    type: DataType.STRING,
+    defaultValue: 'Tarjeta personal',
+    field: 'nombre_individual'
+  })
+  nombreIndividual: string;
+
   @Column({
     type: DataType.DATE,
     defaultValue: DataType.NOW
