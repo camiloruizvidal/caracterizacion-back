@@ -21,25 +21,23 @@ export class FichaJson extends Model {
   @Column({ type: DataType.DATE, allowNull: false })
   dateLastVersion: Date;
 
-  @Column({ type: DataType.JSON })
-  nombreGrupal: Record<string, any>;
-
-  @Column({ type: DataType.JSON })
-  nombreIndividual: Record<string, any>;
-
-  @Column({
-    type: DataType.STRING,
-    defaultValue: 'Tarjeta Familiar',
-    field: 'nombre_grupal'
-  })
+  @Column({ type: DataType.STRING, field: 'nombre_grupal' })
   nombreGrupal: string;
 
-  @Column({
-    type: DataType.STRING,
-    defaultValue: 'Tarjeta personal',
-    field: 'nombre_individual'
-  })
+  @Column({ type: DataType.STRING, field: 'nombre_individual' })
   nombreIndividual: string;
+
+  @Column({
+    type: DataType.JSONB,
+    field: 'grupal_data'
+  })
+  grupalData: string;
+
+  @Column({
+    type: DataType.JSONB,
+    field: 'individual_data'
+  })
+  individualData: string;
 
   @Column({
     type: DataType.DATE,
