@@ -102,7 +102,11 @@ export class FichaController {
     @Query('page') page: number,
     @Query('pageSize') pageSize: number
   ) {
-    return this.fichaService.loadFormsPage(page, pageSize);
+    try {
+      return this.fichaService.loadFormsPage(page, pageSize);
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get('detalle')
@@ -161,10 +165,23 @@ export class FichaController {
 
   @Post('/procesar')
   public async procesarFichaDinamica() {
-    await this.fichaService.procesarFicha();
-    return {
-      data: 'success'
-    };
+    try {
+      await this.fichaService.procesarFicha();
+      return {
+        data: 'success'
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  @Get('/versiones')
+  public async obtenerVersionesFicha() {
+    try {
+      return await this.fichaService.obtenerVersiones();
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get('todo')

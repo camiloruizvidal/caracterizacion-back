@@ -149,4 +149,8 @@ export class FichaService {
   public async procesarFicha() {
     await FichaProcesadaRepository.procesarBackupsAlmacenadas(1);
   }
+
+  public async obtenerVersiones() {
+    return await FichaJsonRepository.verVersiones();
+  }
 }
