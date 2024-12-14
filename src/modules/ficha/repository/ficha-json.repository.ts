@@ -50,10 +50,10 @@ export class FichaJsonRepository {
     );
   }
 
-  public static async verVersiones(isFinish: boolean = true) {
+  public static async verVersiones(isFinish: boolean = false) {
     return Transformadores.extraerDataValues(
       await FichaJson.findAll({
-        attributes: ['id', 'version', 'nombreGrupal', 'nombreIndividual'],
+        attributes: ['nombre', 'version', 'nombreGrupal', 'nombreIndividual'],
         where: { isFinish }
       })
     );

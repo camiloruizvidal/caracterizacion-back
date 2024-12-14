@@ -9,36 +9,23 @@ export class FichaJson extends Model {
   })
   id: number;
 
-  @Column({
-    type: DataType.BOOLEAN,
-    allowNull: false
-  })
+  @Column({ type: DataType.BOOLEAN, allowNull: false })
   isFinish: boolean;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false
-  })
+  @Column({ type: DataType.STRING, allowNull: false })
   version: string;
 
-  @Column({
-    type: DataType.DATE,
-    allowNull: false
-  })
+  @Column({ type: DataType.STRING, allowNull: true })
+  nombre: string;
+
+  @Column({ type: DataType.DATE, allowNull: false })
   dateLastVersion: Date;
 
-  @Column({
-    type: DataType.JSON
-  })
+  @Column({ type: DataType.JSON })
   familyCard: Record<string, any>;
 
-  @Column({
-    type: DataType.JSON
-  })
+  @Column({ type: DataType.JSON })
   personCard: Record<string, any>;
-
-  @Column({ type: DataType.BOOLEAN, defaultValue: false, field: 'si_finalizo' })
-  siFinalizo: boolean;
 
   @Column({
     type: DataType.STRING,
