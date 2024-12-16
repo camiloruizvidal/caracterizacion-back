@@ -1,15 +1,18 @@
-import { Table, Column, Model, DataType } from 'sequelize-typescript';
+import {
+  Table,
+  Column,
+  Model,
+  DataType,
+  PrimaryKey
+} from 'sequelize-typescript';
 
 @Table({ tableName: 'ficha_json' })
 export class FichaJson extends Model {
-  @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
-    primaryKey: true
-  })
+  @PrimaryKey
+  @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
   id: number;
 
-  @Column({ type: DataType.BOOLEAN, allowNull: false })
+  @Column({ type: DataType.BOOLEAN, allowNull: false, field: 'is_finish' })
   isFinish: boolean;
 
   @Column({ type: DataType.STRING, allowNull: false })
@@ -27,27 +30,15 @@ export class FichaJson extends Model {
   @Column({ type: DataType.STRING, field: 'nombre_individual' })
   individualNombre: string;
 
-  @Column({
-    type: DataType.JSONB,
-    field: 'grupal_data'
-  })
+  @Column({ type: DataType.JSONB, field: 'grupal_data' })
   grupalData: string;
 
-  @Column({
-    type: DataType.JSONB,
-    field: 'individual_data'
-  })
+  @Column({ type: DataType.JSONB, field: 'individual_data' })
   individualData: string;
 
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW
-  })
+  @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
   createdAt: Date;
 
-  @Column({
-    type: DataType.DATE,
-    defaultValue: DataType.NOW
-  })
+  @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
   updatedAt: Date;
 }

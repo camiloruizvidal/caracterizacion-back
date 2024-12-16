@@ -78,14 +78,13 @@ export class FichaJsonRepository {
     });
 
     const nuevaVersion = maxVersion ? (Number(maxVersion) + 1).toString() : '1';
-
     return await FichaJson.create({
       ...data,
       version: nuevaVersion,
       isFinish: false,
       dateLastVersion: new Date(),
-      grupalNombre: [],
-      individualNombre: []
+      grupalData: [],
+      individualData: []
     });
   }
 }
