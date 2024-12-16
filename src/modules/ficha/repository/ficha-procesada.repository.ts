@@ -25,11 +25,11 @@ export class FichaProcesadaRepository {
         ficha_procesada (
           "usuario_creacion_id",
           "version",
-          "dateLastVersion",
-          "dateRegister",
+          "date_last_version",
+          "date_register",
           "codigo",
-          "grupalNombre",
-          "individualNombre"
+          "grupal_data",
+          "individual_data"
         )
       SELECT
         :usuarioCreacionId as usuario_creacion_id,
@@ -37,8 +37,8 @@ export class FichaProcesadaRepository {
         (data::jsonb ->> 'dateLastVersion')::timestamp  AS date_last_version,
         (data::jsonb ->> 'dateRegister')::timestamp  AS date_register,
         (data::jsonb ->> 'code')::integer AS codigo,
-        (data::jsonb -> 'data' ->> 'grupalNombre')::JSON AS family_card,
-        (data::jsonb -> 'data' ->> 'individualNombre')::JSON AS person_card
+        (data::jsonb -> 'data' ->> 'grupalData')::JSON AS grupal_data,
+        (data::jsonb -> 'data' ->> 'individualData')::JSON AS individual_data
       FROM backup
       WHERE
         backup.status = :almacenado ${whereVersion}
