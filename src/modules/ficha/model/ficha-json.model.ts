@@ -16,7 +16,7 @@ export class FichaJson extends Model {
   isFinish: boolean;
 
   @Column({ type: DataType.STRING, allowNull: false })
-  version: string;
+  version: number;
 
   @Column({ type: DataType.STRING, allowNull: true })
   nombre: string;

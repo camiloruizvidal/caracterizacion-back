@@ -119,6 +119,7 @@ export class FichaService {
 
   public async agregarNuevoFormatoFicha(dataFamilyCard: any) {
     const ficha = await FichaJsonRepository.obtenerFichaJson(dataFamilyCard.id);
+    console.log({ ficha });
     if (ficha) {
       return await FichaJsonRepository.actualizarFichaJson(dataFamilyCard.id, {
         isFinish: dataFamilyCard.isFinish,
@@ -128,9 +129,11 @@ export class FichaService {
         individualNombre: dataFamilyCard.individualNombre
       });
     } else {
+      const maxVersion = await FichaJsonRepository.verUltimaVersion();
+      console.log({ maxVersion });
       return await FichaJsonRepository.agregarFichaJson({
         isFinish: dataFamilyCard.isFinish,
-        version: dataFamilyCard.version,
+        version: maxVersion + 1,
         dateLastVersion: dataFamilyCard.dateLastVersion,
         grupalNombre: dataFamilyCard.grupalNombre,
         individualNombre: dataFamilyCard.individualNombre

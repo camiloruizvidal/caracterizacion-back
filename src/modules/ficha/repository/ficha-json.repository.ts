@@ -66,17 +66,21 @@ export class FichaJsonRepository {
     );
   }
 
+  public static async verUltimaVersion(): Promise<number> {
+    const version = (await FichaJson.max('version', {
+      where: {
+        version: { [Op.ne]: null }
+      }
+    })) as number | null;
+    return version ?? 0;
+  }
+
   public static async crearNuevaVersion(data: {
     nombre: string;
     grupalNombre: string;
     individualNombre: string;
   }) {
-    const maxVersion = await FichaJson.max('version', {
-      where: {
-        version: { [Op.ne]: null }
-      }
-    });
-
+    const maxVersion = await FichaJsonRepository.verUltimaVersion();
     const nuevaVersion = maxVersion ? (Number(maxVersion) + 1).toString() : '1';
     return await FichaJson.create({
       ...data,
