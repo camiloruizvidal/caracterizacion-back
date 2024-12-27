@@ -1,5 +1,5 @@
 import { EFileStatus } from './../../../../utils/global.interface';
-import { IFamilyCardSave } from '../../interface/ficha.interface';
+import { IGrupalCardSave } from '../../interface/ficha.interface';
 import { FichaService } from '../../service/ficha/ficha.service';
 import {
   Body,
@@ -48,9 +48,9 @@ export class FichaController {
   }
 
   @Post('save')
-  public async guardarRegistro(@Body() dataFamilyCard: IFamilyCardSave) {
+  public async guardarRegistro(@Body() dataGrupalCard: IGrupalCardSave) {
     try {
-      const data = await this.fichaService.saveRegisterBackup(dataFamilyCard);
+      const data = await this.fichaService.saveRegisterBackup(dataGrupalCard);
       return {
         status: 200,
         msj: 'success',
@@ -136,9 +136,9 @@ export class FichaController {
 
   @Post('ficha/nueva')
   @HttpCode(204)
-  public async nuevaFicha(@Body() dataFamilyCard: any) {
+  public async nuevaFicha(@Body() dataGrupalCard: any) {
     try {
-      await this.fichaService.agregarNuevoFormatoFicha(dataFamilyCard);
+      await this.fichaService.agregarNuevoFormatoFicha(dataGrupalCard);
     } catch (error) {
       throw error;
     }

@@ -79,15 +79,15 @@ export interface ICodes {
   start: number;
   finish: number;
 }
-export interface IFamilyCardSave {
+export interface IGrupalCardSave {
   version: string;
   dateLastVersion: Date;
   dateRegister?: Date;
   code: number;
   userId?: number;
-  data: IDataFamilyCard;
+  data: IDataGrupalCard;
 }
-export interface IDataFamilyCard {
+export interface IDataGrupalCard {
   grupalNombre: IStepers[];
   individualNombre: IStepers[][];
 }

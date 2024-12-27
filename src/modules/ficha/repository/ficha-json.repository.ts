@@ -28,6 +28,36 @@ export class FichaJsonRepository {
     return values;
   }
 
+  public static async obtnerUltimaFichaActiva() {
+    let values: any = await FichaJson.findOne({
+      where: {
+        isFinish: true
+      },
+      order: [['version', 'DESC']]
+    });
+
+    if (!values) {
+      values = {
+        id: null,
+        isFinish: false,
+        version: null,
+        dateLastVersion: new Date(),
+        grupalNombre: '',
+        individualNombre: '',
+        grupalData: [],
+        individualData: [],
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    } else {
+      values = Transformadores.extraerDataValues(values);
+      values.grupalData = values.grupalData || [];
+      values.individualData = values.individualData || [];
+    }
+
+    return values;
+  }
+
   public static async agregarFichaJson(data: {
     isFinish: any;
     version: any;

@@ -3,11 +3,8 @@ import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
 import { IFichaCard } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
-import { FichaDescripcionRepository } from '../../repository/ficha-descripcion.repository';
-import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
-import { VersionRepository } from '../../repository/version.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 
@@ -15,43 +12,7 @@ import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 export class FichaService {
   public async obternerFormatoFicha(): Promise<IFichaCard> {
     try {
-      const fichasGrupos: any[] = await FichaGrupoRepository.obtenerGrupos();
-      const fichasDescripcion: any[] =
-        await FichaDescripcionRepository.obtenerFichasDescripcion();
-
-      const fichasTipo: any[] = await FichaTipoRepository.obtenerTiposFichas();
-
-      const version = await VersionRepository.obtenerUltimaVersion();
-
-      const dataFormateada: IFichaCard = {
-        version: version.id.toString(),
-        dateLastVersion: version.dateLastVersion,
-        grupalNombre: [],
-        individualNombre: []
-      };
-
-      const fichasResult = fichasGrupos.map(grupos => {
-        grupos['values'] =
-          fichasDescripcion
-            .filter((ficha: any) => ficha.ficha_grupo_id == grupos.id)
-            .map((ficha: any) => {
-              ficha.options = JSON.parse(ficha.options);
-              ficha.visibility = JSON.parse(ficha.visibility);
-              ficha.required = JSON.parse(ficha.required);
-              ficha['value'] = ficha.default;
-              return ficha;
-            }) || [];
-
-        return grupos;
-      });
-
-      fichasTipo.forEach((tipos: any) => {
-        dataFormateada[tipos.nombre] = fichasResult.filter(
-          ficha => ficha.ficha_tipo_id === tipos.id
-        );
-      });
-
-      return dataFormateada;
+      return await FichaJsonRepository.obtnerUltimaFichaActiva();
     } catch (error) {
       throw error.message;
     }
@@ -117,26 +78,26 @@ export class FichaService {
     }
   }
 
-  public async agregarNuevoFormatoFicha(dataFamilyCard: any) {
-    const ficha = await FichaJsonRepository.obtenerFichaJson(dataFamilyCard.id);
+  public async agregarNuevoFormatoFicha(dataGrupalCard: any) {
+    const ficha = await FichaJsonRepository.obtenerFichaJson(dataGrupalCard.id);
     console.log({ ficha });
     if (ficha) {
-      return await FichaJsonRepository.actualizarFichaJson(dataFamilyCard.id, {
-        isFinish: dataFamilyCard.isFinish,
-        version: dataFamilyCard.version,
-        dateLastVersion: dataFamilyCard.dateLastVersion,
-        grupalNombre: dataFamilyCard.grupalNombre,
-        individualNombre: dataFamilyCard.individualNombre
+      return await FichaJsonRepository.actualizarFichaJson(dataGrupalCard.id, {
+        isFinish: dataGrupalCard.isFinish,
+        version: dataGrupalCard.version,
+        dateLastVersion: dataGrupalCard.dateLastVersion,
+        grupalNombre: dataGrupalCard.grupalNombre,
+        individualNombre: dataGrupalCard.individualNombre
       });
     } else {
       const maxVersion = await FichaJsonRepository.verUltimaVersion();
       console.log({ maxVersion });
       return await FichaJsonRepository.agregarFichaJson({
-        isFinish: dataFamilyCard.isFinish,
+        isFinish: dataGrupalCard.isFinish,
         version: maxVersion + 1,
-        dateLastVersion: dataFamilyCard.dateLastVersion,
-        grupalNombre: dataFamilyCard.grupalNombre,
-        individualNombre: dataFamilyCard.individualNombre
+        dateLastVersion: dataGrupalCard.dateLastVersion,
+        grupalNombre: dataGrupalCard.grupalNombre,
+        individualNombre: dataGrupalCard.individualNombre
       });
     }
   }
