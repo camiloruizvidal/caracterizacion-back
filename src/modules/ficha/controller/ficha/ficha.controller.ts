@@ -19,6 +19,7 @@ import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
+import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -27,6 +28,15 @@ export class FichaController {
     private informesService: InformesService,
     private wordAPdfService: WordAPdfService
   ) {}
+  @Post('todo2')
+  public async todo2(@Req() request: Request) {
+    console.log(request.body);
+    return await FichaJsonRepository.insertarGrupoEnFichaJson(
+      8,
+      'grupal_data',
+      request.body
+    );
+  }
 
   @Get('formato_ficha')
   public async getFormatoFicha() {

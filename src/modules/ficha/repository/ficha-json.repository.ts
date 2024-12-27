@@ -1,5 +1,6 @@
 import { Transformadores } from 'src/utils/helpers';
 import { FichaJson } from '../model/ficha-json.model';
+import { QueryTypes } from 'sequelize';
 import { Op } from 'sequelize';
 
 export class FichaJsonRepository {
@@ -26,6 +27,76 @@ export class FichaJsonRepository {
     }
 
     return values;
+  }
+
+  public static async obtenerGruposFichaJson(
+    idFicha: number,
+    tipo: 'grupal_data' | 'individual_data' = 'grupal_data'
+  ) {
+    const result = await FichaJson.sequelize.query(
+      `SELECT
+        grupo->>'id' AS id,
+        grupo->>'orden' AS orden,
+        grupo->>'title' AS title,
+        grupo->>'subtitle' AS subtitle
+      FROM (
+        SELECT jsonb_array_elements(${tipo}) AS grupo
+        FROM ficha_json
+        WHERE id = :idFicha
+      ) subquery`,
+      {
+        type: QueryTypes.SELECT,
+        replacements: { idFicha }
+      }
+    );
+
+    return result;
+  }
+
+  public static async insertarGrupoEnFichaJson(
+    idFicha: number,
+    tipo: 'grupal_data' | 'individual_data',
+    nuevoDato: {
+      orden: number;
+      title: string;
+      subtitle: string | null;
+    }
+  ) {
+    const result = await FichaJson.sequelize.query(
+      `
+      UPDATE ficha_json
+      SET ${tipo} = COALESCE(${tipo}, '[]'::jsonb) || jsonb_build_object(
+        'id',
+        (
+          SELECT COALESCE(MAX((elemento->>'id')::INTEGER), 0) + 1
+          FROM (
+            SELECT jsonb_array_elements(${tipo}) AS elemento
+            FROM ficha_json
+          ) subquery
+        ),
+        'orden', :orden,
+        'table', NULL,
+        'title', :title,
+        'values', '[]'::jsonb,
+        'subtitle', :subtitle,
+        'createdAt', NOW(),
+        'updatedAt', NOW()
+      )::jsonb
+      WHERE id = :idFicha
+      RETURNING ${tipo};
+      `,
+      {
+        replacements: {
+          idFicha,
+          orden: nuevoDato.orden,
+          title: nuevoDato.title,
+          subtitle: nuevoDato.subtitle
+        },
+        type: QueryTypes.UPDATE
+      }
+    );
+
+    return result[0];
   }
 
   public static async obtnerUltimaFichaActiva() {
