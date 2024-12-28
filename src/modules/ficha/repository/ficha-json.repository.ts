@@ -30,23 +30,23 @@ export class FichaJsonRepository {
   }
 
   public static async obtenerGruposFichaJson(
-    idFicha: number,
+    version: number,
     tipo: 'grupal_data' | 'individual_data' = 'grupal_data'
   ) {
     const result = await FichaJson.sequelize.query(
       `SELECT
-        grupo->>'id' AS id,
-        grupo->>'orden' AS orden,
+        (grupo->>'id')::INTEGER AS id,
+        (grupo->>'orden')::INTEGER AS orden,
         grupo->>'title' AS title,
         grupo->>'subtitle' AS subtitle
       FROM (
         SELECT jsonb_array_elements(${tipo}) AS grupo
         FROM ficha_json
-        WHERE id = :idFicha
+        WHERE version = :version
       ) subquery`,
       {
         type: QueryTypes.SELECT,
-        replacements: { idFicha }
+        replacements: { version }
       }
     );
 

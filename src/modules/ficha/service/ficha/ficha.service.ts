@@ -69,9 +69,12 @@ export class FichaService {
     return fichas;
   }
 
-  public async obtenerGrupos() {
+  public async obtenerGrupos(
+    fichaId: number,
+    tipo: 'grupal_data' | 'individual_data' = 'grupal_data'
+  ) {
     try {
-      return await FichaGrupoRepository.obtenerGrupos();
+      return await FichaJsonRepository.obtenerGruposFichaJson(fichaId, tipo);
     } catch (error) {
       console.error({ error });
       throw error;

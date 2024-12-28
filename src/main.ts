@@ -29,6 +29,7 @@ async function bootstrap() {
       whitelist: true,
       transform: true,
       forbidNonWhitelisted: true,
+      //enableImplicitConversion: true,
       exceptionFactory: errors => {
         const mensajeValidaciones = formatearErroresValidacion(errors);
         return new BadRequestException(mensajeValidaciones);

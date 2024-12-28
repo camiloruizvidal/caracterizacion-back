@@ -20,6 +20,7 @@ import { Config } from 'src/Config/Config';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
+import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -140,8 +141,16 @@ export class FichaController {
   }
 
   @Get('obtener/grupos')
-  public async obtenerGrupos() {
-    return await this.fichaService.obtenerGrupos();
+  public async obtenerGrupos(@Query() parametros: obtenerGruposParamsDto) {
+    try {
+      return await this.fichaService.obtenerGrupos(
+        parametros.fichaId,
+        parametros.tipo
+      );
+    } catch (error) {
+      console.log({ error });
+      throw error;
+    }
   }
 
   @Post('ficha/nueva')
