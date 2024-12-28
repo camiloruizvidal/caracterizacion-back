@@ -4,8 +4,8 @@ import { QueryTypes } from 'sequelize';
 import { Op } from 'sequelize';
 
 export class FichaJsonRepository {
-  public static async obtenerFichaJson(idFicha: number) {
-    let values: any = await FichaJson.findByPk(idFicha);
+  public static async obtenerFichaJson(version: number) {
+    let values: any = await FichaJson.findOne({ where: { version } });
 
     if (!values) {
       values = {

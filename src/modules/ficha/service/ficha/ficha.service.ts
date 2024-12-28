@@ -105,8 +105,8 @@ export class FichaService {
     }
   }
 
-  public async obtenerFichaJson(id: number) {
-    return await FichaJsonRepository.obtenerFichaJson(id);
+  public async obtenerFichaJson(version: number) {
+    return await FichaJsonRepository.obtenerFichaJson(version);
   }
 
   public async guardarNuevoGrupo(data: any) {

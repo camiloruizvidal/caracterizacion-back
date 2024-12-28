@@ -159,6 +159,7 @@ export class FichaController {
     try {
       await this.fichaService.agregarNuevoFormatoFicha(dataGrupalCard);
     } catch (error) {
+      console.log({ error });
       throw error;
     }
   }
@@ -174,9 +175,9 @@ export class FichaController {
   }
 
   @Get('ficha/obtenerJson/:id')
-  public async obtenerFichaJson(@Param('id') id: number) {
+  public async obtenerFichaJson(@Param('id') version: number) {
     try {
-      return { data: await this.fichaService.obtenerFichaJson(id) };
+      return { data: await this.fichaService.obtenerFichaJson(version) };
     } catch (error) {
       return error;
     }

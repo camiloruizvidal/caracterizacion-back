@@ -15,7 +15,7 @@ export class Transformadores {
       (Array.isArray(result) && result.length === 0) ||
       (result.rows && result.rows.length === 0)
     ) {
-      return null;
+      return result;
     }
 
     if (Array.isArray(result)) {
