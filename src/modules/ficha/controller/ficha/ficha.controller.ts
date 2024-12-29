@@ -19,8 +19,8 @@ import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
-import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
+import { FichaTipoParamDto } from '../../dto/ficha.tipo.param.dto';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -29,14 +29,17 @@ export class FichaController {
     private informesService: InformesService,
     private wordAPdfService: WordAPdfService
   ) {}
-  @Post('todo2')
-  public async todo2(@Req() request: Request) {
-    console.log(request.body);
-    return await FichaJsonRepository.insertarGrupoEnFichaJson(
-      8,
-      'grupal_data',
-      request.body
-    );
+  @Post('tipo')
+  public async agregarTipo(@Body() respuesta: FichaTipoParamDto) {
+    try {
+      return this.fichaService.agregarTipoFicha(
+        respuesta.versionFicha,
+        respuesta.tipo,
+        respuesta.titulo
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 
   @Get('formato_ficha')

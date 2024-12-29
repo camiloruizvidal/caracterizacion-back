@@ -1,3 +1,4 @@
+import { ETipoGrupo } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
@@ -10,6 +11,23 @@ import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 
 @Injectable()
 export class FichaService {
+  public async agregarTipoFicha(
+    version: number,
+    tipo: ETipoGrupo,
+    titulo: string
+  ) {
+    const ficha = await FichaJsonRepository.obtenerFichaJsonPorVersion(version);
+    if (!ficha) {
+      throw new Error('No se encontro la ficha');
+    }
+
+    return await FichaJsonRepository.insertarGrupoEnFichaJson(
+      version,
+      tipo,
+      titulo
+    );
+  }
+
   public async obternerFormatoFicha(): Promise<IFichaCard> {
     try {
       return await FichaJsonRepository.obtnerUltimaFichaActiva();

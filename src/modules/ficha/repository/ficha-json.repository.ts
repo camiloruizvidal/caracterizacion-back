@@ -1,9 +1,16 @@
+import { ETipoGrupo } from './../../../utils/global.interface';
 import { Transformadores } from 'src/utils/helpers';
 import { FichaJson } from '../model/ficha-json.model';
 import { QueryTypes } from 'sequelize';
 import { Op } from 'sequelize';
 
 export class FichaJsonRepository {
+  public static async obtenerFichaJsonPorVersion(version: number) {
+    return await Transformadores.extraerDataValues(
+      await FichaJson.findOne({ where: { version } })
+    );
+  }
+
   public static async obtenerFichaJson(version: number) {
     let values: any = await FichaJson.findOne({ where: { version } });
 
@@ -54,43 +61,45 @@ export class FichaJsonRepository {
   }
 
   public static async insertarGrupoEnFichaJson(
-    idFicha: number,
-    tipo: 'grupal_data' | 'individual_data',
-    nuevoDato: {
-      orden: number;
-      title: string;
-      subtitle: string | null;
-    }
+    versionFicha: number,
+    tipo: ETipoGrupo,
+    title: string
   ) {
+    const tipoData =
+      tipo === ETipoGrupo.GRUPAL ? 'grupal_data' : 'individual_data';
     const result = await FichaJson.sequelize.query(
       `
       UPDATE ficha_json
-      SET ${tipo} = COALESCE(${tipo}, '[]'::jsonb) || jsonb_build_object(
-        'id',
-        (
+      SET ${tipoData} = COALESCE(${tipoData}, '[]'::jsonb) || jsonb_build_object(
+        'id', (
           SELECT COALESCE(MAX((elemento->>'id')::INTEGER), 0) + 1
           FROM (
-            SELECT jsonb_array_elements(${tipo}) AS elemento
+            SELECT jsonb_array_elements(${tipoData}) AS elemento
             FROM ficha_json
           ) subquery
         ),
-        'orden', :orden,
+        'orden', (
+          SELECT COALESCE(MAX((elemento->>'orden')::INTEGER), 0) + 1
+          FROM (
+            SELECT jsonb_array_elements(${tipoData}) AS elemento
+            FROM ficha_json
+            WHERE version = :versionFicha
+          ) subquery2
+        ),
         'table', NULL,
         'title', :title,
         'values', '[]'::jsonb,
-        'subtitle', :subtitle,
+        'subtitle', '',
         'createdAt', NOW(),
         'updatedAt', NOW()
       )::jsonb
-      WHERE id = :idFicha
-      RETURNING ${tipo};
+      WHERE version = :versionFicha
+      RETURNING ${tipoData};
       `,
       {
         replacements: {
-          idFicha,
-          orden: nuevoDato.orden,
-          title: nuevoDato.title,
-          subtitle: nuevoDato.subtitle
+          versionFicha,
+          title: title
         },
         type: QueryTypes.UPDATE
       }

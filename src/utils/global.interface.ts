@@ -28,3 +28,8 @@ export enum IStatus {
   Fallo = 'fallo',
   Guardado = 'guardado'
 }
+
+export enum ETipoGrupo {
+  GRUPAL = 'grupalData',
+  INDIVIDUAL = 'individualData'
+}
