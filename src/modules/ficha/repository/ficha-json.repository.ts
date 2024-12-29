@@ -151,14 +151,27 @@ export class FichaJsonRepository {
   public static async actualizarFichaJson(
     idFichaJson: number,
     data: {
-      isFinish: any;
-      version: any;
+      isFinish: boolean;
+      version: string;
       dateLastVersion: any;
       grupalNombre: any;
       individualNombre: any;
+      grupalData: any;
+      individualData: any;
     }
   ) {
-    return await FichaJson.update(data, { where: { id: idFichaJson } });
+    return await FichaJson.update(
+      {
+        isFinish: data.isFinish,
+        version: data.version,
+        dateLastVersion: data.dateLastVersion,
+        grupalNombre: data.grupalNombre,
+        individualNombre: data.individualNombre,
+        grupalData: data.grupalData,
+        individualData: data.individualData
+      },
+      { where: { id: idFichaJson } }
+    );
   }
 
   public static async obtenerXVersionFichaJson(version: string) {

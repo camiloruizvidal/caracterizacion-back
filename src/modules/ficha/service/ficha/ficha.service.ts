@@ -101,15 +101,21 @@ export class FichaService {
 
   public async agregarNuevoFormatoFicha(dataGrupalCard: any) {
     const ficha = await FichaJsonRepository.obtenerFichaJson(dataGrupalCard.id);
-    console.log({ ficha });
     if (ficha) {
-      return await FichaJsonRepository.actualizarFichaJson(dataGrupalCard.id, {
-        isFinish: dataGrupalCard.isFinish,
-        version: dataGrupalCard.version,
-        dateLastVersion: dataGrupalCard.dateLastVersion,
-        grupalNombre: dataGrupalCard.grupalNombre,
-        individualNombre: dataGrupalCard.individualNombre
-      });
+      const x = await FichaJsonRepository.actualizarFichaJson(
+        dataGrupalCard.id,
+        {
+          isFinish: dataGrupalCard.isFinish,
+          version: dataGrupalCard.version,
+          dateLastVersion: dataGrupalCard.dateLastVersion,
+          grupalNombre: dataGrupalCard.grupalNombre,
+          individualNombre: dataGrupalCard.individualNombre,
+          grupalData: dataGrupalCard.grupalData,
+          individualData: dataGrupalCard.individualData
+        }
+      );
+      console.log({ x });
+      return x;
     } else {
       const maxVersion = await FichaJsonRepository.verUltimaVersion();
       console.log({ maxVersion });
