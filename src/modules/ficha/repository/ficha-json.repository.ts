@@ -1,4 +1,7 @@
-import { ETipoGrupo } from './../../../utils/global.interface';
+import {
+  ETipoGrupo,
+  IFiltrosBusqueda
+} from './../../../utils/global.interface';
 import { Transformadores } from 'src/utils/helpers';
 import { FichaJson } from '../model/ficha-json.model';
 import { QueryTypes } from 'sequelize';
@@ -212,6 +215,50 @@ export class FichaJsonRepository {
       dateLastVersion: new Date(),
       grupalData: [],
       individualData: []
+    });
+  }
+
+  public static async buscarResultadosDinamicos(filtros: IFiltrosBusqueda[]) {
+    const condicionesGlobales: string[] = [];
+    const parametros: any = {};
+
+    filtros.forEach((filtro, index) => {
+      const { grupo, pregunta, condicion, valor } = filtro;
+      const tipoTarjeta =
+        filtro.tipoTarjeta === 'grupalData' ? 'grupal_data' : 'individual_data';
+
+      const grupoParam = `grupo_${index}`;
+      const preguntaParam = `pregunta_${index}`;
+      const valorParam = `valor_${index}`;
+
+      const condicionGrupo = `${tipoTarjeta} @> jsonb_build_object('title', :${grupoParam})`;
+      parametros[grupoParam] = grupo;
+
+      const condicionValues = `
+        EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(${tipoTarjeta} -> 'values') AS val
+          WHERE val ->> 'label' = :${preguntaParam}
+            AND val ->> 'value' ${condicion} :${valorParam}
+        )
+      `;
+      parametros[preguntaParam] = pregunta;
+      parametros[valorParam] = valor;
+
+      condicionesGlobales.push(`(${condicionGrupo} AND ${condicionValues})`);
+    });
+
+    const whereClause = condicionesGlobales.join(' AND ');
+
+    const query = `
+      SELECT *
+      FROM ficha_procesada
+      WHERE ${whereClause};
+    `;
+
+    return await FichaJson.sequelize!.query(query, {
+      replacements: parametros,
+      type: QueryTypes.SELECT
     });
   }
 }

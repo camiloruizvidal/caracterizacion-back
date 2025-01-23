@@ -1,4 +1,7 @@
-import { ETipoGrupo } from './../../../../utils/global.interface';
+import {
+  ETipoGrupo,
+  IFiltrosBusqueda
+} from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
@@ -141,8 +144,8 @@ export class FichaService {
     await FichaProcesadaRepository.procesarBackupsAlmacenadas(1);
   }
 
-  public async obtenerVersiones() {
-    return await FichaJsonRepository.verVersiones();
+  public async obtenerVersiones(estadoFinalizado: true | false = false) {
+    return await FichaJsonRepository.verVersiones(estadoFinalizado);
   }
 
   public async agregarNuevaVersion(data: {
@@ -151,5 +154,14 @@ export class FichaService {
     individualNombre: string;
   }) {
     return await FichaJsonRepository.crearNuevaVersion(data);
+  }
+
+  public async buscarDinamicamente(filtros: IFiltrosBusqueda[]) {
+    try {
+      return await FichaJsonRepository.buscarResultadosDinamicos(filtros);
+    } catch (error) {
+      console.error({ error });
+      throw error;
+    }
   }
 }

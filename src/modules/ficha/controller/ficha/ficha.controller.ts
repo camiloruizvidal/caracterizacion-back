@@ -211,9 +211,9 @@ export class FichaController {
   }
 
   @Get('/versiones')
-  public async obtenerVersionesFicha() {
+  public async obtenerVersionesFicha(@Query('isFinish') isFinish?: string) {
     try {
-      return await this.fichaService.obtenerVersiones();
+      return await this.fichaService.obtenerVersiones(isFinish === 'true');
     } catch (error) {
       throw error;
     }
@@ -255,5 +255,12 @@ export class FichaController {
     } catch (error) {
       return error;
     }
+  }
+
+  @Get('busqueda_dinamica')
+  public async obtenerInformes(@Query() query: any) {
+    try {
+      return await this.fichaService.buscarDinamicamente(query.filtros);
+    } catch (error) {}
   }
 }
