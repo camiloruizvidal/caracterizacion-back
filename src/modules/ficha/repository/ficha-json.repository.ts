@@ -227,17 +227,30 @@ export class FichaJsonRepository {
       const tipoTarjeta =
         filtro.tipoTarjeta === 'grupalData' ? 'grupal_data' : 'individual_data';
 
+      // Crear alias únicos para los parámetros
       const grupoParam = `grupo_${index}`;
       const preguntaParam = `pregunta_${index}`;
       const valorParam = `valor_${index}`;
 
-      const condicionGrupo = `${tipoTarjeta} @> jsonb_build_object('title', :${grupoParam})`;
+      // Condición para el grupo (buscar en el array)
+      const condicionGrupo = `
+        EXISTS (
+          SELECT 1
+          FROM jsonb_array_elements(${tipoTarjeta}) AS elemento
+          WHERE elemento @> jsonb_build_object('title', :${grupoParam})::jsonb
+        )
+      `;
       parametros[grupoParam] = grupo;
 
+      // Condición para el array "values" dentro del grupo
       const condicionValues = `
         EXISTS (
           SELECT 1
-          FROM jsonb_array_elements(${tipoTarjeta} -> 'values') AS val
+          FROM jsonb_array_elements(
+            (SELECT elemento FROM jsonb_array_elements(${tipoTarjeta}) AS elemento
+            WHERE elemento @> jsonb_build_object('title', :${grupoParam})::jsonb)
+            -> 'values'
+          ) AS val
           WHERE val ->> 'label' = :${preguntaParam}
             AND val ->> 'value' ${condicion} :${valorParam}
         )
@@ -245,17 +258,21 @@ export class FichaJsonRepository {
       parametros[preguntaParam] = pregunta;
       parametros[valorParam] = valor;
 
+      // Combinar condiciones
       condicionesGlobales.push(`(${condicionGrupo} AND ${condicionValues})`);
     });
 
+    // Unir todas las condiciones con AND
     const whereClause = condicionesGlobales.join(' AND ');
 
+    // Construir la consulta final
     const query = `
       SELECT *
       FROM ficha_procesada
       WHERE ${whereClause};
     `;
 
+    // Ejecutar la consulta con los parámetros
     return await FichaJson.sequelize!.query(query, {
       replacements: parametros,
       type: QueryTypes.SELECT
