@@ -21,7 +21,7 @@ import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
 import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
 import { FichaTipoParamDto } from '../../dto/ficha.tipo.param.dto';
-import { FichaJsonParamsDto } from '../../dto/ficha-json-params.dto';
+//import { FichaJsonParamsDto } from '../../dto/ficha-json-params.dto';
 
 @Controller('api/v1/ficha')
 export class FichaController {
