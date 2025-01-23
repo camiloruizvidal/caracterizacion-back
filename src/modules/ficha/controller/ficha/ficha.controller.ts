@@ -72,7 +72,7 @@ export class FichaController {
         data
       };
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
     }
   }
@@ -108,7 +108,7 @@ export class FichaController {
         this.informesService.verEstadoInformeDinamico(filename);
       return { estado };
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw error;
     }
   }
@@ -152,18 +152,18 @@ export class FichaController {
         parametros.tipo
       );
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw error;
     }
   }
 
   @Post('ficha/nueva')
   @HttpCode(204)
-  public async nuevaFicha(@Body() dataGrupalCard: FichaJsonParamsDto) {
+  public async nuevaFicha(@Body() dataGrupalCard: any) {
     try {
       await this.fichaService.agregarNuevoFormatoFicha(dataGrupalCard);
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw error;
     }
   }

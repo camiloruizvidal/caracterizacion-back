@@ -56,7 +56,7 @@ export class PacientesService {
       }
       console.log('Finalizo');
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw error.message;
     }
   }
