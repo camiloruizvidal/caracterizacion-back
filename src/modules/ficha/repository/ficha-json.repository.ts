@@ -227,22 +227,11 @@ export class FichaJsonRepository {
       const tipoTarjeta =
         filtro.tipoTarjeta === 'grupalData' ? 'grupal_data' : 'individual_data';
 
-      // Crear alias únicos para los parámetros
       const grupoParam = `grupo_${index}`;
       const preguntaParam = `pregunta_${index}`;
       const valorParam = `valor_${index}`;
-
-      // Condición para el grupo (buscar en el array)
-      const condicionGrupo = `
-        EXISTS (
-          SELECT 1
-          FROM jsonb_array_elements(${tipoTarjeta}) AS elemento
-          WHERE elemento @> jsonb_build_object('title', :${grupoParam})::jsonb
-        )
-      `;
       parametros[grupoParam] = grupo;
 
-      // Condición para el array "values" dentro del grupo
       const condicionValues = `
         EXISTS (
           SELECT 1
@@ -258,21 +247,32 @@ export class FichaJsonRepository {
       parametros[preguntaParam] = pregunta;
       parametros[valorParam] = valor;
 
-      // Combinar condiciones
-      condicionesGlobales.push(`(${condicionGrupo} AND ${condicionValues})`);
+      condicionesGlobales.push(condicionValues);
     });
 
-    // Unir todas las condiciones con AND
     const whereClause = condicionesGlobales.join(' AND ');
 
-    // Construir la consulta final
     const query = `
-      SELECT *
-      FROM ficha_procesada
+      SELECT
+        ficha_procesada.id,
+        ficha_procesada.codigo,
+        ficha_procesada.date_register,
+        "user"."nombre_primero",
+        "user"."nombre_segundo",
+        "user"."apellido_primero",
+        "user"."apellido_segundo",
+        "user"."documento",
+        ficha_procesada.grupal_data AS grupalData,
+        ficha_procesada.individual_data as individualData
+      FROM
+        ficha_procesada
+      INNER JOIN
+        "user"
+      ON
+        "user"."id" = ficha_procesada.usuario_creacion_id
       WHERE ${whereClause};
     `;
 
-    // Ejecutar la consulta con los parámetros
     return await FichaJson.sequelize!.query(query, {
       replacements: parametros,
       type: QueryTypes.SELECT
