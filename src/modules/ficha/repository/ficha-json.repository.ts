@@ -218,9 +218,13 @@ export class FichaJsonRepository {
     });
   }
 
-  public static async buscarResultadosDinamicos(filtros: IFiltrosBusqueda[]) {
+  public static async buscarResultadosDinamicos(
+    filtros: IFiltrosBusqueda[],
+    pagina: number = 1,
+    registrosPorPagina: number = 10
+  ) {
     const condicionesGlobales: string[] = [];
-    const parametros: any = {};
+    const parametros: any = { pagina, registrosPorPagina };
 
     filtros.forEach((filtro, index) => {
       const { grupo, pregunta, condicion, valor } = filtro;
@@ -270,7 +274,9 @@ export class FichaJsonRepository {
         "user"
       ON
         "user"."id" = ficha_procesada.usuario_creacion_id
-      WHERE ${whereClause};
+      WHERE ${whereClause}
+      LIMIT :registrosPorPagina
+      OFFSET :desplazamiento
     `;
 
     return await FichaJson.sequelize!.query(query, {
