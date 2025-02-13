@@ -13,16 +13,21 @@ export interface IStepers {
 }
 
 export interface ISteperValues {
-  columnName: string;
-  order: number;
+  id?: number;
+  columnName?: string;
+  orden?: number;
   label: string;
-  description: string;
-  type: ESteperType;
-  options?: IOptionsCheck | IOptionsSelect;
-  default: boolean | string;
-  visibility: IOptionsVisibility | boolean;
-  required: IOptionsRequired | boolean;
+  description?: string | null;
+  type: ESteperType | string;
+  options: IOptionsCheck | IOptionsSelect[] | IOptionsSelectFilter | null | any;
+  default: boolean | string | null;
+  visibility: IOptionsVisibility | boolean | null;
+  required: IOptionsRequired | boolean | null;
   value?: any;
+  ficha_grupo_id?: string | number | null;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  nombrePadre?: string; //Para selectDependiente
 }
 
 export enum ESteperType {
