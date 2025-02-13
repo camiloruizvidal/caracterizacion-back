@@ -65,7 +65,7 @@ export interface IOptionsCheck {
 }
 
 export interface IOptionsSelectDependient {
-  show: { table: string; dependiente: string };
+  valueDependiente: string;
   value: string;
   option: string;
 }
