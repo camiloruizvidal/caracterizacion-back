@@ -1,5 +1,5 @@
 import { EFileStatus } from './../../../../utils/global.interface';
-import { IFamilyCardSave } from '../../interface/ficha.interface';
+import { IGrupalCardSave } from '../../interface/ficha.interface';
 import { FichaService } from '../../service/ficha/ficha.service';
 import {
   Body,
@@ -19,6 +19,9 @@ import { Request, Response } from 'express';
 import { Config } from 'src/Config/Config';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
+import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
+import { FichaTipoParamDto } from '../../dto/ficha.tipo.param.dto';
+//import { FichaJsonParamsDto } from '../../dto/ficha-json-params.dto';
 
 @Controller('api/v1/ficha')
 export class FichaController {
@@ -27,6 +30,18 @@ export class FichaController {
     private informesService: InformesService,
     private wordAPdfService: WordAPdfService
   ) {}
+  @Post('tipo')
+  public async agregarTipo(@Body() respuesta: FichaTipoParamDto) {
+    try {
+      return this.fichaService.agregarTipoFicha(
+        respuesta.versionFicha,
+        respuesta.tipo,
+        respuesta.titulo
+      );
+    } catch (error) {
+      throw error;
+    }
+  }
 
   @Get('formato_ficha')
   public async getFormatoFicha() {
@@ -48,16 +63,16 @@ export class FichaController {
   }
 
   @Post('save')
-  public async guardarRegistro(@Body() dataFamilyCard: IFamilyCardSave) {
+  public async guardarRegistro(@Body() dataGrupalCard: IGrupalCardSave) {
     try {
-      const data = await this.fichaService.saveRegisterBackup(dataFamilyCard);
+      const data = await this.fichaService.saveRegisterBackup(dataGrupalCard);
       return {
         status: 200,
         msj: 'success',
         data
       };
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
     }
   }
@@ -93,7 +108,7 @@ export class FichaController {
         this.informesService.verEstadoInformeDinamico(filename);
       return { estado };
     } catch (error) {
-      console.log({ error });
+      console.error({ error });
       throw error;
     }
   }
@@ -130,16 +145,25 @@ export class FichaController {
   }
 
   @Get('obtener/grupos')
-  public async obtenerGrupos() {
-    return await this.fichaService.obtenerGrupos();
+  public async obtenerGrupos(@Query() parametros: obtenerGruposParamsDto) {
+    try {
+      return await this.fichaService.obtenerGrupos(
+        parametros.fichaId,
+        parametros.tipo
+      );
+    } catch (error) {
+      console.error({ error });
+      throw error;
+    }
   }
 
   @Post('ficha/nueva')
   @HttpCode(204)
-  public async nuevaFicha(@Body() dataFamilyCard: any) {
+  public async nuevaFicha(@Body() dataGrupalCard: any) {
     try {
-      await this.fichaService.agregarNuevoFormatoFicha(dataFamilyCard);
+      await this.fichaService.agregarNuevoFormatoFicha(dataGrupalCard);
     } catch (error) {
+      console.error({ error });
       throw error;
     }
   }
@@ -155,9 +179,9 @@ export class FichaController {
   }
 
   @Get('ficha/obtenerJson/:id')
-  public async obtenerFichaJson(@Param('id') id: number) {
+  public async obtenerFichaJson(@Param('id') version: number) {
     try {
-      return { data: await this.fichaService.obtenerFichaJson(id) };
+      return { data: await this.fichaService.obtenerFichaJson(version) };
     } catch (error) {
       return error;
     }
@@ -187,9 +211,9 @@ export class FichaController {
   }
 
   @Get('/versiones')
-  public async obtenerVersionesFicha() {
+  public async obtenerVersionesFicha(@Query('isFinish') isFinish?: string) {
     try {
-      return await this.fichaService.obtenerVersiones();
+      return await this.fichaService.obtenerVersiones(isFinish === 'true');
     } catch (error) {
       throw error;
     }
@@ -231,5 +255,12 @@ export class FichaController {
     } catch (error) {
       return error;
     }
+  }
+
+  @Get('busqueda_dinamica')
+  public async obtenerInformes(@Query() query: any) {
+    try {
+      return await this.fichaService.buscarDinamicamente(query.filtros);
+    } catch (error) {}
   }
 }

@@ -13,16 +13,27 @@ export interface IStepers {
 }
 
 export interface ISteperValues {
-  columnName: string;
-  order: number;
+  id?: number;
+  columnName?: string;
+  orden?: number;
   label: string;
-  description: string;
-  type: ESteperType;
-  options?: IOptionsCheck | IOptionsSelect;
-  default: boolean | string;
-  visibility: IOptionsVisibility | boolean;
-  required: IOptionsRequired | boolean;
+  description?: string | null;
+  type: ESteperType | string;
+  options?:
+    | IOptionsCheck
+    | IOptionsSelect[]
+    | IOptionsSelectFilter
+    | IOptionsSelectDependient //Para selectDependiente
+    | null
+    | any;
+  default: boolean | string | null;
+  visibility: IOptionsVisibility | boolean | null;
+  required: IOptionsRequired | boolean | null;
   value?: any;
+  ficha_grupo_id?: string | number | null;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  nombrePadreDependiente?: string; //Para selectDependiente
 }
 
 export enum ESteperType {
@@ -30,6 +41,7 @@ export enum ESteperType {
   Calendar = 'calendar',
   Photo = 'photo',
   Check = 'check',
+  CheckSiNo = 'checkSiNo',
   Email = 'email',
   Filter = 'filter',
   GPS = 'gps',
@@ -38,6 +50,7 @@ export enum ESteperType {
   Relationship = 'relationship',
   Select = 'select',
   SelectFilter = 'selectFilter',
+  SelectDependiente = 'selectDependiente',
   Text = 'text',
   TextArea = 'textarea',
   Title = 'title',
@@ -49,6 +62,12 @@ export enum ESteperType {
 export interface IOptionsCheck {
   valueTrue: string;
   valueFalse: string;
+}
+
+export interface IOptionsSelectDependient {
+  valueDependiente: string;
+  value: string;
+  option: string;
 }
 
 export interface IOptionsSelect {
@@ -79,15 +98,15 @@ export interface ICodes {
   start: number;
   finish: number;
 }
-export interface IFamilyCardSave {
+export interface IGrupalCardSave {
   version: string;
   dateLastVersion: Date;
   dateRegister?: Date;
   code: number;
   userId?: number;
-  data: IDataFamilyCard;
+  data: IDataGrupalCard;
 }
-export interface IDataFamilyCard {
+export interface IDataGrupalCard {
   grupalNombre: IStepers[];
   individualNombre: IStepers[][];
 }

@@ -1,57 +1,39 @@
+import {
+  ETipoGrupo,
+  IFiltrosBusqueda
+} from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
 import { IFichaCard } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
-import { FichaDescripcionRepository } from '../../repository/ficha-descripcion.repository';
-import { FichaTipoRepository } from '../../repository/ficha-tipo.repository';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
-import { VersionRepository } from '../../repository/version.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 
 @Injectable()
 export class FichaService {
+  public async agregarTipoFicha(
+    version: number,
+    tipo: ETipoGrupo,
+    titulo: string
+  ) {
+    const ficha = await FichaJsonRepository.obtenerFichaJsonPorVersion(version);
+    if (!ficha) {
+      throw new Error('No se encontro la ficha');
+    }
+
+    return await FichaJsonRepository.insertarGrupoEnFichaJson(
+      version,
+      tipo,
+      titulo
+    );
+  }
+
   public async obternerFormatoFicha(): Promise<IFichaCard> {
     try {
-      const fichasGrupos: any[] = await FichaGrupoRepository.obtenerGrupos();
-      const fichasDescripcion: any[] =
-        await FichaDescripcionRepository.obtenerFichasDescripcion();
-
-      const fichasTipo: any[] = await FichaTipoRepository.obtenerTiposFichas();
-
-      const version = await VersionRepository.obtenerUltimaVersion();
-
-      const dataFormateada: IFichaCard = {
-        version: version.id.toString(),
-        dateLastVersion: version.dateLastVersion,
-        grupalNombre: [],
-        individualNombre: []
-      };
-
-      const fichasResult = fichasGrupos.map(grupos => {
-        grupos['values'] =
-          fichasDescripcion
-            .filter((ficha: any) => ficha.ficha_grupo_id == grupos.id)
-            .map((ficha: any) => {
-              ficha.options = JSON.parse(ficha.options);
-              ficha.visibility = JSON.parse(ficha.visibility);
-              ficha.required = JSON.parse(ficha.required);
-              ficha['value'] = ficha.default;
-              return ficha;
-            }) || [];
-
-        return grupos;
-      });
-
-      fichasTipo.forEach((tipos: any) => {
-        dataFormateada[tipos.nombre] = fichasResult.filter(
-          ficha => ficha.ficha_tipo_id === tipos.id
-        );
-      });
-
-      return dataFormateada;
+      return await FichaJsonRepository.obtnerUltimaFichaActiva();
     } catch (error) {
       throw error.message;
     }
@@ -108,41 +90,50 @@ export class FichaService {
     return fichas;
   }
 
-  public async obtenerGrupos() {
+  public async obtenerGrupos(
+    fichaId: number,
+    tipo: 'grupal_data' | 'individual_data' = 'grupal_data'
+  ) {
     try {
-      return await FichaGrupoRepository.obtenerGrupos();
+      return await FichaJsonRepository.obtenerGruposFichaJson(fichaId, tipo);
     } catch (error) {
       console.error({ error });
       throw error;
     }
   }
 
-  public async agregarNuevoFormatoFicha(dataFamilyCard: any) {
-    const ficha = await FichaJsonRepository.obtenerFichaJson(dataFamilyCard.id);
-    console.log({ ficha });
+  public async agregarNuevoFormatoFicha(dataGrupalCard: any) {
+    const ficha = await FichaJsonRepository.obtenerFichaJson(dataGrupalCard.id);
     if (ficha) {
-      return await FichaJsonRepository.actualizarFichaJson(dataFamilyCard.id, {
-        isFinish: dataFamilyCard.isFinish,
-        version: dataFamilyCard.version,
-        dateLastVersion: dataFamilyCard.dateLastVersion,
-        grupalNombre: dataFamilyCard.grupalNombre,
-        individualNombre: dataFamilyCard.individualNombre
-      });
+      const x = await FichaJsonRepository.actualizarFichaJson(
+        dataGrupalCard.id,
+        {
+          isFinish: dataGrupalCard.isFinish,
+          version: dataGrupalCard.version,
+          dateLastVersion: dataGrupalCard.dateLastVersion,
+          grupalNombre: dataGrupalCard.grupalNombre,
+          individualNombre: dataGrupalCard.individualNombre,
+          grupalData: dataGrupalCard.grupalData,
+          individualData: dataGrupalCard.individualData
+        }
+      );
+      console.log({ x });
+      return x;
     } else {
       const maxVersion = await FichaJsonRepository.verUltimaVersion();
       console.log({ maxVersion });
       return await FichaJsonRepository.agregarFichaJson({
-        isFinish: dataFamilyCard.isFinish,
+        isFinish: dataGrupalCard.isFinish,
         version: maxVersion + 1,
-        dateLastVersion: dataFamilyCard.dateLastVersion,
-        grupalNombre: dataFamilyCard.grupalNombre,
-        individualNombre: dataFamilyCard.individualNombre
+        dateLastVersion: dataGrupalCard.dateLastVersion,
+        grupalNombre: dataGrupalCard.grupalNombre,
+        individualNombre: dataGrupalCard.individualNombre
       });
     }
   }
 
-  public async obtenerFichaJson(id: number) {
-    return await FichaJsonRepository.obtenerFichaJson(id);
+  public async obtenerFichaJson(version: number) {
+    return await FichaJsonRepository.obtenerFichaJson(version);
   }
 
   public async guardarNuevoGrupo(data: any) {
@@ -153,8 +144,8 @@ export class FichaService {
     await FichaProcesadaRepository.procesarBackupsAlmacenadas(1);
   }
 
-  public async obtenerVersiones() {
-    return await FichaJsonRepository.verVersiones();
+  public async obtenerVersiones(estadoFinalizado: true | false = false) {
+    return await FichaJsonRepository.verVersiones(estadoFinalizado);
   }
 
   public async agregarNuevaVersion(data: {
@@ -163,5 +154,14 @@ export class FichaService {
     individualNombre: string;
   }) {
     return await FichaJsonRepository.crearNuevaVersion(data);
+  }
+
+  public async buscarDinamicamente(filtros: IFiltrosBusqueda[]) {
+    try {
+      return await FichaJsonRepository.buscarResultadosDinamicos(filtros);
+    } catch (error) {
+      console.error({ error });
+      throw error;
+    }
   }
 }
