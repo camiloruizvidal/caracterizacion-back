@@ -53,6 +53,7 @@ export enum EConditions {
   VACIO = 'null',
   RANGO_FECHA = 'rangoFecha'
 }
+
 export interface ICondiciones {
   text: string;
   condition: string;
