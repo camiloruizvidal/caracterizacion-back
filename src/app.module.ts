@@ -8,6 +8,7 @@ import { Config } from './Config/Config';
 import { join } from 'path';
 import { FileReadyMiddleware } from './utils/middleware/file-read.middleware';
 import { ExcelService } from './utils/excel.service';
+import { AlertasModule } from './modules/alertas/alertas.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ExcelService } from './utils/excel.service';
     PacientesModule,
     UsuariosModule,
     FichaModule,
+    AlertasModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', Config.FOLDER_FILES_URL),
       serveRoot: `/${Config.FOLDER_PUBLIC_URL}`

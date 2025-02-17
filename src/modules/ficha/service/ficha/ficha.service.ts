@@ -77,19 +77,6 @@ export class FichaService {
     });
   }
 
-  public async loadFormsDetail(filtros: {
-    fechaInicio: string;
-    fechaFin: string;
-    usuarioId: string;
-    municipio: string;
-    page: number;
-    pageSize: number;
-  }): Promise<IPagination<any>> {
-    const fichas: IPagination<any> =
-      await FichaRepository.cargarFichaPaginada(filtros);
-    return fichas;
-  }
-
   public async obtenerGrupos(
     fichaId: number,
     tipo: 'grupal_data' | 'individual_data' = 'grupal_data'

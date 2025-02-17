@@ -3,29 +3,11 @@ import {
   ISearchPagination
 } from './../../../utils/global.interface';
 import { Transformadores } from 'src/utils/helpers';
-import { Paciente } from '../model/paciente.model';
 
 export class PacienteRepository {
   public static async guardarPacientesBulk(pacientes: any[]) {
     try {
-      return await Paciente.bulkCreate(pacientes, {
-        updateOnDuplicate: [
-          'documentoTipo',
-          'nombrePrimero',
-          'nombreSegundo',
-          'apellidoPrimero',
-          'apellidoSegundo',
-          'fechaNacimiento',
-          'genero',
-          'estadoCivil',
-          'parentesco',
-          'ocupacion',
-          'aportaIngresos',
-          'nivelEscolaridad',
-          'tipoAfiliacionSalud',
-          'grupoAtencionEspecial'
-        ]
-      });
+      //TODOLa carga debe hacerse dinamica para cualquier tipo de persona, no solo con pacientes
     } catch (error) {
       console.error('Error al guardar o actualizar pacientes:', error);
       throw error;
@@ -40,12 +22,7 @@ export class PacienteRepository {
     const offset = (page - 1) * pageSize;
     const limit = pageSize;
 
-    const resultado = Transformadores.extraerDataValues(
-      await Paciente.findAndCountAll({
-        offset,
-        limit
-      })
-    );
+    const resultado = Transformadores.extraerDataValues([]);
 
     return {
       data: resultado.rows,

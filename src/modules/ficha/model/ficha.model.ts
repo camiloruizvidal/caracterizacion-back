@@ -9,7 +9,6 @@ import {
   HasOne,
   HasMany
 } from 'sequelize-typescript';
-import { PsicosocialPersona } from './psicosocial-persona.model';
 import { TarjetaFamiliar } from './tarjeta-familiar.model';
 import { User } from 'src/modules/usuarios/model/user.model';
 
@@ -54,9 +53,6 @@ export class Ficha extends Model<Ficha> {
 
   @HasOne(() => TarjetaFamiliar)
   tarjetasFamiliares: TarjetaFamiliar;
-
-  @HasMany(() => PsicosocialPersona)
-  psicosocialPersonas: PsicosocialPersona[];
 
   @Column({
     type: DataType.DATE,

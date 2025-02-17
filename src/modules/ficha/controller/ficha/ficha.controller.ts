@@ -125,25 +125,6 @@ export class FichaController {
     }
   }
 
-  @Get('detalle')
-  public async verFichasDetalle(
-    @Query('fechaInicio') fechaInicio: string = '',
-    @Query('fechaFin') fechaFin: string = '',
-    @Query('usuarioId') usuarioId: string = '',
-    @Query('municipio') municipio: string = '',
-    @Query('page') page: number = 1,
-    @Query('pageSize') pageSize: number = 10
-  ) {
-    return await this.fichaService.loadFormsDetail({
-      fechaInicio,
-      fechaFin,
-      usuarioId,
-      municipio,
-      page,
-      pageSize
-    });
-  }
-
   @Get('obtener/grupos')
   public async obtenerGrupos(@Query() parametros: obtenerGruposParamsDto) {
     try {

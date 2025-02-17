@@ -7,8 +7,6 @@ import { Sequelize } from 'sequelize-typescript';
 import { Module } from '@nestjs/common';
 import { User } from 'src/modules/usuarios/model/user.model';
 import { UserRoles } from 'src/modules/usuarios/model/user-roles.model';
-import { PsicosocialPersona } from 'src/modules/ficha/model/psicosocial-persona.model';
-import { Paciente } from 'src/modules/pacientes/model/paciente.model';
 import { UserCodes } from 'src/modules/usuarios/model/user-codes.model';
 import { FichaGrupo } from 'src/modules/ficha/model/ficha-grupo.model';
 import { FichaTipo } from 'src/modules/ficha/model/ficha-tipo.model';
@@ -17,10 +15,10 @@ import { Backup } from 'src/modules/ficha/model/backup.model';
 import { Version } from 'src/modules/ficha/model/version.model';
 import { FichaJson } from 'src/modules/ficha/model/ficha-json.model';
 import { FichaProcesada } from 'src/modules/ficha/model/ficha-procesada.model';
+import { Alertas } from 'src/modules/alertas/model/alertas.model';
+import { AlertasTipo } from 'src/modules/alertas/model/alertas-tipo.model';
 
 const models = [
-  PsicosocialPersona,
-  Paciente,
   UserCodes,
   TarjetaFamiliar,
   DocumentoTipo,
@@ -34,7 +32,9 @@ const models = [
   Version,
   FichaJson,
   FichaProcesada,
-  Log
+  Log,
+  Alertas,
+  AlertasTipo
 ];
 
 const databaseProvider = {
