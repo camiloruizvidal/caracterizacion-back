@@ -10,6 +10,7 @@ export interface ICategoria {
   subtitle?: string;
   table: string;
   values: IPregunta[];
+  alerta?: IConfiguracionAlertaCategoria;
 }
 
 export interface IPregunta {
@@ -144,4 +145,17 @@ export interface IAlertaConfig {
     [key: string]: number; // {"1": 3, "2": 2, "3": 1}
   };
   peso?: number; // Por si algunas preguntas pesan más que otras en el cálculo
+}
+
+export interface IConfiguracionAlertaCategoria {
+  genera_alerta: boolean;
+  clasificaciones: IClasificacionAlerta[];
+  nivel_calculado?: number;
+}
+
+export interface IClasificacionAlerta {
+  nombre: string;
+  rango_minimo: number;
+  rango_maximo: number;
+  color?: string;
 }
