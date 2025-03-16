@@ -36,7 +36,8 @@ export class FichaController {
       return this.fichaService.agregarTipoFicha(
         respuesta.versionFicha,
         respuesta.tipo,
-        respuesta.titulo
+        respuesta.titulo,
+        respuesta.alerta
       );
     } catch (error) {
       throw error;

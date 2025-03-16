@@ -5,7 +5,7 @@ import {
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
-import { IFormulario } from '../../interface/ficha.interface';
+import { IFormulario, IAlerta } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
@@ -17,7 +17,8 @@ export class FichaService {
   public async agregarTipoFicha(
     version: number,
     tipo: ETipoGrupo,
-    titulo: string
+    titulo: string,
+    alerta?: IAlerta
   ) {
     const ficha = await FichaJsonRepository.obtenerFichaJsonPorVersion(version);
     if (!ficha) {
@@ -27,7 +28,8 @@ export class FichaService {
     return await FichaJsonRepository.insertarGrupoEnFichaJson(
       version,
       tipo,
-      titulo
+      titulo,
+      alerta
     );
   }
 

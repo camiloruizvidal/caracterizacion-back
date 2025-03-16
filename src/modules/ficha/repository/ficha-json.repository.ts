@@ -2,6 +2,7 @@ import {
   ETipoGrupo,
   IFiltrosBusqueda
 } from './../../../utils/global.interface';
+import { IAlerta } from '../interface/ficha.interface';
 import { Transformadores } from 'src/utils/helpers';
 import { FichaJson } from '../model/ficha-json.model';
 import { QueryTypes } from 'sequelize';
@@ -66,7 +67,8 @@ export class FichaJsonRepository {
   public static async insertarGrupoEnFichaJson(
     versionFicha: number,
     tipo: ETipoGrupo,
-    title: string
+    title: string,
+    alerta?: IAlerta
   ) {
     const tipoData =
       tipo === ETipoGrupo.GRUPAL ? 'grupal_data' : 'individual_data';
@@ -93,6 +95,7 @@ export class FichaJsonRepository {
         'title', :title,
         'values', '[]'::jsonb,
         'subtitle', '',
+        'alerta', :alerta::jsonb,
         'createdAt', NOW(),
         'updatedAt', NOW()
       )::jsonb
@@ -102,7 +105,8 @@ export class FichaJsonRepository {
       {
         replacements: {
           versionFicha,
-          title: title
+          title,
+          alerta: alerta ? JSON.stringify(alerta) : null
         },
         type: QueryTypes.UPDATE
       }

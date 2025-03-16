@@ -9,8 +9,10 @@ import {
   ValidateNested,
   IsArray,
   Min,
-  Max
+  Max,
+  IsObject
 } from 'class-validator';
+import { IAlerta } from '../interface/ficha.interface';
 
 export class ClasificacionAlertaDto {
   @IsString()
@@ -54,7 +56,6 @@ export class FichaTipoParamDto {
   titulo: string;
 
   @IsOptional()
-  @ValidateNested()
-  @Type(() => AlertaDto)
-  alerta?: AlertaDto;
+  @IsObject()
+  alerta?: IAlerta;
 }

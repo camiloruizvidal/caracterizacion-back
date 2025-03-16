@@ -159,3 +159,15 @@ export interface IClasificacionAlerta {
   rango_maximo: number;
   color?: string;
 }
+
+export interface IAlertaClasificacion {
+  nombre: string;
+  rango_minimo: number;
+  rango_maximo: number;
+  color: string;
+}
+
+export interface IAlerta {
+  genera_alerta: boolean;
+  clasificaciones: IAlertaClasificacion[];
+}
