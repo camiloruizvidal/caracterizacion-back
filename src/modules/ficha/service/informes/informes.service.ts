@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { IHeaderExcel } from '../../interface/ficha.interface';
+import { IEncabezadoExcel } from '../../interface/ficha.interface';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
 import { ExcelService } from 'src/utils/excel.service';
@@ -63,14 +63,14 @@ export class InformesService {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
-    }) as IHeaderExcel[];
+    }) as IEncabezadoExcel[];
 
     const individualNombre = data.individualNombre.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
-    }) as IHeaderExcel[];
+    }) as IEncabezadoExcel[];
 
     headers.push([...datosIniciales, ...grupalNombre, ...individualNombre]);
     headers.push([...segundoHeader]);

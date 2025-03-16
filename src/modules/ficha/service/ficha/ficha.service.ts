@@ -5,7 +5,7 @@ import {
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
-import { IFichaCard } from '../../interface/ficha.interface';
+import { IFormulario } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
@@ -31,7 +31,7 @@ export class FichaService {
     );
   }
 
-  public async obternerFormatoFicha(): Promise<IFichaCard> {
+  public async obternerFormatoFicha(): Promise<IFormulario> {
     try {
       return await FichaJsonRepository.obtnerUltimaFichaActiva();
     } catch (error) {

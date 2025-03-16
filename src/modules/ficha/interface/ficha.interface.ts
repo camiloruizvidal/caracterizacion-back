@@ -1,24 +1,24 @@
-export interface IFichaCard {
+export interface IFormulario {
   version: string;
   dateLastVersion: Date;
-  grupalNombre: IStepers[];
-  individualNombre: IStepers[];
+  grupalNombre: ICategoria[];
+  individualNombre: ICategoria[];
 }
 
-export interface IStepers {
+export interface ICategoria {
   title: string;
   subtitle?: string;
   table: string;
-  values: ISteperValues[];
+  values: IPregunta[];
 }
 
-export interface ISteperValues {
+export interface IPregunta {
   id?: number;
   columnName?: string;
   orden?: number;
   label: string;
   description?: string | null;
-  type: ESteperType | string;
+  type: ETipoPregunta | string;
   options?:
     | IOptionsCheck
     | IOptionsSelect[]
@@ -37,7 +37,7 @@ export interface ISteperValues {
   alerta?: IAlertaConfig;
 }
 
-export enum ESteperType {
+export enum ETipoPregunta {
   Address = 'address',
   Calendar = 'calendar',
   Photo = 'photo',
@@ -93,26 +93,26 @@ export interface IOptionsRule {
   rule: string;
   value: string;
 }
-export interface ICodes {
+export interface ICodigos {
   id?: number;
   user_id?: number;
   start: number;
   finish: number;
 }
-export interface IGrupalCardSave {
+export interface IGuardarFormularioGrupal {
   version: string;
   dateLastVersion: Date;
   dateRegister?: Date;
   code: number;
   userId?: number;
-  data: IDataGrupalCard;
+  data: IDatosFormularioGrupal;
 }
-export interface IDataGrupalCard {
-  grupalNombre: IStepers[];
-  individualNombre: IStepers[][];
+export interface IDatosFormularioGrupal {
+  grupalNombre: ICategoria[];
+  individualNombre: ICategoria[][];
 }
 
-export interface IValueColumn {
+export interface IValorColumna {
   columnName: string;
   value: any;
   isValid?: boolean;
@@ -133,7 +133,7 @@ export interface IOptionsSelectFilterRelaciones {
   destino: string;
 }
 
-export interface IHeaderExcel {
+export interface IEncabezadoExcel {
   value: string;
   colSpan: number;
 }

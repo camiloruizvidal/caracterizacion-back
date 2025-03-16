@@ -6,7 +6,7 @@ import {
   ForeignKey,
   BelongsTo
 } from 'sequelize-typescript';
-import { ESteperType } from '../interface/ficha.interface';
+import { ETipoPregunta } from '../interface/ficha.interface';
 import { FichaGrupo } from './ficha-grupo.model';
 
 @Table({ tableName: 'ficha_descripcion', timestamps: false })
@@ -47,10 +47,10 @@ export class FichaDescripcion extends Model {
   description: string;
 
   @Column({
-    type: DataType.ENUM(...Object.values(ESteperType)),
-    defaultValue: ESteperType.Text
+    type: DataType.ENUM(...Object.values(ETipoPregunta)),
+    defaultValue: ETipoPregunta.Text
   })
-  type: ESteperType;
+  type: ETipoPregunta;
 
   @Column({
     type: DataType.STRING,

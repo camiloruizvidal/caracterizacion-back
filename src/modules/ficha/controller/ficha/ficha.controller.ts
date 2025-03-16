@@ -1,5 +1,5 @@
 import { EFileStatus } from './../../../../utils/global.interface';
-import { IGrupalCardSave } from '../../interface/ficha.interface';
+import { IGuardarFormularioGrupal } from '../../interface/ficha.interface';
 import { FichaService } from '../../service/ficha/ficha.service';
 import {
   Body,
@@ -63,7 +63,9 @@ export class FichaController {
   }
 
   @Post('save')
-  public async guardarRegistro(@Body() dataGrupalCard: IGrupalCardSave) {
+  public async guardarRegistro(
+    @Body() dataGrupalCard: IGuardarFormularioGrupal
+  ) {
     try {
       const data = await this.fichaService.saveRegisterBackup(dataGrupalCard);
       return {
