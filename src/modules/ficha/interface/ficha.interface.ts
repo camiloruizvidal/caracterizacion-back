@@ -34,6 +34,7 @@ export interface ISteperValues {
   createdAt?: string | Date;
   updatedAt?: string | Date;
   nombrePadreDependiente?: string; //Para selectDependiente
+  alerta?: IAlertaConfig;
 }
 
 export enum ESteperType {
@@ -135,4 +136,12 @@ export interface IOptionsSelectFilterRelaciones {
 export interface IHeaderExcel {
   value: string;
   colSpan: number;
+}
+
+export interface IAlertaConfig {
+  genera_alerta: boolean;
+  valores_alerta?: {
+    [key: string]: number; // Para select/options: {"1": 3, "2": 2, "3": 1}
+  };
+  peso?: number; // Por si algunas preguntas pesan más que otras en el cálculo
 }
