@@ -1,6 +1,45 @@
 import { ETipoGrupo } from './../../../utils/global.interface';
-import { Expose } from 'class-transformer';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { Expose, Type } from 'class-transformer';
+import {
+  IsEnum,
+  IsNumber,
+  IsString,
+  IsOptional,
+  IsBoolean,
+  ValidateNested,
+  IsArray,
+  Min,
+  Max
+} from 'class-validator';
+
+export class ClasificacionAlertaDto {
+  @IsString()
+  nombre: string;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  rango_minimo: number;
+
+  @IsNumber()
+  @Min(0)
+  @Max(100)
+  rango_maximo: number;
+
+  @IsString()
+  @IsOptional()
+  color?: string;
+}
+
+export class AlertaDto {
+  @IsBoolean()
+  genera_alerta: boolean;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ClasificacionAlertaDto)
+  clasificaciones: ClasificacionAlertaDto[];
+}
 
 export class FichaTipoParamDto {
   @Expose({ name: 'version_ficha' })
@@ -13,4 +52,9 @@ export class FichaTipoParamDto {
 
   @IsString()
   titulo: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => AlertaDto)
+  alerta?: AlertaDto;
 }
