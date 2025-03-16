@@ -141,7 +141,7 @@ export interface IEncabezadoExcel {
 export interface IAlertaConfig {
   genera_alerta: boolean;
   valores_alerta?: {
-    [key: string]: number; // Para select/options: {"1": 3, "2": 2, "3": 1}
+    [key: string]: number; // {"1": 3, "2": 2, "3": 1}
   };
   peso?: number; // Por si algunas preguntas pesan más que otras en el cálculo
 }
