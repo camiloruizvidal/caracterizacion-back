@@ -190,6 +190,7 @@ export class FichaJsonRepository {
   public static async verVersiones(isFinish: boolean = false) {
     return Transformadores.extraerDataValues(
       await FichaJson.findAll({
+        order: [['id', 'desc']],
         attributes: ['nombre', 'version', 'grupalNombre', 'individualNombre'],
         where: { isFinish }
       })

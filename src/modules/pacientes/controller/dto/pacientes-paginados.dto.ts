@@ -16,6 +16,7 @@ export class PacientesPaginadosDto {
   currentPage: number;
 
   @ApiProperty()
+  @Transform(({ value }) => value | 0)
   totalPages: number;
 
   @ApiProperty()
