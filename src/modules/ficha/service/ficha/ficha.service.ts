@@ -71,11 +71,11 @@ export class FichaService {
   }
 
   private async agregarUsuario(data: any[], usuarios: any[]) {
-    return data.map(IFamilyCard => {
-      IFamilyCard['user'] = usuarios.find(
-        usuario => IFamilyCard.data.userId === usuario.id
+    return data.map(formulario => {
+      formulario['user'] = usuarios.find(
+        usuario => formulario.data.userId === usuario.id
       );
-      return IFamilyCard;
+      return formulario;
     });
   }
 
