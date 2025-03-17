@@ -1,15 +1,25 @@
 export interface IFormulario {
-  version: string;
-  dateLastVersion: Date;
-  grupalNombre: ICategoria[];
-  individualNombre: ICategoria[];
+  isFinish: boolean;
+  version?: string;
+  dateLastVersion?: Date;
+  grupalNombre: string;
+  individualNombre: string;
+  grupalData: ICategoria[];
+  individualData: ICategoria[];
+  alertaGrupal: IOptionsVisibilityExtended[];
+  alertaIndividual: IOptionsVisibilityExtended[];
 }
 
 export interface ICategoria {
+  id?: number | string;
+  orden?: number;
   title: string;
-  subtitle?: string;
-  table: string;
-  values: IPregunta[];
+  subtitle?: string | null;
+  table?: string;
+  ficha_tipo_id?: string | number;
+  values?: IPregunta[];
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
   alerta?: IConfiguracionAlertaCategoria;
 }
 
@@ -58,7 +68,7 @@ export enum ETipoPregunta {
   Title = 'title',
   SubTitle = 'subtitle',
   Ruta = 'ruta_atencion',
-  selectMultiple = 'select_multiple'
+  SelectMultiple = 'select_multiple'
 }
 
 export interface IOptionsCheck {
@@ -67,56 +77,48 @@ export interface IOptionsCheck {
 }
 
 export interface IOptionsSelectDependient {
-  valueDependiente: string;
+  show: { table: string; dependiente: string };
   value: string;
   option: string;
 }
 
 export interface IOptionsSelect {
   value: string;
-  option: string;
+  option: any;
 }
 
 export interface IOptionsRequired {
   isDepend: boolean;
-  rules: null;
+  rules: any;
   required: boolean;
 }
 
 export interface IOptionsVisibility {
   isDepent: boolean;
-  rules: Array<IOptionsRule[]> | null;
+  rules: IOptionsRule[] | null;
   isShow: boolean;
+}
+
+export interface IOptionsVisibilityExtended extends IOptionsRule {
+  indice: number;
+  labelCondition: string;
+  labelField: string;
+  labelValue?: string;
+  alertaId: number;
+  tipoAlerta: tipoAlertas;
 }
 
 export interface IOptionsRule {
   columnDepend: string;
-  rule: string;
+  rule: EConditions;
   value: string;
 }
+
 export interface ICodigos {
   id?: number;
   user_id?: number;
   start: number;
   finish: number;
-}
-export interface IGuardarFormularioGrupal {
-  version: string;
-  dateLastVersion: Date;
-  dateRegister?: Date;
-  code: number;
-  userId?: number;
-  data: IDatosFormularioGrupal;
-}
-export interface IDatosFormularioGrupal {
-  grupalNombre: ICategoria[];
-  individualNombre: ICategoria[][];
-}
-
-export interface IValorColumna {
-  columnName: string;
-  value: any;
-  isValid?: boolean;
 }
 
 export interface IOptionsSelectFilter {
@@ -134,17 +136,45 @@ export interface IOptionsSelectFilterRelaciones {
   destino: string;
 }
 
+export type tipoAlertas = 'individual' | 'grupal';
+export type TipoForm = 'grupalNombre' | 'individualNombre';
+export type TipoDataForm = 'grupalData' | 'individualData';
+
+export enum EConditions {
+  MAYOR_QUE = '>',
+  MAYOR_O_IGUAL_QUE = '>=',
+  MENOR_QUE = '<',
+  MENOR_O_IGUAL_QUE = '<=',
+  IGUAL_QUE = '=',
+  DIFERENTE_QUE = '!==',
+  VACIO = 'null',
+  RANGO_FECHA = 'rangoFecha'
+}
+
+// Interfaces específicas del backend que no existen en el frontend
+export interface IGuardarFormularioGrupal {
+  version: string;
+  dateLastVersion: Date;
+  dateRegister?: Date;
+  code: number;
+  userId?: number;
+  data: IDatosFormularioGrupal;
+}
+
+export interface IDatosFormularioGrupal {
+  grupalNombre: ICategoria[];
+  individualNombre: ICategoria[][];
+}
+
+export interface IValorColumna {
+  columnName: string;
+  value: any;
+  isValid?: boolean;
+}
+
 export interface IEncabezadoExcel {
   value: string;
   colSpan: number;
-}
-
-export interface IAlertaConfig {
-  genera_alerta: boolean;
-  valores_alerta?: {
-    [key: string]: number; // {"1": 3, "2": 2, "3": 1}
-  };
-  peso?: number; // Por si algunas preguntas pesan más que otras en el cálculo
 }
 
 export interface IConfiguracionAlertaCategoria {
@@ -160,6 +190,14 @@ export interface IClasificacionAlerta {
   color?: string;
 }
 
+export interface IAlertaConfig {
+  genera_alerta: boolean;
+  valores_alerta?: {
+    [key: string]: number;
+  };
+  peso?: number;
+}
+
 export interface IAlertaClasificacion {
   nombre: string;
   rango_minimo: number;
@@ -170,4 +208,63 @@ export interface IAlertaClasificacion {
 export interface IAlerta {
   genera_alerta: boolean;
   clasificaciones: IAlertaClasificacion[];
+}
+
+export interface IGruposFicha {
+  id: number;
+  title: string;
+  subtitle?: string | null;
+  orden: number;
+  ficha_tipo_id?: number;
+}
+
+export interface ITarjetaRespondidas {
+  id: number;
+  codigo: number;
+  date_register: string;
+  nombre_primero: string;
+  nombre_segundo: string | null;
+  apellido_primero: string;
+  apellido_segundo: string | null;
+  documento: string;
+  grupaldata: ICategoria[];
+  individualdata: ICategoria[];
+}
+
+export interface ICondiciones {
+  text: string;
+  condition: string;
+}
+
+export const condiciones: ICondiciones[] = [
+  { condition: EConditions.MAYOR_QUE, text: 'Mayor que' },
+  { condition: EConditions.MAYOR_O_IGUAL_QUE, text: 'Mayor O igual que' },
+  { condition: EConditions.MENOR_QUE, text: 'Menor que' },
+  { condition: EConditions.MENOR_O_IGUAL_QUE, text: 'Menor O Igual que' },
+  { condition: EConditions.IGUAL_QUE, text: 'Igual que' },
+  { condition: EConditions.DIFERENTE_QUE, text: 'Diferente que' },
+  { condition: EConditions.VACIO, text: 'Vacio' },
+  { condition: EConditions.RANGO_FECHA, text: 'Rango de fechas' }
+];
+
+export interface IFiltrosBusqueda {
+  tipoTarjeta: TipoDataForm;
+  grupo: string;
+  pregunta: string;
+  condicion: EConditions;
+  valor: string;
+}
+
+export interface ICondition {
+  campo: string;
+  operador: EConditions;
+  valor: string;
+}
+
+export interface IAlertas {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  codigo: string;
+  alerta_tipo_id: number;
 }
