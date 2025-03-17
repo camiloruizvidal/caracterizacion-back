@@ -262,9 +262,10 @@ export interface ICondition {
 }
 
 export interface IAlertas {
-  id: number;
+  id: number | string;
   nombre: string;
-  descripcion: string;
-  codigo: string;
-  alerta_tipo_id: number;
+  alerta_tipo_id?: number;
+  color: string;
+  rango_maximo: number;
+  rango_minimo: number;
 }
