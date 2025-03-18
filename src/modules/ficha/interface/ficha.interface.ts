@@ -177,23 +177,35 @@ export interface IEncabezadoExcel {
   colSpan: number;
 }
 
+export interface IPlanCuidado {
+  nombre: string;
+  descripcion: string;
+  tipo: 'individual' | 'categoria';
+}
+
 export interface IConfiguracionAlertaCategoria {
   genera_alerta: boolean;
   clasificaciones: IClasificacionAlerta[];
   nivel_calculado?: number;
+  planes_cuidado?: IPlanCuidado[];
 }
 
 export interface IClasificacionAlerta {
   nombre: string;
   rango_minimo: number;
   rango_maximo: number;
-  color?: string;
+  color: string;
+  planes_cuidado?: IPlanCuidado[];
 }
 
 export interface IAlertaConfig {
   genera_alerta: boolean;
   valores_alerta?: {
-    [key: string]: number;
+    [key: string]: {
+      valor: number;
+      genera_plan: boolean;
+      planes_cuidado?: IPlanCuidado[];
+    };
   };
   peso?: number;
 }
