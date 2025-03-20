@@ -20,4 +20,5 @@ export class Config {
   public static readonly FOLDER_FILES_TEMPORAL = 'temporal';
   public static readonly FOLDER_FILES_PLANTILLAS = 'plantillas';
   public static readonly COMANDO_LIBREOFFICE = process.env.COMANDO_LIBREOFFICE;
+  public static readonly KEY_JWT = process.env.KEY_JWT;
 }

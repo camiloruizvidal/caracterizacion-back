@@ -17,6 +17,7 @@ import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 import { UsuarioResponseDto } from '../../dto/usuario-response.dto';
 import { UsuarioEditadoDto } from '../../dto/usuario-editado.dto';
 import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
@@ -89,6 +90,7 @@ export class UsuariosController {
     }
   }
 
+  @Public()
   @Post('login')
   async login(
     @Body() { username, password }: { username: string; password: string }

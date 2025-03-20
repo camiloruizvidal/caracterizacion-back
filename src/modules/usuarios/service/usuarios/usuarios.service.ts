@@ -13,9 +13,12 @@ import { DocumentoTipoRepository } from '../../repository/documento-tipo.reposit
 import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 import { UsuarioCodigosRepository } from '../../repository/usuario-codigos.repository';
 import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UsuariosService {
+  constructor(private jwtService: JwtService) {}
+
   public async cargarUsuariosPaginados(
     page: number = 1,
     pageSize: number = 10,
@@ -159,7 +162,16 @@ export class UsuariosService {
       delete user.password;
       user['currentCode'] = 1;
 
-      return user;
+      const payload = {
+        sub: user.id,
+        username: user.username,
+        rol: user.rol
+      };
+
+      return {
+        ...user,
+        token: this.jwtService.sign(payload)
+      };
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }
