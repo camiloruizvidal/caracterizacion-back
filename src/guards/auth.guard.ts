@@ -7,6 +7,7 @@ import {
 import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
+import { Config } from '../Config/Config';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -31,17 +32,17 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
-      throw new UnauthorizedException(
-        'No se proporcionó token de autenticación'
-      );
+      throw new UnauthorizedException('No se encuentra validado');
     }
 
     try {
-      const payload = this.jwtService.verify(token);
+      const payload = this.jwtService.verify(token, {
+        secret: Config.KEY_JWT
+      });
       request['user'] = payload;
       return true;
     } catch {
-      throw new UnauthorizedException('Token inválido o expirado');
+      throw new UnauthorizedException('No se encuentra validado');
     }
   }
 

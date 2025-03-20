@@ -9,6 +9,9 @@ import { join } from 'path';
 import { FileReadyMiddleware } from './utils/middleware/file-read.middleware';
 import { ExcelService } from './utils/excel.service';
 import { AlertasModule } from './modules/alertas/alertas.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './guards/auth.guard';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -20,10 +23,21 @@ import { AlertasModule } from './modules/alertas/alertas.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', '..', Config.FOLDER_FILES_URL),
       serveRoot: `/${Config.FOLDER_PUBLIC_URL}`
+    }),
+    JwtModule.register({
+      global: true,
+      secret: Config.KEY_JWT,
+      signOptions: { expiresIn: '1d' }
     })
   ],
   controllers: [],
-  providers: [ExcelService],
+  providers: [
+    ExcelService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard
+    }
+  ],
   exports: [ExcelService]
 })
 export class AppModule {
