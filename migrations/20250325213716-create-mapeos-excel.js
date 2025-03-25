@@ -12,11 +12,7 @@ module.exports = {
       },
       ficha_json_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'ficha_json',
-          key: 'id'
-        }
+        allowNull: false
       },
       columnas_excel: {
         type: Sequelize.JSONB,
