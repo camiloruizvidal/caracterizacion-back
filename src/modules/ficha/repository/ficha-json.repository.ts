@@ -191,7 +191,13 @@ export class FichaJsonRepository {
     return Transformadores.extraerDataValues(
       await FichaJson.findAll({
         order: [['id', 'desc']],
-        attributes: ['nombre', 'version', 'grupalNombre', 'individualNombre'],
+        attributes: [
+          'id',
+          'nombre',
+          'version',
+          'grupalNombre',
+          'individualNombre'
+        ],
         where: { isFinish }
       })
     );
