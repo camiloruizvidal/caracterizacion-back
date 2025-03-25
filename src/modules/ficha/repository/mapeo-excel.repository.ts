@@ -46,4 +46,26 @@ export class MapeoExcelRepository {
       throw new Error('Error al obtener el mapeo de Excel: ' + error.message);
     }
   }
+
+  public static async obtenerEncabezadosPorFicha(
+    fichaJsonId: number
+  ): Promise<IFormatoMapeoExcel> {
+    try {
+      const mapeo = await MapeoExcel.findOne({
+        where: { ficha_json_id: fichaJsonId }
+      });
+
+      if (!mapeo) {
+        throw new Error('No se encontró el mapeo para la ficha especificada');
+      }
+
+      return {
+        fichaJsonId: mapeo.ficha_json_id,
+        columnasExcel: mapeo.columnas_excel,
+        mapeo: mapeo.mapeo
+      };
+    } catch (error) {
+      throw new Error('Error al obtener los encabezados: ' + error.message);
+    }
+  }
 }

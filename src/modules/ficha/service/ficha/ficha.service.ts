@@ -200,4 +200,16 @@ export class FichaService {
       throw new Error('Error al guardar el mapeo de Excel: ' + error.message);
     }
   }
+
+  public async obtenerEncabezadosExcel(
+    fichaJsonId: number
+  ): Promise<IFormatoMapeoExcel> {
+    try {
+      return await MapeoExcelRepository.obtenerEncabezadosPorFicha(fichaJsonId);
+    } catch (error) {
+      throw new Error(
+        'Error al obtener los encabezados del Excel: ' + error.message
+      );
+    }
+  }
 }

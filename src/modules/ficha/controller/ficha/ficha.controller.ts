@@ -21,8 +21,9 @@ import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
 import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
 import { FichaTipoParamDto } from '../../dto/ficha.tipo.param.dto';
-import { FormatoMapeoExcelDto } from '../../dto/formato-mapeo-excel.dto';
+import { FormatoMapeoExcelDto } from './../../dto/formato-mapeo-excel.dto';
 import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
+import { ManejadorErrorService } from 'src/utils/manejador-error.service';
 //import { FichaJsonParamsDto } from '../../dto/ficha-json-params.dto';
 
 @Controller('api/v1/ficha')
@@ -30,7 +31,8 @@ export class FichaController {
   constructor(
     private fichaService: FichaService,
     private informesService: InformesService,
-    private wordAPdfService: WordAPdfService
+    private wordAPdfService: WordAPdfService,
+    private manejadorErrorService: ManejadorErrorService
   ) {}
   @Post('tipo')
   public async agregarTipo(@Body() respuesta: FichaTipoParamDto) {
@@ -42,7 +44,7 @@ export class FichaController {
         respuesta.alerta
       );
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -50,18 +52,12 @@ export class FichaController {
   public async getFormatoFicha() {
     try {
       return {
-        code: 200,
+        code: HttpStatus.OK,
         msj: 'success',
         data: await this.fichaService.obternerFormatoFicha()
       };
     } catch (error) {
-      throw new HttpException(
-        {
-          code: 500,
-          msj: error
-        },
-        HttpStatus.EXPECTATION_FAILED
-      );
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -72,13 +68,12 @@ export class FichaController {
     try {
       const data = await this.fichaService.saveRegisterBackup(dataGrupalCard);
       return {
-        status: 200,
+        status: HttpStatus.OK,
         msj: 'success',
         data
       };
     } catch (error) {
-      console.error({ error });
-      throw new HttpException(error, HttpStatus.EXPECTATION_FAILED);
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -98,11 +93,7 @@ export class FichaController {
       });
       await this.informesService.generarInformeDinamico(fileName);
     } catch (error) {
-      console.error(error);
-      throw new HttpException(
-        'Error al generar el PDF. ' + error.message,
-        HttpStatus.BAD_REQUEST
-      );
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -113,8 +104,7 @@ export class FichaController {
         this.informesService.verEstadoInformeDinamico(filename);
       return { estado };
     } catch (error) {
-      console.error({ error });
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -126,7 +116,7 @@ export class FichaController {
     try {
       return this.fichaService.loadFormsPage(page, pageSize);
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -138,8 +128,7 @@ export class FichaController {
         parametros.tipo
       );
     } catch (error) {
-      console.error({ error });
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -149,8 +138,7 @@ export class FichaController {
     try {
       await this.fichaService.agregarNuevoFormatoFicha(dataGrupalCard);
     } catch (error) {
-      console.error({ error });
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -160,7 +148,7 @@ export class FichaController {
     try {
       await this.fichaService.agregarNuevaVersion(versionData);
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -169,7 +157,7 @@ export class FichaController {
     try {
       return { data: await this.fichaService.obtenerFichaJson(version) };
     } catch (error) {
-      return error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -180,7 +168,7 @@ export class FichaController {
         data: await this.fichaService.guardarNuevoGrupo(data)
       };
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -192,7 +180,7 @@ export class FichaController {
         data: 'success'
       };
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -201,7 +189,7 @@ export class FichaController {
     try {
       return await this.fichaService.obtenerVersiones(isFinish === 'true');
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -239,7 +227,7 @@ export class FichaController {
         pdf: `${fullHost}/${Config.FOLDER_PUBLIC_URL}/${Config.FOLDER_FILES_TEMPORAL}/${pdfGenerado.nombreArchivo}`
       };
     } catch (error) {
-      return error;
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 
@@ -247,7 +235,9 @@ export class FichaController {
   public async obtenerInformes(@Query() query: any) {
     try {
       return await this.fichaService.buscarDinamicamente(query.filtros);
-    } catch (error) {}
+    } catch (error) {
+      return this.manejadorErrorService.resolverErrorApi(error);
+    }
   }
 
   @Post('mapeo-excel')
@@ -257,7 +247,22 @@ export class FichaController {
         mapeo as IFormatoMapeoExcel
       );
     } catch (error) {
-      throw error;
+      return this.manejadorErrorService.resolverErrorApi(error);
+    }
+  }
+
+  @Get('encabezados-excel/:fichaJsonId')
+  public async obtenerEncabezadosExcel(
+    @Param('fichaJsonId') fichaJsonId: number
+  ) {
+    try {
+      return {
+        code: HttpStatus.OK,
+        msj: 'success',
+        data: await this.fichaService.obtenerEncabezadosExcel(fichaJsonId)
+      };
+    } catch (error) {
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 }
