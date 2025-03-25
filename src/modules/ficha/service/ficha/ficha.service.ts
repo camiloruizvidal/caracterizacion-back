@@ -155,7 +155,49 @@ export class FichaService {
     }
   }
 
-  public async guardarMapeoExcel(mapeo: IFormatoMapeoExcel) {
-    await MapeoExcelRepository.crearMapeo(mapeo);
+  public async guardarMapeoExcel(mapeo: IFormatoMapeoExcel): Promise<void> {
+    try {
+      // Validaciones de negocio
+      if (!mapeo.fichaJsonId) {
+        throw new Error('El ID de la ficha es requerido');
+      }
+
+      if (!mapeo.columnasExcel || mapeo.columnasExcel.length === 0) {
+        throw new Error('Debe especificar al menos una columna de Excel');
+      }
+
+      if (!mapeo.mapeo || mapeo.mapeo.length === 0) {
+        throw new Error('Debe especificar al menos un mapeo');
+      }
+
+      // Validar que todas las columnas de Excel estén mapeadas
+      const columnasMapeadas = mapeo.mapeo.map(
+        mapeoColumna => mapeoColumna.columnaExcel
+      );
+      const columnasSinMapear = mapeo.columnasExcel.filter(
+        columnaExcel => !columnasMapeadas.includes(columnaExcel)
+      );
+
+      if (columnasSinMapear.length > 0) {
+        throw new Error(
+          `Las siguientes columnas no están mapeadas: ${columnasSinMapear.join(
+            ', '
+          )}`
+        );
+      }
+
+      // Verificar si existe un mapeo para esta ficha
+      const mapeoExistente = await MapeoExcelRepository.obtenerPorFicha(
+        mapeo.fichaJsonId
+      );
+
+      if (mapeoExistente) {
+        await MapeoExcelRepository.actualizar(mapeo.fichaJsonId, mapeo);
+      } else {
+        await MapeoExcelRepository.crear(mapeo);
+      }
+    } catch (error) {
+      throw new Error('Error al guardar el mapeo de Excel: ' + error.message);
+    }
   }
 }

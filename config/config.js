@@ -1,4 +1,4 @@
-const { Config } = require('../src/Config/Config');
+const { Config } = require('./src/Config/Config');
 
 module.exports = {
   development: {
