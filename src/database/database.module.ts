@@ -17,6 +17,7 @@ import { FichaJson } from 'src/modules/ficha/model/ficha-json.model';
 import { FichaProcesada } from 'src/modules/ficha/model/ficha-procesada.model';
 import { Alertas } from 'src/modules/alertas/model/alertas.model';
 import { AlertasTipo } from 'src/modules/alertas/model/alertas-tipo.model';
+import { MapeoExcel } from 'src/modules/ficha/model/mapeo-excel.model';
 
 const models = [
   UserCodes,
@@ -34,7 +35,8 @@ const models = [
   FichaProcesada,
   Log,
   Alertas,
-  AlertasTipo
+  AlertasTipo,
+  MapeoExcel
 ];
 
 const databaseProvider = {

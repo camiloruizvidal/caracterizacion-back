@@ -21,6 +21,8 @@ import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
 import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
 import { FichaTipoParamDto } from '../../dto/ficha.tipo.param.dto';
+import { FormatoMapeoExcelDto } from '../../dto/formato-mapeo-excel.dto';
+import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 //import { FichaJsonParamsDto } from '../../dto/ficha-json-params.dto';
 
 @Controller('api/v1/ficha')
@@ -246,5 +248,16 @@ export class FichaController {
     try {
       return await this.fichaService.buscarDinamicamente(query.filtros);
     } catch (error) {}
+  }
+
+  @Post('mapeo-excel')
+  public async guardarMapeoExcel(@Body() mapeo: FormatoMapeoExcelDto) {
+    try {
+      return await this.fichaService.guardarMapeoExcel(
+        mapeo as IFormatoMapeoExcel
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 }

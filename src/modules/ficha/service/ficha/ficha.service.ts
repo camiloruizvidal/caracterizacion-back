@@ -3,7 +3,6 @@ import {
   IFiltrosBusqueda
 } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
-import { FichaRepository } from './../../repository/ficha.repository';
 import { Injectable } from '@nestjs/common';
 import { IFormulario, IAlerta } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
@@ -11,6 +10,8 @@ import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
 import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repository';
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
+import { MapeoExcelRepository } from '../../repository/mapeo-excel.repository';
+import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 
 @Injectable()
 export class FichaService {
@@ -152,5 +153,9 @@ export class FichaService {
       console.error({ error });
       throw error;
     }
+  }
+
+  public async guardarMapeoExcel(mapeo: IFormatoMapeoExcel) {
+    await MapeoExcelRepository.crearMapeo(mapeo);
   }
 }
