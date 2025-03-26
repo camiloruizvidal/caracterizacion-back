@@ -70,6 +70,14 @@ export class Carga extends Model {
   })
   mensajeError?: string;
 
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+    field: 'cantidad_registros'
+  })
+  cantidadRegistros!: number;
+
   @BelongsTo(() => FichaJson)
   ficha!: FichaJson;
 }

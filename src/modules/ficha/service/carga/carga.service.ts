@@ -70,6 +70,8 @@ export class CargaService {
       });
 
       const tamanoBloque = Config.TAMANIO_CHUNK_EXCEL;
+      let registrosProcesados = 0;
+
       for (let i = 0; i < datosJson.length; i += tamanoBloque) {
         try {
           const bloque = datosJson.slice(i, i + tamanoBloque);
@@ -86,8 +88,15 @@ export class CargaService {
           await RegistroExcelRepository.guardarRegistrosBulk(
             registrosTransformados
           );
+
+          await CargaRepository.actualizarCantidadRegistros(
+            idCarga,
+            registrosProcesados
+          );
+          registrosProcesados += bloque.length;
+
           console.log(
-            `Bloque ${Math.floor(i / tamanoBloque) + 1} procesado exitosamente`
+            `Bloque ${Math.floor(i / tamanoBloque) + 1} procesado exitosamente. Total registros procesados: ${registrosProcesados}`
           );
         } catch (error) {
           console.error(
@@ -108,7 +117,7 @@ export class CargaService {
         EEstadoCargaEnum.CARGADO
       );
       console.log(
-        `Procesamiento completado. Total de bloques procesados: ${Math.ceil(datosJson.length / tamanoBloque)}`
+        `Procesamiento completado. Total de registros procesados: ${registrosProcesados}`
       );
     } catch (error) {
       console.error('Error al procesar el archivo Excel:', error);

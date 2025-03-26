@@ -30,4 +30,17 @@ export class CargaRepository {
     }
     return carga;
   }
+
+  static async actualizarCantidadRegistros(
+    id: number,
+    cantidadRegistros: number
+  ): Promise<[number, Carga[]]> {
+    return await Carga.update(
+      { cantidadRegistros },
+      {
+        where: { id },
+        returning: true
+      }
+    );
+  }
 }
