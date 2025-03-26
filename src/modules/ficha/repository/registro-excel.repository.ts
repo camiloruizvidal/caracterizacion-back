@@ -30,7 +30,7 @@ export class RegistroExcelRepository {
       const mapeo = await MapeoExcel.findOne({
         where: { ficha_json_id: fichaId }
       });
-      const columnas: string[] = mapeo?.columnas_excel;
+      const columnas: string[] = mapeo?.columnas_excel ?? [];
 
       const camposSelect = columnas
         .map(campo => `datos_json ->> '${campo}' AS "${campo}"`)

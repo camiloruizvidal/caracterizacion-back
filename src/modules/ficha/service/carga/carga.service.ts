@@ -294,10 +294,14 @@ export class CargaService {
     page: number = 1,
     limit: number = 10
   ): Promise<any> {
-    return await RegistroExcelRepository.obtenerDatosPorFicha(
-      fichaId,
-      page,
-      limit
-    );
+    try {
+      return await RegistroExcelRepository.obtenerDatosPorFicha(
+        fichaId,
+        page,
+        limit
+      );
+    } catch (error) {
+      throw error;
+    }
   }
 }
