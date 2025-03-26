@@ -18,6 +18,8 @@ import { FichaProcesada } from 'src/modules/ficha/model/ficha-procesada.model';
 import { Alertas } from 'src/modules/alertas/model/alertas.model';
 import { AlertasTipo } from 'src/modules/alertas/model/alertas-tipo.model';
 import { MapeoExcel } from 'src/modules/ficha/model/mapeo-excel.model';
+import { Carga } from 'src/modules/ficha/model/carga.model';
+import { RegistroExcel } from 'src/modules/ficha/model/registro-excel.model';
 
 const models = [
   UserCodes,
@@ -36,7 +38,9 @@ const models = [
   Log,
   Alertas,
   AlertasTipo,
-  MapeoExcel
+  MapeoExcel,
+  Carga,
+  RegistroExcel
 ];
 
 const databaseProvider = {

@@ -21,4 +21,9 @@ export class Config {
   public static readonly FOLDER_FILES_PLANTILLAS = 'plantillas';
   public static readonly COMANDO_LIBREOFFICE = process.env.COMANDO_LIBREOFFICE;
   public static readonly KEY_JWT = process.env.KEY_JWT;
+  public static readonly TAMANIO_CHUNK_EXCEL: number = Number(
+    process.env.TAMANIO_CHUNK_EXCEL
+  );
+  public static readonly DIRECTORIO_CARGA_EXCEL =
+    process.env.DIRECTORIO_CARGA_EXCEL;
 }

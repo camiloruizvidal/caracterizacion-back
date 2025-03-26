@@ -1,28 +1,31 @@
-const { Config } = require('./src/Config/Config');
+require('dotenv').config();
 
 module.exports = {
   development: {
-    username: Config.DB_USERNAME,
-    password: Config.DB_PASSWORD,
-    database: Config.DB_DATABASE,
-    host: Config.DB_HOST,
-    port: Config.DB_PORT,
-    dialect: Config.DIALECT
+    username: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASS,
+    database: process.env.DATABASE_NAME,
+    host: process.env.DATABASE_HOST,
+    port: process.env.DATABASE_PORT,
+    dialect: process.env.DATABASE_TYPE,
+    logging: true
   },
   test: {
-    username: Config.DB_USERNAME,
-    password: Config.DB_PASSWORD,
-    database: Config.DB_DATABASE,
-    host: Config.DB_HOST,
-    port: Config.DB_PORT,
-    dialect: Config.DIALECT
+    username: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASS,
+    database: process.env.DATABASE_NAME,
+    host: process.env.DATABASE_HOST,
+    port: process.env.DATABASE_PORT,
+    dialect: process.env.DATABASE_TYPE,
+    logging: false
   },
   production: {
-    username: Config.DB_USERNAME,
-    password: Config.DB_PASSWORD,
-    database: Config.DB_DATABASE,
-    host: Config.DB_HOST,
-    port: Config.DB_PORT,
-    dialect: Config.DIALECT
+    username: process.env.DATABASE_USER,
+    password: process.env.DATABASE_PASS,
+    database: process.env.DATABASE_NAME,
+    host: process.env.DATABASE_HOST,
+    port: process.env.DATABASE_PORT,
+    dialect: process.env.DATABASE_TYPE,
+    logging: false
   }
 };
