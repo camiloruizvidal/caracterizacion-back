@@ -9,13 +9,7 @@ export class RegistroExcelRepository {
     }[]
   ): Promise<RegistroExcel[]> {
     try {
-      return await RegistroExcel.bulkCreate(
-        registros.map(registro => ({
-          carga_id: registro.cargaId,
-          ficha_id: registro.fichaId,
-          datos_json: registro.datosJson
-        }))
-      );
+      return await RegistroExcel.bulkCreate(registros);
     } catch (error) {
       console.error('Error al guardar registros de Excel:', error);
       throw error;

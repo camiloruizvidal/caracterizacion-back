@@ -59,10 +59,11 @@ export class CargaService {
       );
 
       const tamanoBloque = Config.TAMANIO_CHUNK_EXCEL;
+      const encabezados: string[] = [];
       let registrosProcesados = 0;
       let bloqueActual: any[] = [];
-      let encabezados: string[] = [];
       let isFirstRow = true;
+      let huboErrorFatal = false;
 
       const stream = fs
         .createReadStream(rutaArchivo)
@@ -76,6 +77,8 @@ export class CargaService {
           let currentValue = '';
 
           saxStream.on('opentag', node => {
+            if (huboErrorFatal) return;
+
             if (node.name === 'row') {
               filaActual = {};
               currentColIndex = -1;
@@ -91,86 +94,114 @@ export class CargaService {
           });
 
           saxStream.on('text', text => {
-            currentValue += text;
+            if (!huboErrorFatal) currentValue += text;
           });
 
           saxStream.on('closetag', name => {
+            if (huboErrorFatal) return;
+
             if (name === 'v') {
               if (isFirstRow) {
-                encabezados[currentColIndex] = currentValue;
+                encabezados[currentColIndex] = currentValue.trim();
               } else {
-                const campo =
-                  encabezados[currentColIndex] || `col_${currentColIndex}`;
-                filaActual[campo] = currentValue;
+                const campo = encabezados[currentColIndex];
+                if (campo) {
+                  filaActual[campo] = currentValue;
+                }
               }
             }
 
             if (name === 'row') {
-              if (!isFirstRow) {
-                bloqueActual.push({
-                  cargaId: idCarga,
-                  fichaId: idCarga,
-                  datosJson: filaActual
-                });
-
-                if (bloqueActual.length >= tamanoBloque) {
-                  entry.pause(); // ✅ Pausa sobre el stream real
-                  const bloqueNumero =
-                    Math.floor(registrosProcesados / tamanoBloque) + 1;
-                  console.log(
-                    `📦 Procesando ${registrosProcesados + bloqueActual.length} registros, bloque ${bloqueNumero} de ${tamanoBloque} registros`
-                  );
-
-                  RegistroExcelRepository.guardarRegistrosBulk(bloqueActual)
-                    .then(async () => {
-                      registrosProcesados += bloqueActual.length;
-                      console.log(
-                        `✅ Bloque ${bloqueNumero} guardado. Total acumulado: ${registrosProcesados} registros.`
-                      );
-                      await CargaRepository.actualizarCantidadRegistros(
-                        idCarga,
-                        registrosProcesados
-                      );
-                      bloqueActual = [];
-                      entry.resume(); // ✅ Reanuda después del insert
-                    })
-                    .catch(async error => {
-                      console.error('❌ Error guardando bloque:', error);
-                      await CargaService.actualizarEstadoCarga(
-                        idCarga,
-                        EEstadoCargaEnum.ERROR,
-                        error.message
-                      );
-                      entry.resume(); // ⚠️ Reanuda para no bloquear
-                    });
-                }
-              } else {
+              if (isFirstRow) {
                 isFirstRow = false;
+                console.log(
+                  `🟢 Encabezados detectados: ${JSON.stringify(encabezados)}`
+                );
+                return;
+              }
+
+              if (Object.keys(filaActual).length === 0) return;
+
+              bloqueActual.push({
+                cargaId: idCarga,
+                fichaId: idCarga,
+                datosJson: filaActual
+              });
+
+              if (bloqueActual.length >= tamanoBloque) {
+                entry.pause();
+                const bloqueNumero =
+                  Math.floor(registrosProcesados / tamanoBloque) + 1;
+                const totalParcial = (
+                  registrosProcesados + bloqueActual.length
+                ).toLocaleString();
+
+                console.log(
+                  `📦 Procesando ${totalParcial} registros, bloque ${bloqueNumero.toLocaleString()} de ${tamanoBloque.toLocaleString()} registros`
+                );
+
+                RegistroExcelRepository.guardarRegistrosBulk(bloqueActual)
+                  .then(async () => {
+                    registrosProcesados += bloqueActual.length;
+                    console.log(
+                      `✅ Bloque ${bloqueNumero.toLocaleString()} guardado. Total acumulado: ${registrosProcesados.toLocaleString()} registros.`
+                    );
+                    await CargaRepository.actualizarCantidadRegistros(
+                      idCarga,
+                      registrosProcesados
+                    );
+                    bloqueActual = [];
+                    if (!huboErrorFatal) entry.resume();
+                  })
+                  .catch(async error => {
+                    console.error('❌ Error guardando bloque:', error);
+                    huboErrorFatal = true;
+                    await CargaService.actualizarEstadoCarga(
+                      idCarga,
+                      EEstadoCargaEnum.ERROR,
+                      error.message
+                    );
+                    entry.destroy();
+                  });
               }
             }
           });
 
           saxStream.on('end', async () => {
-            if (bloqueActual.length > 0) {
-              await RegistroExcelRepository.guardarRegistrosBulk(bloqueActual);
-              registrosProcesados += bloqueActual.length;
-              await CargaRepository.actualizarCantidadRegistros(
+            if (huboErrorFatal) return;
+            try {
+              if (bloqueActual.length > 0) {
+                await RegistroExcelRepository.guardarRegistrosBulk(
+                  bloqueActual
+                );
+                registrosProcesados += bloqueActual.length;
+                await CargaRepository.actualizarCantidadRegistros(
+                  idCarga,
+                  registrosProcesados
+                );
+                console.log(
+                  `✅ Bloque final guardado. Total registros procesados: ${registrosProcesados.toLocaleString()}`
+                );
+              }
+
+              await CargaService.actualizarEstadoCarga(
                 idCarga,
-                registrosProcesados
+                EEstadoCargaEnum.CARGADO
               );
-              console.log(
-                `✅ Bloque final guardado. Total registros procesados: ${registrosProcesados}`
+              console.log('🎉 Carga completada correctamente.');
+            } catch (error) {
+              console.error('❌ Error procesando bloque final:', error);
+              await CargaService.actualizarEstadoCarga(
+                idCarga,
+                EEstadoCargaEnum.ERROR,
+                error.message
               );
             }
-            await CargaService.actualizarEstadoCarga(
-              idCarga,
-              EEstadoCargaEnum.CARGADO
-            );
-            console.log('🎉 Carga completada correctamente.');
           });
 
           saxStream.on('error', async error => {
             console.error('❌ Error en el parser SAX:', error);
+            huboErrorFatal = true;
             await CargaService.actualizarEstadoCarga(
               idCarga,
               EEstadoCargaEnum.ERROR,
