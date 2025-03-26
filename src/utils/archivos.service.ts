@@ -3,19 +3,17 @@ import * as path from 'path';
 import { Config } from 'src/Config/Config';
 
 export class ArchivosService {
-  private directorioBase: string = path.join(
-    Config.FOLDER_FILES_URL,
-    Config.FOLDER_FILES_TEMPORAL
-  );
+  private directorioBase: string;
 
   constructor() {
+    this.directorioBase = Config.DIRECTORIO_CARGA_EXCEL;
     if (!fs.existsSync(this.directorioBase)) {
       fs.mkdirSync(this.directorioBase, { recursive: true });
     }
   }
 
   public guardarArchivo(file: Express.Multer.File): string {
-    const nombre = `${new Date().getTime()}${file.originalname}.xlsx`;
+    const nombre = `${new Date().getTime()}_${file.originalname}`;
     const rutaArchivo = path.join(this.directorioBase, nombre);
 
     try {
