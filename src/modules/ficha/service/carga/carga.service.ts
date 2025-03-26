@@ -4,8 +4,8 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Carga } from '../../model/carga.model';
 import { RegistroExcelRepository } from '../../repository/registro-excel.repository';
 import { Config } from 'src/Config/Config';
-import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
+import * as ExcelJS from 'exceljs';
 
 export class CargaService {
   static async crearCarga(
@@ -51,43 +51,52 @@ export class CargaService {
     rutaArchivo: string
   ): Promise<void> {
     try {
+      console.log(`Iniciando procesamiento del archivo: ${rutaArchivo}`);
       await CargaService.actualizarEstadoCarga(
         idCarga,
         EEstadoCargaEnum.PROCESANDO
       );
 
-      // Configurar el procesamiento por bloques
       const tamanoBloque = Config.TAMANIO_CHUNK_EXCEL;
       let registrosProcesados = 0;
       let bloqueActual: any[] = [];
-      const encabezados: string[] = [];
+      let encabezados: string[] = [];
+      let isFirstRow = true;
 
       const stream = fs.createReadStream(rutaArchivo);
-      const workbook = new ExcelJS.stream.xlsx.WorkbookReader(stream, {
-        styles: 'ignore',
-        sharedStrings: 'ignore',
-        worksheets: 'emit'
-      });
+      const workbookReader: any = new ExcelJS.stream.xlsx.WorkbookReader(
+        stream,
+        {
+          worksheets: 'emit',
+          styles: 'ignore',
+          sharedStrings: 'cache'
+        }
+      );
 
       return new Promise((resolve, reject) => {
-        let isFirstRow = true;
+        workbookReader.on('worksheet', worksheet => {
+          console.log(
+            '🟢 Hoja de Excel detectada, comenzando lectura de filas...'
+          );
 
-        workbook.on('worksheet', worksheet => {
           worksheet.on('row', async row => {
+            console.log(`📌 Primera fila leída: ${row.number}`);
             try {
               if (isFirstRow) {
-                // Procesar encabezados
-                row.eachCell((cell, colNumber) => {
-                  encabezados[colNumber - 1] = cell.value?.toString() || '';
-                });
+                encabezados = row.values
+                  .slice(1)
+                  .map(cell => cell?.toString().trim());
                 isFirstRow = false;
+                console.log(
+                  `Encabezados detectados: [${encabezados.join(', ')}]`
+                );
                 return;
               }
 
-              // Procesar fila de datos
+              const valores = row.values.slice(1);
               const registro: any = {};
-              row.eachCell((cell, colNumber) => {
-                registro[encabezados[colNumber - 1]] = cell.value;
+              encabezados.forEach((campo, index) => {
+                registro[campo] = valores[index];
               });
 
               bloqueActual.push({
@@ -96,38 +105,32 @@ export class CargaService {
                 datosJson: registro
               });
 
-              // Si llegamos al tamaño del bloque, procesamos
               if (bloqueActual.length >= tamanoBloque) {
+                const bloqueNumero =
+                  Math.floor(registrosProcesados / tamanoBloque) + 1;
                 console.log(
-                  `Procesando bloque ${Math.floor(registrosProcesados / tamanoBloque) + 1}: ${bloqueActual.length} registros`
+                  `📦 Procesando ${registrosProcesados + bloqueActual.length} registros, bloque ${bloqueNumero} de ${tamanoBloque} registros`
                 );
 
+                worksheet.pause();
                 await RegistroExcelRepository.guardarRegistrosBulk(
                   bloqueActual
                 );
                 registrosProcesados += bloqueActual.length;
 
-                // Actualizar la cantidad de registros procesados
-                const [filasActualizadas] =
-                  await CargaRepository.actualizarCantidadRegistros(
-                    idCarga,
-                    registrosProcesados
-                  );
-
-                if (filasActualizadas === 0) {
-                  console.warn(
-                    `No se pudo actualizar la cantidad de registros para la carga ${idCarga}`
-                  );
-                }
-
                 console.log(
-                  `Bloque ${Math.floor(registrosProcesados / tamanoBloque) + 1} procesado exitosamente. Total registros procesados: ${registrosProcesados}`
+                  `✅ Bloque ${bloqueNumero} guardado. Total acumulado: ${registrosProcesados} registros.`
                 );
 
+                await CargaRepository.actualizarCantidadRegistros(
+                  idCarga,
+                  registrosProcesados
+                );
                 bloqueActual = [];
+                worksheet.resume();
               }
             } catch (error) {
-              console.error('Error procesando fila:', error);
+              console.error('❌ Error procesando fila:', error);
               await CargaService.actualizarEstadoCarga(
                 idCarga,
                 EEstadoCargaEnum.ERROR,
@@ -139,21 +142,20 @@ export class CargaService {
 
           worksheet.on('end', async () => {
             try {
-              // Procesar el último bloque si existe
+              console.log(
+                '📄 Fin de hoja detectado. Procesando bloque final...'
+              );
               if (bloqueActual.length > 0) {
-                console.log(
-                  `Procesando bloque final: ${bloqueActual.length} registros`
-                );
-
                 await RegistroExcelRepository.guardarRegistrosBulk(
                   bloqueActual
                 );
                 registrosProcesados += bloqueActual.length;
-
-                // Actualizar la cantidad final de registros procesados
                 await CargaRepository.actualizarCantidadRegistros(
                   idCarga,
                   registrosProcesados
+                );
+                console.log(
+                  `✅ Bloque final guardado. Total registros procesados: ${registrosProcesados}`
                 );
               }
 
@@ -161,12 +163,10 @@ export class CargaService {
                 idCarga,
                 EEstadoCargaEnum.CARGADO
               );
-              console.log(
-                `Procesamiento completado. Total de registros procesados: ${registrosProcesados}`
-              );
+              console.log('🎉 Carga completada correctamente.');
               resolve();
             } catch (error) {
-              console.error('Error procesando bloque final:', error);
+              console.error('❌ Error procesando bloque final:', error);
               await CargaService.actualizarEstadoCarga(
                 idCarga,
                 EEstadoCargaEnum.ERROR,
@@ -177,8 +177,8 @@ export class CargaService {
           });
         });
 
-        workbook.on('error', async error => {
-          console.error('Error leyendo el archivo Excel:', error);
+        workbookReader.on('error', async error => {
+          console.error('❌ Error leyendo el archivo Excel:', error);
           await CargaService.actualizarEstadoCarga(
             idCarga,
             EEstadoCargaEnum.ERROR,
@@ -187,12 +187,12 @@ export class CargaService {
           reject(error);
         });
 
-        workbook.on('end', () => {
-          console.log('Lectura del archivo completada');
+        workbookReader.on('end', () => {
+          console.log('📚 Lectura de archivo completada.');
         });
       });
     } catch (error) {
-      console.error('Error al procesar el archivo Excel:', error);
+      console.error('❌ Error general al procesar el Excel:', error);
       await CargaService.actualizarEstadoCarga(
         idCarga,
         EEstadoCargaEnum.ERROR,

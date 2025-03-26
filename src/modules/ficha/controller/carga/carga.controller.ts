@@ -71,7 +71,8 @@ export class CargaController {
         data: {
           id: carga.id,
           estado: carga.estado,
-          mensajeError: carga.mensajeError
+          cantidad_registros: carga.cantidadRegistros,
+          mensaje_error: carga.mensajeError
         }
       };
     } catch (error) {
