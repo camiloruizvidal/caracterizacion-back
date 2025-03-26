@@ -7,6 +7,7 @@ import { Config } from 'src/Config/Config';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 import * as sax from 'sax';
+import * as ExcelJS from 'exceljs';
 
 export class CargaService {
   static async crearCarga(
@@ -47,7 +48,58 @@ export class CargaService {
     return carga;
   }
 
-  async procesarArchivoExcel(
+  private async obtenerEncabezados(rutaArchivo: string): Promise<string[]> {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(rutaArchivo);
+    const worksheet = workbook.getWorksheet(1);
+    const primeraFila = worksheet.getRow(1);
+    const valores = Array.isArray(primeraFila.values)
+      ? primeraFila.values.slice(1)
+      : [];
+    return valores.map(cell => (cell ? cell.toString().trim() : ''));
+  }
+
+  private async obtenerSharedStrings(rutaArchivo: string): Promise<string[]> {
+    const sharedStrings: string[] = [];
+    const stream = fs
+      .createReadStream(rutaArchivo)
+      .pipe(unzipper.Parse({ forceStream: true }));
+
+    for await (const entry of stream) {
+      if (entry.path === 'xl/sharedStrings.xml') {
+        const saxStream = sax.createStream(true);
+        let currentText = '';
+
+        saxStream.on('opentag', node => {
+          if (node.name === 't') {
+            currentText = '';
+          }
+        });
+
+        saxStream.on('text', text => {
+          currentText += text;
+        });
+
+        saxStream.on('closetag', name => {
+          if (name === 't') {
+            sharedStrings.push(currentText);
+          }
+        });
+
+        await new Promise((resolve, reject) => {
+          saxStream.on('end', resolve);
+          saxStream.on('error', reject);
+          entry.pipe(saxStream);
+        });
+      } else {
+        entry.autodrain();
+      }
+    }
+
+    return sharedStrings;
+  }
+
+  public async procesarArchivoExcel(
     idCarga: number,
     rutaArchivo: string
   ): Promise<void> {
@@ -59,10 +111,12 @@ export class CargaService {
       );
 
       const tamanoBloque = Config.TAMANIO_CHUNK_EXCEL;
-      const encabezados: string[] = [];
+      const encabezados: string[] = await this.obtenerEncabezados(rutaArchivo);
+      const sharedStrings = await this.obtenerSharedStrings(rutaArchivo);
+      console.log(`🟢 Encabezados detectados: ${JSON.stringify(encabezados)}`);
+
       let registrosProcesados = 0;
       let bloqueActual: any[] = [];
-      let isFirstRow = true;
       let huboErrorFatal = false;
 
       const stream = fs
@@ -72,21 +126,25 @@ export class CargaService {
       for await (const entry of stream) {
         if (entry.path === 'xl/worksheets/sheet1.xml') {
           const saxStream = sax.createStream(true);
-          let filaActual: any = {};
+          let tempRowData: Record<number, string> = {};
           let currentColIndex = -1;
           let currentValue = '';
+          let rowIndex = 0;
+          let isSharedString = false;
 
           saxStream.on('opentag', node => {
             if (huboErrorFatal) return;
 
             if (node.name === 'row') {
-              filaActual = {};
+              tempRowData = {};
               currentColIndex = -1;
+              rowIndex++;
             }
             if (node.name === 'c') {
               const cell = node.attributes.r;
               const colLetter = cell.replace(/[0-9]/g, '');
               currentColIndex = this.colLetterToIndex(colLetter);
+              isSharedString = node.attributes.t === 's';
             }
             if (node.name === 'v') {
               currentValue = '';
@@ -101,31 +159,29 @@ export class CargaService {
             if (huboErrorFatal) return;
 
             if (name === 'v') {
-              if (isFirstRow) {
-                encabezados[currentColIndex] = currentValue.trim();
-              } else {
-                const campo = encabezados[currentColIndex];
-                if (campo) {
-                  filaActual[campo] = currentValue;
-                }
+              let value = currentValue.trim();
+              if (isSharedString) {
+                const index = parseInt(value, 10);
+                value = sharedStrings[index] || value;
               }
+              tempRowData[currentColIndex] = value;
             }
 
-            if (name === 'row') {
-              if (isFirstRow) {
-                isFirstRow = false;
-                console.log(
-                  `🟢 Encabezados detectados: ${JSON.stringify(encabezados)}`
-                );
-                return;
-              }
+            if (name === 'row' && rowIndex > 1) {
+              const filaFinal: Record<string, string> = {};
+              Object.keys(tempRowData).forEach(index => {
+                const encabezado = encabezados[parseInt(index)];
+                if (encabezado) {
+                  filaFinal[encabezado] = tempRowData[parseInt(index)];
+                }
+              });
 
-              if (Object.keys(filaActual).length === 0) return;
+              if (Object.keys(filaFinal).length === 0) return;
 
               bloqueActual.push({
                 cargaId: idCarga,
                 fichaId: idCarga,
-                datosJson: filaActual
+                datosJson: filaFinal
               });
 
               if (bloqueActual.length >= tamanoBloque) {
@@ -183,7 +239,6 @@ export class CargaService {
                   `✅ Bloque final guardado. Total registros procesados: ${registrosProcesados.toLocaleString()}`
                 );
               }
-
               await CargaService.actualizarEstadoCarga(
                 idCarga,
                 EEstadoCargaEnum.CARGADO
