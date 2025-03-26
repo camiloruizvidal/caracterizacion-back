@@ -23,6 +23,7 @@ import { FichaTipoParamDto } from '../../dto/ficha.tipo.param.dto';
 import { FormatoMapeoExcelDto } from './../../dto/formato-mapeo-excel.dto';
 import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 import { ManejadorErrorService } from 'src/utils/manejador-error.service';
+import { Public } from 'src/decorators/public.decorator';
 //import { FichaJsonParamsDto } from '../../dto/ficha-json-params.dto';
 
 @Controller('api/v1/ficha')
@@ -47,6 +48,7 @@ export class FichaController {
     }
   }
 
+  @Public()
   @Get('formato_ficha')
   public async getFormatoFicha() {
     try {
@@ -250,6 +252,7 @@ export class FichaController {
     }
   }
 
+  @Public()
   @Get('encabezados-excel/:fichaJsonId')
   public async obtenerEncabezadosExcel(
     @Param('fichaJsonId') fichaJsonId: number
