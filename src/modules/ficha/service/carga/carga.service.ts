@@ -288,4 +288,16 @@ export class CargaService {
     }
     return index - 1;
   }
+
+  public async obtenerRegistrosCarga(
+    fichaId: number,
+    page: number = 1,
+    limit: number = 10
+  ): Promise<any> {
+    return await RegistroExcelRepository.obtenerDatosPorFicha(
+      fichaId,
+      page,
+      limit
+    );
+  }
 }

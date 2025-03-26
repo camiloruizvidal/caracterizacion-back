@@ -1,5 +1,4 @@
 import { RegistroExcel } from '../model/registro-excel.model';
-import { Carga } from '../model/carga.model';
 import { MapeoExcel } from '../model/mapeo-excel.model';
 import { QueryTypes } from 'sequelize';
 
@@ -19,8 +18,8 @@ export class RegistroExcelRepository {
     }
   }
 
-  public static async obtenerDatosPorCarga(
-    cargaId: number,
+  public static async obtenerDatosPorFicha(
+    fichaId: number,
     pagina: number = 1,
     limite: number = 10
   ): Promise<{ count: number; totalPages: number; rows: any[] }> {
@@ -28,10 +27,6 @@ export class RegistroExcelRepository {
     const sequelize = RegistroExcel.sequelize;
 
     try {
-      const carga = await Carga.findByPk(cargaId);
-      const fichaId = carga?.fichaId;
-      if (!fichaId) throw new Error('Ficha no encontrada para la carga.');
-
       const mapeo = await MapeoExcel.findOne({
         where: { ficha_json_id: fichaId }
       });
@@ -48,23 +43,23 @@ export class RegistroExcelRepository {
           ficha_id,
           ${camposSelect}
         FROM registros_excel
-        WHERE carga_id = :cargaId
+        WHERE ficha_id = :fichaId
         LIMIT :limit OFFSET :offset
       `;
 
       const countQuery = `
         SELECT COUNT(*)::int AS total
         FROM registros_excel
-        WHERE carga_id = :cargaId
+        WHERE ficha_id = :fichaId
       `;
 
       const [rows, countResult] = await Promise.all([
         sequelize.query(query, {
-          replacements: { cargaId, limit: limite, offset },
+          replacements: { fichaId, limit: limite, offset },
           type: QueryTypes.SELECT
         }),
         sequelize.query(countQuery, {
-          replacements: { cargaId },
+          replacements: { fichaId },
           type: QueryTypes.SELECT
         })
       ]);

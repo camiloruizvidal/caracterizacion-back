@@ -7,7 +7,8 @@ import {
   HttpStatus,
   UseInterceptors,
   UploadedFile,
-  Res
+  Res,
+  Query
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CargaService } from '../../service/carga/carga.service';
@@ -74,6 +75,28 @@ export class CargaController {
           cantidad_registros: carga.cantidadRegistros,
           mensaje_error: carga.mensajeError
         }
+      };
+    } catch (error) {
+      return this.manejadorErrorService.resolverErrorApi(error);
+    }
+  }
+
+  @Get(':ficha_id/registros')
+  async obtenerRegistrosCarga(
+    @Param('ficha_id') fichaId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ) {
+    try {
+      const registros = await this.cargaService.obtenerRegistrosCarga(
+        Number(fichaId),
+        Number(page),
+        Number(limit)
+      );
+      return {
+        code: HttpStatus.OK,
+        msj: 'Registros encontrados',
+        data: registros
       };
     } catch (error) {
       return this.manejadorErrorService.resolverErrorApi(error);
