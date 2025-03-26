@@ -12,7 +12,8 @@ import { Carga } from './carga.model';
 @Table({
   tableName: 'registros_excel',
   timestamps: true,
-  createdAt: 'created_at'
+  createdAt: 'created_at',
+  updatedAt: 'updated_at'
 })
 export class RegistroExcel extends Model {
   @Column({
@@ -53,6 +54,14 @@ export class RegistroExcel extends Model {
     field: 'created_at'
   })
   createdAt!: Date;
+
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+    defaultValue: DataType.NOW,
+    field: 'updated_at'
+  })
+  updatedAt!: Date;
 
   @BelongsTo(() => Carga)
   carga!: Carga;

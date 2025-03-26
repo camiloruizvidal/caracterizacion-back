@@ -5,7 +5,8 @@ import { Carga } from '../../model/carga.model';
 import { RegistroExcelRepository } from '../../repository/registro-excel.repository';
 import { Config } from 'src/Config/Config';
 import * as fs from 'fs';
-import * as ExcelJS from 'exceljs';
+import * as unzipper from 'unzipper';
+import * as sax from 'sax';
 
 export class CargaService {
   static async crearCarga(
@@ -63,134 +64,125 @@ export class CargaService {
       let encabezados: string[] = [];
       let isFirstRow = true;
 
-      const stream = fs.createReadStream(rutaArchivo);
-      const workbookReader: any = new ExcelJS.stream.xlsx.WorkbookReader(
-        stream,
-        {
-          worksheets: 'emit',
-          styles: 'ignore',
-          sharedStrings: 'cache'
-        }
-      );
+      const stream = fs
+        .createReadStream(rutaArchivo)
+        .pipe(unzipper.Parse({ forceStream: true }));
 
-      return new Promise((resolve, reject) => {
-        workbookReader.on('worksheet', worksheet => {
-          console.log(
-            '🟢 Hoja de Excel detectada, comenzando lectura de filas...'
-          );
+      for await (const entry of stream) {
+        if (entry.path === 'xl/worksheets/sheet1.xml') {
+          const saxStream = sax.createStream(true);
+          let filaActual: any = {};
+          let currentColIndex = -1;
+          let currentValue = '';
 
-          worksheet.on('row', async row => {
-            console.log(`📌 Primera fila leída: ${row.number}`);
-            try {
+          saxStream.on('opentag', node => {
+            if (node.name === 'row') {
+              filaActual = {};
+              currentColIndex = -1;
+            }
+            if (node.name === 'c') {
+              const cell = node.attributes.r;
+              const colLetter = cell.replace(/[0-9]/g, '');
+              currentColIndex = this.colLetterToIndex(colLetter);
+            }
+            if (node.name === 'v') {
+              currentValue = '';
+            }
+          });
+
+          saxStream.on('text', text => {
+            currentValue += text;
+          });
+
+          saxStream.on('closetag', name => {
+            if (name === 'v') {
               if (isFirstRow) {
-                encabezados = row.values
-                  .slice(1)
-                  .map(cell => cell?.toString().trim());
+                encabezados[currentColIndex] = currentValue;
+              } else {
+                const campo =
+                  encabezados[currentColIndex] || `col_${currentColIndex}`;
+                filaActual[campo] = currentValue;
+              }
+            }
+
+            if (name === 'row') {
+              if (!isFirstRow) {
+                bloqueActual.push({
+                  cargaId: idCarga,
+                  fichaId: idCarga,
+                  datosJson: filaActual
+                });
+
+                if (bloqueActual.length >= tamanoBloque) {
+                  entry.pause(); // ✅ Pausa sobre el stream real
+                  const bloqueNumero =
+                    Math.floor(registrosProcesados / tamanoBloque) + 1;
+                  console.log(
+                    `📦 Procesando ${registrosProcesados + bloqueActual.length} registros, bloque ${bloqueNumero} de ${tamanoBloque} registros`
+                  );
+
+                  RegistroExcelRepository.guardarRegistrosBulk(bloqueActual)
+                    .then(async () => {
+                      registrosProcesados += bloqueActual.length;
+                      console.log(
+                        `✅ Bloque ${bloqueNumero} guardado. Total acumulado: ${registrosProcesados} registros.`
+                      );
+                      await CargaRepository.actualizarCantidadRegistros(
+                        idCarga,
+                        registrosProcesados
+                      );
+                      bloqueActual = [];
+                      entry.resume(); // ✅ Reanuda después del insert
+                    })
+                    .catch(async error => {
+                      console.error('❌ Error guardando bloque:', error);
+                      await CargaService.actualizarEstadoCarga(
+                        idCarga,
+                        EEstadoCargaEnum.ERROR,
+                        error.message
+                      );
+                      entry.resume(); // ⚠️ Reanuda para no bloquear
+                    });
+                }
+              } else {
                 isFirstRow = false;
-                console.log(
-                  `Encabezados detectados: [${encabezados.join(', ')}]`
-                );
-                return;
               }
-
-              const valores = row.values.slice(1);
-              const registro: any = {};
-              encabezados.forEach((campo, index) => {
-                registro[campo] = valores[index];
-              });
-
-              bloqueActual.push({
-                cargaId: idCarga,
-                fichaId: idCarga,
-                datosJson: registro
-              });
-
-              if (bloqueActual.length >= tamanoBloque) {
-                const bloqueNumero =
-                  Math.floor(registrosProcesados / tamanoBloque) + 1;
-                console.log(
-                  `📦 Procesando ${registrosProcesados + bloqueActual.length} registros, bloque ${bloqueNumero} de ${tamanoBloque} registros`
-                );
-
-                worksheet.pause();
-                await RegistroExcelRepository.guardarRegistrosBulk(
-                  bloqueActual
-                );
-                registrosProcesados += bloqueActual.length;
-
-                console.log(
-                  `✅ Bloque ${bloqueNumero} guardado. Total acumulado: ${registrosProcesados} registros.`
-                );
-
-                await CargaRepository.actualizarCantidadRegistros(
-                  idCarga,
-                  registrosProcesados
-                );
-                bloqueActual = [];
-                worksheet.resume();
-              }
-            } catch (error) {
-              console.error('❌ Error procesando fila:', error);
-              await CargaService.actualizarEstadoCarga(
-                idCarga,
-                EEstadoCargaEnum.ERROR,
-                error.message
-              );
-              reject(error);
             }
           });
 
-          worksheet.on('end', async () => {
-            try {
+          saxStream.on('end', async () => {
+            if (bloqueActual.length > 0) {
+              await RegistroExcelRepository.guardarRegistrosBulk(bloqueActual);
+              registrosProcesados += bloqueActual.length;
+              await CargaRepository.actualizarCantidadRegistros(
+                idCarga,
+                registrosProcesados
+              );
               console.log(
-                '📄 Fin de hoja detectado. Procesando bloque final...'
+                `✅ Bloque final guardado. Total registros procesados: ${registrosProcesados}`
               );
-              if (bloqueActual.length > 0) {
-                await RegistroExcelRepository.guardarRegistrosBulk(
-                  bloqueActual
-                );
-                registrosProcesados += bloqueActual.length;
-                await CargaRepository.actualizarCantidadRegistros(
-                  idCarga,
-                  registrosProcesados
-                );
-                console.log(
-                  `✅ Bloque final guardado. Total registros procesados: ${registrosProcesados}`
-                );
-              }
-
-              await CargaService.actualizarEstadoCarga(
-                idCarga,
-                EEstadoCargaEnum.CARGADO
-              );
-              console.log('🎉 Carga completada correctamente.');
-              resolve();
-            } catch (error) {
-              console.error('❌ Error procesando bloque final:', error);
-              await CargaService.actualizarEstadoCarga(
-                idCarga,
-                EEstadoCargaEnum.ERROR,
-                error.message
-              );
-              reject(error);
             }
+            await CargaService.actualizarEstadoCarga(
+              idCarga,
+              EEstadoCargaEnum.CARGADO
+            );
+            console.log('🎉 Carga completada correctamente.');
           });
-        });
 
-        workbookReader.on('error', async error => {
-          console.error('❌ Error leyendo el archivo Excel:', error);
-          await CargaService.actualizarEstadoCarga(
-            idCarga,
-            EEstadoCargaEnum.ERROR,
-            error.message
-          );
-          reject(error);
-        });
+          saxStream.on('error', async error => {
+            console.error('❌ Error en el parser SAX:', error);
+            await CargaService.actualizarEstadoCarga(
+              idCarga,
+              EEstadoCargaEnum.ERROR,
+              error.message
+            );
+          });
 
-        workbookReader.on('end', () => {
-          console.log('📚 Lectura de archivo completada.');
-        });
-      });
+          entry.pipe(saxStream);
+        } else {
+          entry.autodrain();
+        }
+      }
     } catch (error) {
       console.error('❌ Error general al procesar el Excel:', error);
       await CargaService.actualizarEstadoCarga(
@@ -200,5 +192,14 @@ export class CargaService {
       );
       throw error;
     }
+  }
+
+  private colLetterToIndex(col: string): number {
+    let index = 0;
+    for (let i = 0; i < col.length; i++) {
+      index *= 26;
+      index += col.charCodeAt(i) - 64;
+    }
+    return index - 1;
   }
 }
