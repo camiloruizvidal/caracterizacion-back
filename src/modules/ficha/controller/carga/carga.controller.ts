@@ -16,7 +16,7 @@ import { ArchivosService } from './../../../../utils/archivos.service';
 import { Response } from 'express';
 import { EEstadoCargaEnum } from '../../enums/estado-carga.enum';
 
-@Controller('carga')
+@Controller('api/v1/carga')
 export class CargaController {
   constructor(
     private readonly manejadorErrorService: ManejadorErrorService,
