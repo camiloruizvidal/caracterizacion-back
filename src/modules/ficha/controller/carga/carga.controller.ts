@@ -48,7 +48,7 @@ export class CargaController {
 
       // Procesar el archivo Excel de forma asíncrona
       this.cargaService
-        .procesarArchivoExcel(carga.id, urlArchivo)
+        .procesarArchivoExcel(carga.id, urlArchivo, fichaId)
         .catch(error => {
           console.error('Error al procesar el archivo Excel:', error);
           CargaService.actualizarEstadoCarga(

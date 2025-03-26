@@ -100,13 +100,14 @@ export class CargaService {
   }
 
   public async procesarArchivoExcel(
-    idCarga: number,
-    rutaArchivo: string
+    cargaId: number,
+    rutaArchivo: string,
+    fichaId: number
   ): Promise<void> {
     try {
       console.log(`Iniciando procesamiento del archivo: ${rutaArchivo}`);
       await CargaService.actualizarEstadoCarga(
-        idCarga,
+        cargaId,
         EEstadoCargaEnum.PROCESANDO
       );
 
@@ -179,8 +180,8 @@ export class CargaService {
               if (Object.keys(filaFinal).length === 0) return;
 
               bloqueActual.push({
-                cargaId: idCarga,
-                fichaId: idCarga,
+                cargaId: cargaId,
+                fichaId: fichaId,
                 datosJson: filaFinal
               });
 
@@ -203,7 +204,7 @@ export class CargaService {
                       `✅ Bloque ${bloqueNumero.toLocaleString()} guardado. Total acumulado: ${registrosProcesados.toLocaleString()} registros.`
                     );
                     await CargaRepository.actualizarCantidadRegistros(
-                      idCarga,
+                      cargaId,
                       registrosProcesados
                     );
                     bloqueActual = [];
@@ -213,7 +214,7 @@ export class CargaService {
                     console.error('❌ Error guardando bloque:', error);
                     huboErrorFatal = true;
                     await CargaService.actualizarEstadoCarga(
-                      idCarga,
+                      cargaId,
                       EEstadoCargaEnum.ERROR,
                       error.message
                     );
@@ -232,7 +233,7 @@ export class CargaService {
                 );
                 registrosProcesados += bloqueActual.length;
                 await CargaRepository.actualizarCantidadRegistros(
-                  idCarga,
+                  cargaId,
                   registrosProcesados
                 );
                 console.log(
@@ -240,14 +241,14 @@ export class CargaService {
                 );
               }
               await CargaService.actualizarEstadoCarga(
-                idCarga,
+                cargaId,
                 EEstadoCargaEnum.CARGADO
               );
               console.log('🎉 Carga completada correctamente.');
             } catch (error) {
               console.error('❌ Error procesando bloque final:', error);
               await CargaService.actualizarEstadoCarga(
-                idCarga,
+                cargaId,
                 EEstadoCargaEnum.ERROR,
                 error.message
               );
@@ -258,7 +259,7 @@ export class CargaService {
             console.error('❌ Error en el parser SAX:', error);
             huboErrorFatal = true;
             await CargaService.actualizarEstadoCarga(
-              idCarga,
+              cargaId,
               EEstadoCargaEnum.ERROR,
               error.message
             );
@@ -272,7 +273,7 @@ export class CargaService {
     } catch (error) {
       console.error('❌ Error general al procesar el Excel:', error);
       await CargaService.actualizarEstadoCarga(
-        idCarga,
+        cargaId,
         EEstadoCargaEnum.ERROR,
         error.message
       );
