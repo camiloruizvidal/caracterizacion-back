@@ -63,6 +63,7 @@ export class FichaController {
   }
 
   @Post('save')
+  @Public()
   public async guardarRegistro(
     @Body() dataGrupalCard: IGuardarFormularioGrupal
   ) {
