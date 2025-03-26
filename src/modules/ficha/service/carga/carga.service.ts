@@ -2,14 +2,18 @@ import { CargaRepository } from '../../repository/carga.repository';
 import { EEstadoCargaEnum } from '../../enums/estado-carga.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Carga } from '../../model/carga.model';
-import { ExcelService } from 'src/utils/excel.service';
+import { RegistroExcelRepository } from '../../repository/registro-excel.repository';
+import { Config } from 'src/Config/Config';
+import * as XLSX from 'xlsx';
+import * as fs from 'fs';
 
 export class CargaService {
-  constructor(private readonly excelService: ExcelService) {}
-
-  static async crearCarga(fichaId: number, urlArchivo: string): Promise<Carga> {
+  static async crearCarga(
+    fichaId: number,
+    rutaArchivo: string
+  ): Promise<Carga> {
     try {
-      return await CargaRepository.crearCarga(fichaId, urlArchivo);
+      return await CargaRepository.crearCarga(fichaId, rutaArchivo);
     } catch (error) {
       throw new HttpException(
         'Error al crear la carga: ' + error.message,
@@ -43,30 +47,76 @@ export class CargaService {
   }
 
   async procesarArchivoExcel(
-    cargaId: number,
-    urlArchivo: string
+    idCarga: number,
+    rutaArchivo: string
   ): Promise<void> {
     try {
-      // Actualizar estado a procesando
+      const filaEncabezado = 1;
       await CargaService.actualizarEstadoCarga(
-        cargaId,
+        idCarga,
         EEstadoCargaEnum.PROCESANDO
       );
 
-      // Iniciar procesamiento del archivo
-      await this.excelService.iniciarLectura(urlArchivo);
+      const libro = XLSX.readFile(rutaArchivo);
+      const hoja = libro.Sheets[libro.SheetNames[0]];
 
-      // TODO: Implementar la lógica de procesamiento del Excel aquí
-      // Por ejemplo:
-      // const registros = await this.excelService.obtenerRegistros();
-      // await this.procesarRegistros(registros, cargaId);
+      const encabezados = XLSX.utils.sheet_to_json(hoja, {
+        header: filaEncabezado
+      })[0];
 
-      // Actualizar estado a cargado
+      const datosJson = XLSX.utils.sheet_to_json(hoja, {
+        header: encabezados as string[],
+        range: filaEncabezado
+      });
+
+      const tamanoBloque = Config.TAMANIO_CHUNK_EXCEL;
+      for (let i = 0; i < datosJson.length; i += tamanoBloque) {
+        try {
+          const bloque = datosJson.slice(i, i + tamanoBloque);
+          console.log(
+            `Procesando bloque ${Math.floor(i / tamanoBloque) + 1}: ${bloque.length} registros`
+          );
+
+          const registrosTransformados = bloque.map(registro => ({
+            cargaId: idCarga,
+            fichaId: idCarga,
+            datosJson: registro
+          }));
+
+          await RegistroExcelRepository.guardarRegistrosBulk(
+            registrosTransformados
+          );
+          console.log(
+            `Bloque ${Math.floor(i / tamanoBloque) + 1} procesado exitosamente`
+          );
+        } catch (error) {
+          console.error(
+            `Error procesando bloque ${Math.floor(i / tamanoBloque) + 1}:`,
+            error
+          );
+          await CargaService.actualizarEstadoCarga(
+            idCarga,
+            EEstadoCargaEnum.ERROR,
+            `Error procesando bloque ${Math.floor(i / tamanoBloque) + 1}: ${error.message}`
+          );
+          throw error;
+        }
+      }
+
       await CargaService.actualizarEstadoCarga(
-        cargaId,
+        idCarga,
         EEstadoCargaEnum.CARGADO
       );
+      console.log(
+        `Procesamiento completado. Total de bloques procesados: ${Math.ceil(datosJson.length / tamanoBloque)}`
+      );
     } catch (error) {
+      console.error('Error al procesar el archivo Excel:', error);
+      await CargaService.actualizarEstadoCarga(
+        idCarga,
+        EEstadoCargaEnum.ERROR,
+        error.message
+      );
       throw error;
     }
   }

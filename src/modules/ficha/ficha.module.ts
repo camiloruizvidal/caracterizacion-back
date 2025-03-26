@@ -7,6 +7,7 @@ import { ExcelService } from 'src/utils/excel.service';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { ManejadorErrorService } from 'src/utils/manejador-error.service';
 import { ArchivosService } from 'src/utils/archivos.service';
+import { CargaService } from './service/carga/carga.service';
 
 @Module({
   providers: [
@@ -15,7 +16,8 @@ import { ArchivosService } from 'src/utils/archivos.service';
     ExcelService,
     WordAPdfService,
     ManejadorErrorService,
-    ArchivosService
+    ArchivosService,
+    CargaService
   ],
   exports: [ExcelService],
   controllers: [FichaController, CargaController]
