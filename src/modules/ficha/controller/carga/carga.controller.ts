@@ -16,6 +16,7 @@ import { ManejadorErrorService } from './../../../../utils/manejador-error.servi
 import { ArchivosService } from './../../../../utils/archivos.service';
 import { Response } from 'express';
 import { EEstadoCargaEnum } from '../../enums/estado-carga.enum';
+import { Public } from '../../../../decorators/public.decorator';
 
 @Controller('api/v1/carga')
 export class CargaController {
@@ -82,16 +83,21 @@ export class CargaController {
   }
 
   @Get(':ficha_id/registros')
+  @Public()
   async obtenerRegistrosCarga(
     @Param('ficha_id') fichaId: string,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10
+    @Query('page') page: string,
+    @Query('limit') limit: string
   ) {
     try {
+      // Validar y convertir los parámetros de paginación
+      const pageNumber = page ? Number(page) : 1;
+      const limitNumber = limit ? Number(limit) : 10;
+
       const registros = await this.cargaService.obtenerRegistrosCarga(
         Number(fichaId),
-        Number(page),
-        Number(limit)
+        pageNumber,
+        limitNumber
       );
       return {
         code: HttpStatus.OK,
