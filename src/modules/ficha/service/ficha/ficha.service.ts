@@ -14,6 +14,7 @@ import { MapeoExcelRepository } from '../../repository/mapeo-excel.repository';
 import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
+import { FichaProcesada } from '../../model/ficha-procesada.model';
 
 interface IResultadoCSV {
   id: number;
@@ -344,64 +345,78 @@ export class FichaService {
 
     return csvRows.join('\n');
   }
-
   public async obtenerFormatoFichaJson(
     version: number,
     limit: number = 10,
     offset: number = 0
   ) {
     try {
+      // Obtener la ficha correspondiente a la versión
       const ficha = await FichaJsonRepository.obtenerFichaJson(version);
-      const fichaProcesada =
-        await FichaProcesadaRepository.obtenerFichasProcesadasConCamposDinamicos(
-          version,
-          limit,
-          offset
-        );
 
-      const grupal = [];
-      const individual = [];
+      // Inicializar un array para almacenar las respuestas
+      const respuestas = [];
 
-      // Procesar datos grupales
-      if (ficha.grupalData) {
-        ficha.grupalData.forEach((grupo: any) => {
-          if (grupo.values) {
-            grupo.values.forEach((valor: any) => {
-              if (valor.columnName && valor.label) {
-                grupal.push({
-                  columnName: valor.columnName,
-                  label: valor.label
-                });
-              }
-            });
-          }
-        });
+      // Obtenemos las encuestas procesadas para la versión especificada
+      const encuestasProcesadas =
+        await this.obtenerEncuestasProcesadas(version);
+
+      // Verificamos que hay datos en encuestasProcesadas
+      if (encuestasProcesadas && encuestasProcesadas.length > 0) {
+        const encuesta = encuestasProcesadas[0]; // Suponemos que obtenemos solo una encuesta procesada
+        const datos = encuesta.dataValues; // Accedemos a los valores de la encuesta procesada
+
+        // Procesamos los datos grupales
+        if (ficha.grupalData) {
+          ficha.grupalData.forEach((grupo: any) => {
+            if (grupo.values) {
+              grupo.values.forEach((valor: any) => {
+                if (valor.columnName && valor.label) {
+                  // Buscamos la respuesta de la encuesta procesada usando el `columnName`
+                  const respuesta = datos[valor.columnName]; // Obtenemos el valor de la respuesta desde encuestasProcesadas
+                  // Añadimos la respuesta en formato sencillo (con '-' si no hay respuesta)
+                  respuestas.push([
+                    valor.columnName,
+                    valor.label,
+                    respuesta || '-'
+                  ]);
+                }
+              });
+            }
+          });
+        }
+
+        // Procesamos los datos individuales
+        if (ficha.individualData) {
+          ficha.individualData.forEach((grupo: any) => {
+            if (grupo.values) {
+              grupo.values.forEach((valor: any) => {
+                if (valor.columnName && valor.label) {
+                  // Buscamos la respuesta de la encuesta procesada usando el `columnName`
+                  const respuesta = datos[valor.columnName]; // Obtenemos el valor de la respuesta desde encuestasProcesadas
+                  // Añadimos la respuesta en formato sencillo (con '-' si no hay respuesta)
+                  respuestas.push([
+                    valor.columnName,
+                    valor.label,
+                    respuesta || '-'
+                  ]);
+                }
+              });
+            }
+          });
+        }
+
+        return { respuestas }; // Devolvemos las respuestas en formato sencillo
+      } else {
+        return { respuestas: [] }; // Si no hay encuestas procesadas, retornamos un array vacío
       }
-
-      // Procesar datos individuales
-      if (ficha.individualData) {
-        ficha.individualData.forEach((grupo: any) => {
-          if (grupo.values) {
-            grupo.values.forEach((valor: any) => {
-              if (valor.columnName && valor.label) {
-                individual.push({
-                  columnName: valor.columnName,
-                  label: valor.label
-                });
-              }
-            });
-          }
-        });
-      }
-
-      return {
-        grupal,
-        individual,
-        valores: fichaProcesada
-      };
     } catch (error) {
       console.error('Error al obtener formato de ficha:', error);
       throw error;
     }
+  }
+
+  private async obtenerEncuestasProcesadas(version: number) {
+    return await FichaProcesada.findAll({ where: { version }, limit: 1 });
   }
 }
