@@ -240,7 +240,11 @@ export class FichaJsonRepository {
     registrosPorPagina: number = 10
   ) {
     const condicionesGlobales: string[] = [];
-    const parametros: any = { pagina, registrosPorPagina };
+    const parametros: any = {
+      pagina,
+      registrosPorPagina,
+      desplazamiento: (pagina - 1) * registrosPorPagina
+    };
 
     filtros.forEach((filtro, index) => {
       const { grupo, pregunta, condicion, valor } = filtro;
