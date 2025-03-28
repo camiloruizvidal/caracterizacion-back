@@ -135,6 +135,7 @@ export class FichaProcesadaRepository {
       SELECT
         "user".id as caracterizador_id,
         CONCAT("user".nombre_primero, ' ', "user".nombre_segundo, ' ', "user".apellido_primero, ' ', "user".apellido_segundo) as caracterizador_nombre,
+        "user".documento as caracterizador_documento,
         ficha_json.nombre as ficha_nombre,
         ficha_procesada.version as ficha_version,
         TO_CHAR(DATE_TRUNC('month', ficha_procesada.date_register), 'YYYY-MM') as mes,
@@ -146,6 +147,7 @@ export class FichaProcesadaRepository {
       GROUP BY
         "user".id,
         CONCAT("user".nombre_primero, ' ', "user".nombre_segundo, ' ', "user".apellido_primero, ' ', "user".apellido_segundo),
+        "user".documento,
         ficha_json.nombre,
         ficha_procesada.version,
         TO_CHAR(DATE_TRUNC('month', ficha_procesada.date_register), 'YYYY-MM')
