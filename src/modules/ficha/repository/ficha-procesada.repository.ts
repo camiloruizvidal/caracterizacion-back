@@ -181,4 +181,76 @@ export class FichaProcesadaRepository {
       rows
     };
   }
+
+  public static async obtenerFichasProcesadasConCamposDinamicos(
+    version: number,
+    limit: number = 10,
+    offset: number = 0
+  ) {
+    const query = `
+      WITH ficha_json_data AS (
+        SELECT 
+          jsonb_array_elements(grupal_data) as grupo_grupal,
+          jsonb_array_elements(individual_data) as grupo_individual
+        FROM ficha_json 
+        WHERE version = :version
+      ),
+      columnas_grupal AS (
+        SELECT DISTINCT
+          valor->>'columnName' as column_name,
+          valor->>'label' as label
+        FROM ficha_json_data,
+        jsonb_array_elements(grupo_grupal->'values') as valor
+        WHERE valor->>'columnName' IS NOT NULL
+      ),
+      columnas_individual AS (
+        SELECT DISTINCT
+          valor->>'columnName' as column_name,
+          valor->>'label' as label
+        FROM ficha_json_data,
+        jsonb_array_elements(grupo_individual->'values') as valor
+        WHERE valor->>'columnName' IS NOT NULL
+      ),
+      ficha_procesada_data AS (
+        SELECT 
+          fp.id,
+          fp.codigo,
+          fp.date_register,
+          u.nombre_primero || ' ' || u.nombre_segundo || ' ' || u.apellido_primero || ' ' || u.apellido_segundo as caracterizador_nombre,
+          u.documento as caracterizador_documento,
+          ${this.generarCamposDinamicos('grupal')},
+          ${this.generarCamposDinamicos('individual')}
+        FROM ficha_procesada fp
+        INNER JOIN "user" u ON u.id = fp.usuario_creacion_id
+        WHERE fp.version = :version
+        LIMIT :limit OFFSET :offset
+      )
+      SELECT * FROM ficha_procesada_data;
+    `;
+
+    return await FichaProcesada.sequelize.query(query, {
+      replacements: { version, limit, offset },
+      type: QueryTypes.SELECT
+    });
+  }
+
+  private static generarCamposDinamicos(tipo: 'grupal' | 'individual'): string {
+    const query = `
+      SELECT string_agg(
+        format(
+          'MAX(CASE WHEN v->>''columnName'' = ''%s'' THEN v->>''value'' END) as %s',
+          column_name,
+          column_name
+        ),
+        ', '
+      ) as campos
+      FROM ${tipo === 'grupal' ? 'columnas_grupal' : 'columnas_individual'}
+    `;
+
+    const result = FichaProcesada.sequelize.query(query, {
+      type: QueryTypes.SELECT
+    });
+
+    return result[0]?.campos || '';
+  }
 }

@@ -345,11 +345,60 @@ export class FichaService {
     return csvRows.join('\n');
   }
 
-  public async obtenerFormatoFichaJson(version: number) {
+  public async obtenerFormatoFichaJson(
+    version: number,
+    limit: number = 10,
+    offset: number = 0
+  ) {
     try {
       const ficha = await FichaJsonRepository.obtenerFichaJson(version);
-      console.log({ ficha });
-      return ficha;
+      const fichaProcesada =
+        await FichaProcesadaRepository.obtenerFichasProcesadasConCamposDinamicos(
+          version,
+          limit,
+          offset
+        );
+
+      const grupal = [];
+      const individual = [];
+
+      // Procesar datos grupales
+      if (ficha.grupalData) {
+        ficha.grupalData.forEach((grupo: any) => {
+          if (grupo.values) {
+            grupo.values.forEach((valor: any) => {
+              if (valor.columnName && valor.label) {
+                grupal.push({
+                  columnName: valor.columnName,
+                  label: valor.label
+                });
+              }
+            });
+          }
+        });
+      }
+
+      // Procesar datos individuales
+      if (ficha.individualData) {
+        ficha.individualData.forEach((grupo: any) => {
+          if (grupo.values) {
+            grupo.values.forEach((valor: any) => {
+              if (valor.columnName && valor.label) {
+                individual.push({
+                  columnName: valor.columnName,
+                  label: valor.label
+                });
+              }
+            });
+          }
+        });
+      }
+
+      return {
+        grupal,
+        individual,
+        valores: fichaProcesada
+      };
     } catch (error) {
       console.error('Error al obtener formato de ficha:', error);
       throw error;
