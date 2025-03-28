@@ -274,7 +274,10 @@ export class FichaJsonRepository {
       condicionesGlobales.push(condicionValues);
     });
 
-    const whereClause = condicionesGlobales.join(' AND ');
+    const whereClause =
+      condicionesGlobales.length > 0
+        ? condicionesGlobales.join(' AND ')
+        : '1=1';
 
     // Query para obtener el total de registros
     const countQuery = `
