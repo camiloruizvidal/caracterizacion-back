@@ -220,4 +220,19 @@ export class FichaService {
       );
     }
   }
+
+  public async obtenerEstadisticasPorCaracterizador(
+    caracterizadorId?: number,
+    fichaVersion?: number
+  ) {
+    try {
+      return await FichaProcesadaRepository.obtenerEstadisticasPorCaracterizador(
+        caracterizadorId,
+        fichaVersion
+      );
+    } catch (error) {
+      console.error({ error });
+      throw error;
+    }
+  }
 }

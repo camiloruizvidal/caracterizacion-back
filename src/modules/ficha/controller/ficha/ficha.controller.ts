@@ -286,4 +286,27 @@ export class FichaController {
       return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
+
+  @Public()
+  @Get('estadisticas-caracterizador')
+  public async obtenerEstadisticasPorCaracterizador(
+    @Query('caracterizadorId') caracterizadorId?: string,
+    @Query('fichaVersion') fichaVersion?: string
+  ) {
+    try {
+      const resultado =
+        await this.fichaService.obtenerEstadisticasPorCaracterizador(
+          caracterizadorId ? parseInt(caracterizadorId) : undefined,
+          fichaVersion ? parseInt(fichaVersion) : undefined
+        );
+
+      return {
+        code: HttpStatus.OK,
+        msj: 'Estadísticas encontradas',
+        data: resultado
+      };
+    } catch (error) {
+      return this.manejadorErrorService.resolverErrorApi(error);
+    }
+  }
 }
