@@ -3,7 +3,7 @@ import {
   IFiltrosBusqueda
 } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { IFormulario, IAlerta } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
@@ -12,9 +12,27 @@ import { FichaProcesadaRepository } from '../../repository/ficha-procesada.repos
 import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { MapeoExcelRepository } from '../../repository/mapeo-excel.repository';
 import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
+import { Sequelize } from 'sequelize-typescript';
+import { QueryTypes } from 'sequelize';
+
+interface IResultadoCSV {
+  id: number;
+  codigo: number;
+  date_register: Date;
+  caracterizador_nombre: string;
+  caracterizador_documento: string;
+  grupo_titulo: string;
+  pregunta: string;
+  respuesta: string;
+}
 
 @Injectable()
 export class FichaService {
+  constructor(
+    @Inject('SEQUELIZE_SICP')
+    private readonly sequelize: Sequelize
+  ) {}
+
   public async agregarTipoFicha(
     version: number,
     tipo: ETipoGrupo,
@@ -232,6 +250,108 @@ export class FichaService {
       );
     } catch (error) {
       console.error({ error });
+      throw error;
+    }
+  }
+
+  public async generarCSVFichasProcesadas(version: number) {
+    const query = `
+      WITH ficha_json_data AS (
+        SELECT 
+          jsonb_array_elements(grupal_data) as grupo_grupal,
+          jsonb_array_elements(individual_data) as grupo_individual
+        FROM ficha_json 
+        WHERE version = :version
+      ),
+      headers AS (
+        -- Obtener encabezados grupales
+        SELECT 
+          grupo_grupal->>'title' as grupo_titulo,
+          jsonb_array_elements(grupo_grupal->'values') as valor
+        FROM ficha_json_data
+        UNION ALL
+        -- Obtener encabezados individuales
+        SELECT 
+          grupo_individual->>'title' as grupo_titulo,
+          jsonb_array_elements(grupo_individual->'values') as valor
+        FROM ficha_json_data
+      ),
+      ficha_procesada_data AS (
+        SELECT 
+          fp.id,
+          fp.codigo,
+          fp.date_register,
+          u.nombre_primero || ' ' || u.nombre_segundo || ' ' || u.apellido_primero || ' ' || u.apellido_segundo as caracterizador_nombre,
+          u.documento as caracterizador_documento,
+          jsonb_array_elements(fp.grupal_data) as grupo_grupal,
+          jsonb_array_elements(fp.individual_data) as grupo_individual
+        FROM ficha_procesada fp
+        INNER JOIN "user" u ON u.id = fp.usuario_creacion_id
+        WHERE fp.version = :version
+      )
+      SELECT 
+        fp.id,
+        fp.codigo,
+        fp.date_register,
+        fp.caracterizador_nombre,
+        fp.caracterizador_documento,
+        h.grupo_titulo,
+        h.valor->>'label' as pregunta,
+        h.valor->>'value' as respuesta
+      FROM ficha_procesada_data fp
+      CROSS JOIN headers h
+      ORDER BY 
+        fp.id,
+        h.grupo_titulo,
+        (h.valor->>'orden')::integer;
+    `;
+
+    const results = await this.sequelize.query<IResultadoCSV>(query, {
+      replacements: { version },
+      type: QueryTypes.SELECT
+    });
+
+    // Convertir los resultados a formato CSV
+    const csvRows = [];
+
+    // Agregar encabezados
+    const headers = [
+      'ID Ficha',
+      'Código',
+      'Fecha Registro',
+      'Caracterizador',
+      'Documento Caracterizador',
+      'Grupo',
+      'Pregunta',
+      'Respuesta'
+    ];
+    csvRows.push(headers.join(','));
+
+    // Agregar datos
+    results.forEach(row => {
+      const values = [
+        row.id,
+        row.codigo,
+        row.date_register,
+        `"${row.caracterizador_nombre}"`,
+        row.caracterizador_documento,
+        `"${row.grupo_titulo}"`,
+        `"${row.pregunta}"`,
+        `"${row.respuesta}"`
+      ];
+      csvRows.push(values.join(','));
+    });
+
+    return csvRows.join('\n');
+  }
+
+  public async obtenerFormatoFichaJson(version: number) {
+    try {
+      const ficha = await FichaJsonRepository.obtenerFichaJson(version);
+      console.log({ ficha });
+      return ficha;
+    } catch (error) {
+      console.error('Error al obtener formato de ficha:', error);
       throw error;
     }
   }

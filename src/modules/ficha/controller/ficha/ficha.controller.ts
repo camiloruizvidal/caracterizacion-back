@@ -11,7 +11,8 @@ import {
   Post,
   Query,
   Req,
-  Res
+  Res,
+  HttpException
 } from '@nestjs/common';
 import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
@@ -308,6 +309,23 @@ export class FichaController {
       };
     } catch (error) {
       return this.manejadorErrorService.resolverErrorApi(error);
+    }
+  }
+
+  @Get('formato/:version')
+  @Public()
+  async obtenerFormatoFicha(@Param('version') version: string) {
+    try {
+      return await this.fichaService.obtenerFormatoFichaJson(Number(version));
+    } catch (error) {
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Error al obtener el formato de la ficha',
+          error: error.message
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
     }
   }
 }

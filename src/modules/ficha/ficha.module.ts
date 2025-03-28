@@ -8,8 +8,10 @@ import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { ManejadorErrorService } from 'src/utils/manejador-error.service';
 import { ArchivosService } from 'src/utils/archivos.service';
 import { CargaService } from './service/carga/carga.service';
+import { DatabaseModule } from 'src/database/database.module';
 
 @Module({
+  imports: [DatabaseModule],
   providers: [
     FichaService,
     InformesService,
