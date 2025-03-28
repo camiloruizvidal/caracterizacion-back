@@ -241,6 +241,7 @@ export class FichaController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10'
   ) {
+    filtros = filtros ?? '[]';
     try {
       const pagina = parseInt(page);
       const limite = parseInt(limit);
