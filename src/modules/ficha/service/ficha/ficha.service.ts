@@ -146,9 +146,17 @@ export class FichaService {
     return await FichaJsonRepository.crearNuevaVersion(data);
   }
 
-  public async buscarDinamicamente(filtros: IFiltrosBusqueda[]) {
+  public async buscarDinamicamente(
+    filtros: IFiltrosBusqueda[],
+    pagina: number = 1,
+    registrosPorPagina: number = 10
+  ) {
     try {
-      return await FichaJsonRepository.buscarResultadosDinamicos(filtros);
+      return await FichaJsonRepository.buscarResultadosDinamicos(
+        filtros,
+        pagina,
+        registrosPorPagina
+      );
     } catch (error) {
       console.error({ error });
       throw error;

@@ -236,9 +236,25 @@ export class FichaController {
   }
 
   @Get('busqueda_dinamica')
-  public async obtenerInformes(@Query() query: any) {
+  public async obtenerInformes(
+    @Query('filtros') filtros: any,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ) {
     try {
-      return await this.fichaService.buscarDinamicamente(query.filtros);
+      const pagina = parseInt(page);
+      const limite = parseInt(limit);
+      const resultado = await this.fichaService.buscarDinamicamente(
+        JSON.parse(filtros),
+        pagina,
+        limite
+      );
+
+      return {
+        code: HttpStatus.OK,
+        msj: 'Registros encontrados',
+        data: resultado
+      };
     } catch (error) {
       return this.manejadorErrorService.resolverErrorApi(error);
     }

@@ -276,7 +276,16 @@ export class FichaJsonRepository {
 
     const whereClause = condicionesGlobales.join(' AND ');
 
-    const query = `
+    // Query para obtener el total de registros
+    const countQuery = `
+      SELECT COUNT(*) as total
+      FROM ficha_procesada
+      INNER JOIN "user" ON "user"."id" = ficha_procesada.usuario_creacion_id
+      WHERE ${whereClause}
+    `;
+
+    // Query para obtener los registros paginados
+    const dataQuery = `
       SELECT
         ficha_procesada.id,
         ficha_procesada.codigo,
@@ -295,13 +304,28 @@ export class FichaJsonRepository {
       ON
         "user"."id" = ficha_procesada.usuario_creacion_id
       WHERE ${whereClause}
+      ORDER BY ficha_procesada.id DESC
       LIMIT :registrosPorPagina
       OFFSET :desplazamiento
     `;
 
-    return await FichaJson.sequelize!.query(query, {
+    const [countResult] = (await FichaJson.sequelize!.query(countQuery, {
+      replacements: parametros,
+      type: QueryTypes.SELECT
+    })) as any[];
+
+    const rows = await FichaJson.sequelize!.query(dataQuery, {
       replacements: parametros,
       type: QueryTypes.SELECT
     });
+
+    const count = parseInt(countResult.total);
+    const totalPages = Math.ceil(count / registrosPorPagina);
+
+    return {
+      count,
+      totalPages,
+      rows
+    };
   }
 }
