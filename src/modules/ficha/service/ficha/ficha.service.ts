@@ -134,7 +134,7 @@ export class FichaService {
     await FichaProcesadaRepository.procesarBackupsAlmacenadas(1);
   }
 
-  public async obtenerVersiones(estadoFinalizado: true | false = false) {
+  public async obtenerVersiones(estadoFinalizado: boolean | null) {
     return await FichaJsonRepository.verVersiones(estadoFinalizado);
   }
 

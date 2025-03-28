@@ -187,7 +187,12 @@ export class FichaJsonRepository {
     );
   }
 
-  public static async verVersiones(isFinish: boolean = false) {
+  public static async verVersiones(isFinish: boolean | null) {
+    let where = {};
+    if (isFinish !== null) {
+      where = { isFinish };
+    }
+
     return Transformadores.extraerDataValues(
       await FichaJson.findAll({
         order: [['id', 'desc']],
@@ -198,7 +203,7 @@ export class FichaJsonRepository {
           'grupalNombre',
           'individualNombre'
         ],
-        where: { isFinish }
+        where
       })
     );
   }
