@@ -8,7 +8,8 @@ import {
   IFormulario,
   IAlerta,
   ICategoria,
-  IOptionsSelect
+  IOptionsSelect,
+  IPregunta
 } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
@@ -381,37 +382,44 @@ export class FichaService {
       categoria.values?.forEach(pregunta => {
         headersCategorias.push(categoria.title);
         headersPreguntas.push(pregunta.label);
-        valores.push(pregunta.value ?? '-');
+        valores.push(this.formatearValores(pregunta));
       });
     });
 
     registro.individualData.forEach((categoriasIndividuo, individuoIndex) => {
       categoriasIndividuo.forEach(categoria => {
-        console.log({ categoria: categoria?.planes_cuidado });
         categoria.values?.forEach(pregunta => {
           headersCategorias.push(
             `${categoria.title} (Individual ${individuoIndex + 1})`
           );
           headersPreguntas.push(pregunta.label);
-          if (['select'].includes(pregunta.type)) {
-            const option = pregunta.options.find(
-              (option: IOptionsSelect) => option.value === pregunta.value
-            );
-            const valor = `${pregunta.value}-${option}`;
-            valores.push(valor);
-          } else {
-            valores.push(pregunta.value ?? '-');
-          }
+          valores.push(this.formatearValores(pregunta));
         });
       });
     });
 
-    // Construir el resultado final con dos filas de headers
     resultado.push(headersCategorias);
     resultado.push(headersPreguntas);
     resultado.push(valores);
 
     return resultado;
+  }
+
+  private formatearValores(pregunta: IPregunta): string {
+    if (['select'].includes(pregunta.type)) {
+      if (pregunta.value === null) {
+        return '';
+      }
+      const option = pregunta.options.find(
+        (option: IOptionsSelect) => option.value === pregunta.value
+      );
+      if (option) {
+        return `"${pregunta.value};${option.option}"`;
+      }
+      return pregunta.value;
+    } else {
+      return pregunta.value ?? '-';
+    }
   }
 
   public async obtenerFormatoFichaJson(version: number) {
@@ -427,13 +435,6 @@ export class FichaService {
       const totalPaginas = Math.ceil(
         totalRegistrosReales / REGISTROS_POR_PAGINA
       );
-
-      console.log({
-        totalRegistros,
-        maxRegistrosIndividuales,
-        totalRegistrosReales,
-        totalPaginas
-      });
 
       const resultadoFinal: string[][] = [];
 
