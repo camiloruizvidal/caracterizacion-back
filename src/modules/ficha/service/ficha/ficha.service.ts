@@ -379,11 +379,13 @@ export class FichaService {
 
     // Procesar datos grupales
     registro.grupalData.forEach(categoria => {
+      console.log({ categoria: Object.keys(categoria) });
       categoria.values?.forEach(pregunta => {
         headersCategorias.push(categoria.title);
         headersPreguntas.push(pregunta.label);
         valores.push(this.formatearValores(pregunta));
       });
+      valores.push(this.extraerPlanesCuidado(categoria));
     });
 
     registro.individualData.forEach((categoriasIndividuo, individuoIndex) => {
@@ -395,6 +397,8 @@ export class FichaService {
           headersPreguntas.push(pregunta.label);
           valores.push(this.formatearValores(pregunta));
         });
+
+        valores.push(this.extraerPlanesCuidado(categoria));
       });
     });
 
@@ -403,6 +407,13 @@ export class FichaService {
     resultado.push(valores);
 
     return resultado;
+  }
+
+  private extraerPlanesCuidado(categoria: ICategoria): string {
+    if (categoria?.planes_cuidado) {
+      return `${categoria?.planes_cuidado.join(';')}`;
+    }
+    return '';
   }
 
   private formatearValores(pregunta: IPregunta): string {
