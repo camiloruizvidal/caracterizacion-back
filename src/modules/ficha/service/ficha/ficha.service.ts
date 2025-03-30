@@ -388,25 +388,59 @@ export class FichaService {
 
   public async obtenerFormatoFichaJson(version: number) {
     try {
-      const encuestasProcesadas =
-        await FichaRepository.obtenerEncuestasProcesadas(version);
+      const REGISTROS_POR_PAGINA = 500;
+      const totalRegistros =
+        await FichaRepository.contarRegistrosPorVersion(version);
+      const maxRegistrosIndividuales =
+        await FichaRepository.obtenerMaxRegistrosPorVersion(version);
 
-      const resultados = encuestasProcesadas.map(registro =>
-        this.procesarRegistroEncuesta(registro)
+      const totalRegistrosReales =
+        totalRegistros * (maxRegistrosIndividuales + 1);
+      const totalPaginas = Math.ceil(
+        totalRegistrosReales / REGISTROS_POR_PAGINA
       );
 
-      if (resultados.length === 0) {
-        return [];
-      }
+      console.log({
+        totalRegistros,
+        maxRegistrosIndividuales,
+        totalRegistrosReales,
+        totalPaginas
+      });
 
       const resultadoFinal: string[][] = [];
 
-      resultadoFinal.push(resultados[0][0]);
-      resultadoFinal.push(resultados[0][1]);
+      for (let pagina = 0; pagina < totalPaginas; pagina++) {
+        const registrosNecesarios = Math.ceil(
+          REGISTROS_POR_PAGINA / (maxRegistrosIndividuales + 1)
+        );
 
-      resultados.forEach(registro => {
-        resultadoFinal.push(registro[2]);
-      });
+        const encuestasProcesadas =
+          await FichaRepository.obtenerEncuestasProcesadas(
+            version,
+            registrosNecesarios,
+            pagina * registrosNecesarios
+          );
+
+        const resultados = encuestasProcesadas.map(registro =>
+          this.procesarRegistroEncuesta(registro)
+        );
+
+        if (pagina === 0 && resultados.length > 0) {
+          resultadoFinal.push(resultados[0][0]);
+          resultadoFinal.push(resultados[0][1]);
+        }
+
+        resultados.forEach(registro => {
+          resultadoFinal.push(registro[2]);
+        });
+
+        console.log({
+          pagina,
+          registrosNecesarios,
+          registrosProcesados: resultados.length,
+          totalRegistrosActual: resultadoFinal.length
+        });
+      }
 
       return resultadoFinal;
     } catch (error) {

@@ -2,6 +2,7 @@ import { FichaProcesada } from '../model/ficha-procesada.model';
 import { Ficha } from '../model/ficha.model';
 import { Transformadores } from 'src/utils/helpers';
 import { User } from '../../usuarios/model/user.model';
+import { QueryTypes } from 'sequelize';
 
 export class FichaRepository {
   public static async crearFicha(
@@ -51,5 +52,28 @@ export class FichaRepository {
         ]
       })
     );
+  }
+
+  public static async contarRegistrosPorVersion(
+    version: number
+  ): Promise<number> {
+    return await FichaProcesada.count({
+      where: { version }
+    });
+  }
+
+  public static async obtenerMaxRegistrosPorVersion(
+    version: number
+  ): Promise<number> {
+    const result: any = await FichaProcesada.sequelize.query(
+      `SELECT MAX(jsonb_array_length("individual_data")) AS "max"
+       FROM "ficha_procesada"
+       WHERE "version" = :version`,
+      {
+        replacements: { version },
+        type: QueryTypes.SELECT
+      }
+    );
+    return result[0]?.max || 0;
   }
 }
