@@ -316,7 +316,36 @@ export class FichaController {
   @Public()
   async obtenerFormatoFicha(@Param('version') version: string) {
     try {
-      return await this.fichaService.obtenerFormatoFichaJson(Number(version));
+      const data = await this.fichaService.obtenerFormatoFichaJson(
+        Number(version)
+      );
+      let tabla = '<table border="1">';
+      let tablaHeader = '';
+      if (data.fichaCsv.length > 0) {
+        tablaHeader = '<tr>';
+
+        for (let j = 0; j < data.fichaCsv[0].length; j++) {
+          console.log(data.fichaCsv[0][j]);
+          Object.keys(data.fichaCsv[0][j]).forEach(key => {
+            tablaHeader += `<td>${key}</td>`;
+          });
+        }
+
+        tablaHeader += '</tr>';
+      }
+      tabla += tablaHeader;
+      for (let i = 0; i < data.fichaCsv.length; i++) {
+        tabla += '<tr>';
+        for (let j = 0; j < data.fichaCsv[i].length; j++) {
+          console.log(data.fichaCsv[i][j]);
+          tabla += `<td>${Object.values(data.fichaCsv[i][j])}</td>`;
+        }
+        tabla += '</tr>';
+      }
+      tabla += '</tr>';
+      tabla + '</table>';
+
+      return tabla;
     } catch (error) {
       throw new HttpException(
         {

@@ -4,7 +4,11 @@ import {
 } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { Injectable, Inject } from '@nestjs/common';
-import { IFormulario, IAlerta } from '../../interface/ficha.interface';
+import {
+  IFormulario,
+  IAlerta,
+  ICategoria
+} from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
 import { BackupRepository } from '../../repository/backup.repository';
@@ -14,7 +18,7 @@ import { MapeoExcelRepository } from '../../repository/mapeo-excel.repository';
 import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
-import { FichaProcesada } from '../../model/ficha-procesada.model';
+import { FichaRepository } from '../../repository/ficha.repository';
 
 interface IResultadoCSV {
   id: number;
@@ -30,6 +34,8 @@ interface IResultadoCSV {
 @Injectable()
 export class FichaService {
   private header = [];
+  private header2 = [];
+
   constructor(
     @Inject('SEQUELIZE_SICP')
     private readonly sequelize: Sequelize
@@ -64,8 +70,7 @@ export class FichaService {
 
   public async saveRegisterBackup(data: any): Promise<boolean> {
     try {
-      const x = await BackupRepository.guardarBackup(JSON.stringify(data));
-      console.log({ x });
+      await BackupRepository.guardarBackup(JSON.stringify(data));
       return true;
     } catch (error) {
       throw error;
@@ -115,23 +120,17 @@ export class FichaService {
   public async agregarNuevoFormatoFicha(dataGrupalCard: any) {
     const ficha = await FichaJsonRepository.obtenerFichaJson(dataGrupalCard.id);
     if (ficha) {
-      const x = await FichaJsonRepository.actualizarFichaJson(
-        dataGrupalCard.id,
-        {
-          isFinish: dataGrupalCard.isFinish,
-          version: dataGrupalCard.version,
-          dateLastVersion: dataGrupalCard.dateLastVersion,
-          grupalNombre: dataGrupalCard.grupalNombre,
-          individualNombre: dataGrupalCard.individualNombre,
-          grupalData: dataGrupalCard.grupalData,
-          individualData: dataGrupalCard.individualData
-        }
-      );
-      console.log({ x });
-      return x;
+      return await FichaJsonRepository.actualizarFichaJson(dataGrupalCard.id, {
+        isFinish: dataGrupalCard.isFinish,
+        version: dataGrupalCard.version,
+        dateLastVersion: dataGrupalCard.dateLastVersion,
+        grupalNombre: dataGrupalCard.grupalNombre,
+        individualNombre: dataGrupalCard.individualNombre,
+        grupalData: dataGrupalCard.grupalData,
+        individualData: dataGrupalCard.individualData
+      });
     } else {
       const maxVersion = await FichaJsonRepository.verUltimaVersion();
-      console.log({ maxVersion });
       return await FichaJsonRepository.agregarFichaJson({
         isFinish: dataGrupalCard.isFinish,
         version: maxVersion + 1,
@@ -353,54 +352,117 @@ export class FichaService {
     offset: number = 0
   ) {
     try {
-      this.header = [];
-      const fichasFormateadadas = [];
+      this.header = this.header.concat(Array(7).fill('Caracterizador'));
+      this.header2 = [
+        'codigo',
+        'primer nombre',
+        'segundo nombre',
+        'primer apellido',
+        'segundo apellido',
+        'documento'
+      ];
+      let datosUsuario: any;
+      const fichaCsv = [];
       const encuestasProcesadas =
-        await this.obtenerEncuestasProcesadas(version);
+        await FichaRepository.obtenerEncuestasProcesadas(version);
+
       encuestasProcesadas.forEach(encuestaProcesada => {
-        fichasFormateadadas.push(
-          this.formatearRegistro(encuestaProcesada.dataValues)
-        );
+        datosUsuario = this.extraerDatosUsuario(encuestaProcesada);
+        const valoresGrupalData =
+          this.formatearRegistro(encuestaProcesada).valoresGrupalData;
+        const valoresIndividualData =
+          this.formatearRegistro(encuestaProcesada).valoresIndividualData;
+
+        const datosUsuarioFormateados = [
+          { id: datosUsuario.id },
+          { nombrePrimero: datosUsuario.nombrePrimero },
+          { nombreSegundo: datosUsuario.nombreSegundo },
+          { apellidoPrimero: datosUsuario.apellidoPrimero },
+          { apellidoSegundo: datosUsuario.apellidoSegundo },
+          { documento: datosUsuario.documento }
+        ];
+
+        fichaCsv.push([
+          ...datosUsuarioFormateados,
+          ...valoresGrupalData,
+          ...valoresIndividualData
+        ]);
       });
-      //const individualData = encuestasProcesadas?.individualData;
-      //const grupalData = encuestasProcesadas?.grupalData;
-      return fichasFormateadadas; //return { individualData, grupalData };
+
+      return {
+        header: this.header,
+        headerlength: this.header.length,
+        header2: this.header2,
+        header2length: this.header2.length,
+        fichaCsvlength: fichaCsv[0]?.length,
+        fichaCsv
+      };
     } catch (error) {
       console.error('Error al obtener formato de ficha:', error);
       throw error;
     }
   }
 
-  private async obtenerEncuestasProcesadas(version: number) {
-    return await FichaProcesada.findAll({ where: { version } });
+  private extraerDatosUsuario(encuestaProcesada: any): {
+    id: number;
+    nombrePrimero: string;
+    nombreSegundo: string;
+    apellidoPrimero: string;
+    apellidoSegundo: string;
+    documento: string;
+  } {
+    return {
+      id: encuestaProcesada.usuarioCreacion.id,
+      nombrePrimero: encuestaProcesada.usuarioCreacion.nombrePrimero,
+      nombreSegundo: encuestaProcesada.usuarioCreacion.nombreSegundo,
+      apellidoPrimero: encuestaProcesada.usuarioCreacion.apellidoPrimero,
+      apellidoSegundo: encuestaProcesada.usuarioCreacion.apellidoSegundo,
+      documento: encuestaProcesada.usuarioCreacion.documento
+    };
   }
 
-  private formatearRegistro(registro: any) {
+  private formatearRegistro(registro: {
+    grupalData: ICategoria[];
+    individualData: ICategoria[][];
+  }): { valoresIndividualData: any; valoresGrupalData: any } {
     const valoresGrupalData = this.formatearCategorias(registro.grupalData);
-    return valoresGrupalData;
+    const valoresIndividualData = [];
+    registro.individualData.forEach((registro: ICategoria[]) => {
+      valoresIndividualData.push(...this.formatearCategorias(registro));
+    });
+
+    this.header = this.header.concat(
+      Array(registro.grupalData.length).fill(registro.grupalData[0].title)
+    );
+    this.header = this.header.concat(
+      Array(registro.individualData.length).fill(
+        registro.individualData[0][0].title
+      )
+    );
+    return { valoresIndividualData, valoresGrupalData };
   }
 
-  private formatearCategorias(categorias: any[]) {
+  private formatearCategorias(categorias: ICategoria[]) {
     const respuestas = [];
     categorias.forEach(categoria => {
-      this.header = this.header.concat(
-        Array(categorias.length).fill(categoria.title)
-      );
       categoria.values.forEach(respuesta => {
+        this.header2.push(respuesta.label);
         if (['select'].includes(respuesta.type)) {
           const option = respuesta.options.find(
             option => option.value === respuesta.value
           );
-          respuestas.push({
+          const valor = {
             [respuesta.label]:
               respuesta.value === null
                 ? ''
                 : `${respuesta.value}-${option.option}`
-          });
+          };
+          respuestas.push(valor);
         } else {
-          respuestas.push({
+          const valor = {
             [respuesta.label]: respuesta.value === null ? '' : respuesta.value
-          });
+          };
+          respuestas.push(valor);
         }
       });
     });

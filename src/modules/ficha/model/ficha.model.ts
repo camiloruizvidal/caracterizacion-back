@@ -1,4 +1,3 @@
-// src/models/ficha.model.ts
 import {
   Table,
   Column,
@@ -6,8 +5,7 @@ import {
   DataType,
   ForeignKey,
   BelongsTo,
-  HasOne,
-  HasMany
+  HasOne
 } from 'sequelize-typescript';
 import { TarjetaFamiliar } from './tarjeta-familiar.model';
 import { User } from 'src/modules/usuarios/model/user.model';

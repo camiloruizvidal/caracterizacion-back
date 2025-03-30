@@ -7,6 +7,7 @@ import {
   BelongsTo
 } from 'sequelize-typescript';
 import { User } from 'src/modules/usuarios/model/user.model';
+import { Ficha } from './ficha.model';
 
 @Table({ tableName: 'ficha_procesada', timestamps: false })
 export class FichaProcesada extends Model {
@@ -54,5 +55,11 @@ export class FichaProcesada extends Model {
   updatedAt: Date;
 
   @BelongsTo(() => User)
-  usuario_creacion: User;
+  usuarioCreacion: User;
+
+  @BelongsTo(() => Ficha, {
+    foreignKey: 'version',
+    targetKey: 'version'
+  })
+  ficha: Ficha;
 }
