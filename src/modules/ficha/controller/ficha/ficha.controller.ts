@@ -319,33 +319,73 @@ export class FichaController {
       const data = await this.fichaService.obtenerFormatoFichaJson(
         Number(version)
       );
-      let tabla = '<table border="1">';
-      let tablaHeader = '';
-      if (data.fichaCsv.length > 0) {
-        tablaHeader = '<tr>';
 
-        for (let j = 0; j < data.fichaCsv[0].length; j++) {
-          console.log(data.fichaCsv[0][j]);
-          Object.keys(data.fichaCsv[0][j]).forEach(key => {
-            tablaHeader += `<td>${key}</td>`;
-          });
-        }
+      // Crear tabla HTML
+      let tablaHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            table {
+              border-collapse: collapse;
+              width: 100%;
+              margin: 20px 0;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: left;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+            tr:nth-child(even) {
+              background-color: #f9f9f9;
+            }
+            tr:hover {
+              background-color: #f5f5f5;
+            }
+            .container {
+              padding: 20px;
+              max-width: 1200px;
+              margin: 0 auto;
+            }
+            h1 {
+              color: #333;
+              margin-bottom: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Datos de la Ficha</h1>
+            <table>
+      `;
 
-        tablaHeader += '</tr>';
+      // Agregar encabezados
+      tablaHtml += '<tr>';
+      data[0].forEach(label => {
+        tablaHtml += `<th>${label}</th>`;
+      });
+      tablaHtml += '</tr>';
+
+      // Agregar datos
+      for (let i = 1; i < data.length; i++) {
+        tablaHtml += '<tr>';
+        data[i].forEach(valor => {
+          tablaHtml += `<td>${valor}</td>`;
+        });
+        tablaHtml += '</tr>';
       }
-      tabla += tablaHeader;
-      for (let i = 0; i < data.fichaCsv.length; i++) {
-        tabla += '<tr>';
-        for (let j = 0; j < data.fichaCsv[i].length; j++) {
-          console.log(data.fichaCsv[i][j]);
-          tabla += `<td>${Object.values(data.fichaCsv[i][j])}</td>`;
-        }
-        tabla += '</tr>';
-      }
-      tabla += '</tr>';
-      tabla + '</table>';
 
-      return tabla;
+      tablaHtml += `
+            </table>
+          </div>
+        </body>
+        </html>
+      `;
+
+      return tablaHtml;
     } catch (error) {
       throw new HttpException(
         {
