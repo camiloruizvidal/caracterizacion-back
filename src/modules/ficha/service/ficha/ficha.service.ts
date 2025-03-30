@@ -236,10 +236,27 @@ export class FichaService {
     fichaJsonId: number
   ): Promise<IFormatoMapeoExcel> {
     try {
-      return await MapeoExcelRepository.obtenerEncabezadosPorFicha(fichaJsonId);
+      const mapeo = await MapeoExcelRepository.obtenerPorFicha(fichaJsonId);
+
+      if (!mapeo) {
+        throw new HttpException(
+          'No se encontró el mapeo para la ficha especificada',
+          HttpStatus.NOT_FOUND
+        );
+      }
+
+      return {
+        fichaJsonId: mapeo.ficha_json_id,
+        columnasExcel: mapeo.columnas_excel,
+        mapeo: mapeo.mapeo
+      };
     } catch (error) {
-      throw new Error(
-        'Error al obtener los encabezados del Excel: ' + error.message
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        'Error al obtener los encabezados: ' + error.message,
+        HttpStatus.INTERNAL_SERVER_ERROR
       );
     }
   }
