@@ -3,11 +3,12 @@ import {
   IFiltrosBusqueda
 } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, HttpStatus, HttpException } from '@nestjs/common';
 import {
   IFormulario,
   IAlerta,
-  ICategoria
+  ICategoria,
+  IOptionsSelect
 } from '../../interface/ficha.interface';
 import { IPagination } from 'src/utils/global.interface';
 import { FichaGrupoRepository } from '../../repository/ficha-grupo.repository';
@@ -61,11 +62,14 @@ export class FichaService {
   }
 
   public async obternerFormatoFicha(): Promise<IFormulario> {
-    try {
-      return await FichaJsonRepository.obtnerUltimaFichaActiva();
-    } catch (error) {
-      throw error.message;
+    const ficha = await FichaJsonRepository.obtnerUltimaFichaActiva();
+    if (!ficha || !ficha.id) {
+      throw new HttpException(
+        'No hay ficha activa disponible',
+        HttpStatus.NOT_FOUND
+      );
     }
+    return ficha;
   }
 
   public async saveRegisterBackup(data: any): Promise<boolean> {
@@ -360,20 +364,27 @@ export class FichaService {
       categoria.values?.forEach(pregunta => {
         headersCategorias.push(categoria.title);
         headersPreguntas.push(pregunta.label);
-        valores.push(pregunta.value || '');
+        valores.push(pregunta.value ?? '-');
       });
     });
 
-    // Procesar datos individuales
     registro.individualData.forEach((categoriasIndividuo, individuoIndex) => {
       categoriasIndividuo.forEach(categoria => {
+        console.log({ categoria: categoria?.planes_cuidado });
         categoria.values?.forEach(pregunta => {
-          // Para los datos individuales, añadimos el índice al título de la categoría
           headersCategorias.push(
             `${categoria.title} (Individual ${individuoIndex + 1})`
           );
           headersPreguntas.push(pregunta.label);
-          valores.push(pregunta.value || '');
+          if (['select'].includes(pregunta.type)) {
+            const option = pregunta.options.find(
+              (option: IOptionsSelect) => option.value === pregunta.value
+            );
+            const valor = `${pregunta.value}-${option}`;
+            valores.push(valor);
+          } else {
+            valores.push(pregunta.value ?? '-');
+          }
         });
       });
     });
@@ -432,13 +443,6 @@ export class FichaService {
 
         resultados.forEach(registro => {
           resultadoFinal.push(registro[2]);
-        });
-
-        console.log({
-          pagina,
-          registrosNecesarios,
-          registrosProcesados: resultados.length,
-          totalRegistrosActual: resultadoFinal.length
         });
       }
 

@@ -21,6 +21,7 @@ export interface ICategoria {
   createdAt?: Date | string;
   updatedAt?: Date | string;
   alerta?: IConfiguracionAlertaCategoria;
+  planes_cuidado?: string[];
 }
 
 export interface IPregunta {
