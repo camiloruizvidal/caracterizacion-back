@@ -29,6 +29,7 @@ interface IResultadoCSV {
 
 @Injectable()
 export class FichaService {
+  private header = [];
   constructor(
     @Inject('SEQUELIZE_SICP')
     private readonly sequelize: Sequelize
@@ -345,71 +346,25 @@ export class FichaService {
 
     return csvRows.join('\n');
   }
+
   public async obtenerFormatoFichaJson(
     version: number,
     limit: number = 10,
     offset: number = 0
   ) {
     try {
-      // Obtener la ficha correspondiente a la versión
-      const ficha = await FichaJsonRepository.obtenerFichaJson(version);
-
-      // Inicializar un array para almacenar las respuestas
-      const respuestas = [];
-
-      // Obtenemos las encuestas procesadas para la versión especificada
+      this.header = [];
+      const fichasFormateadadas = [];
       const encuestasProcesadas =
         await this.obtenerEncuestasProcesadas(version);
-
-      // Verificamos que hay datos en encuestasProcesadas
-      if (encuestasProcesadas && encuestasProcesadas.length > 0) {
-        const encuesta = encuestasProcesadas[0]; // Suponemos que obtenemos solo una encuesta procesada
-        const datos = encuesta.dataValues; // Accedemos a los valores de la encuesta procesada
-
-        // Procesamos los datos grupales
-        if (ficha.grupalData) {
-          ficha.grupalData.forEach((grupo: any) => {
-            if (grupo.values) {
-              grupo.values.forEach((valor: any) => {
-                if (valor.columnName && valor.label) {
-                  // Buscamos la respuesta de la encuesta procesada usando el `columnName`
-                  const respuesta = datos[valor.columnName]; // Obtenemos el valor de la respuesta desde encuestasProcesadas
-                  // Añadimos la respuesta en formato sencillo (con '-' si no hay respuesta)
-                  respuestas.push([
-                    valor.columnName,
-                    valor.label,
-                    respuesta || '-'
-                  ]);
-                }
-              });
-            }
-          });
-        }
-
-        // Procesamos los datos individuales
-        if (ficha.individualData) {
-          ficha.individualData.forEach((grupo: any) => {
-            if (grupo.values) {
-              grupo.values.forEach((valor: any) => {
-                if (valor.columnName && valor.label) {
-                  // Buscamos la respuesta de la encuesta procesada usando el `columnName`
-                  const respuesta = datos[valor.columnName]; // Obtenemos el valor de la respuesta desde encuestasProcesadas
-                  // Añadimos la respuesta en formato sencillo (con '-' si no hay respuesta)
-                  respuestas.push([
-                    valor.columnName,
-                    valor.label,
-                    respuesta || '-'
-                  ]);
-                }
-              });
-            }
-          });
-        }
-
-        return { respuestas }; // Devolvemos las respuestas en formato sencillo
-      } else {
-        return { respuestas: [] }; // Si no hay encuestas procesadas, retornamos un array vacío
-      }
+      encuestasProcesadas.forEach(encuestaProcesada => {
+        fichasFormateadadas.push(
+          this.formatearRegistro(encuestaProcesada.dataValues)
+        );
+      });
+      //const individualData = encuestasProcesadas?.individualData;
+      //const grupalData = encuestasProcesadas?.grupalData;
+      return fichasFormateadadas; //return { individualData, grupalData };
     } catch (error) {
       console.error('Error al obtener formato de ficha:', error);
       throw error;
@@ -417,6 +372,38 @@ export class FichaService {
   }
 
   private async obtenerEncuestasProcesadas(version: number) {
-    return await FichaProcesada.findAll({ where: { version }, limit: 1 });
+    return await FichaProcesada.findAll({ where: { version } });
+  }
+
+  private formatearRegistro(registro: any) {
+    const valoresGrupalData = this.formatearCategorias(registro.grupalData);
+    return valoresGrupalData;
+  }
+
+  private formatearCategorias(categorias: any[]) {
+    const respuestas = [];
+    categorias.forEach(categoria => {
+      this.header = this.header.concat(
+        Array(categorias.length).fill(categoria.title)
+      );
+      categoria.values.forEach(respuesta => {
+        if (['select'].includes(respuesta.type)) {
+          const option = respuesta.options.find(
+            option => option.value === respuesta.value
+          );
+          respuestas.push({
+            [respuesta.label]:
+              respuesta.value === null
+                ? ''
+                : `${respuesta.value}-${option.option}`
+          });
+        } else {
+          respuestas.push({
+            [respuesta.label]: respuesta.value === null ? '' : respuesta.value
+          });
+        }
+      });
+    });
+    return respuestas;
   }
 }
