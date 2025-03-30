@@ -385,6 +385,8 @@ export class FichaService {
         headersPreguntas.push(pregunta.label);
         valores.push(this.formatearValores(pregunta));
       });
+      headersCategorias.push(categoria.title);
+      headersPreguntas.push('Planes de cuidado');
       valores.push(this.extraerPlanesCuidado(categoria));
     });
 
@@ -398,6 +400,10 @@ export class FichaService {
           valores.push(this.formatearValores(pregunta));
         });
 
+        headersCategorias.push(
+          `${categoria.title} (Individual ${individuoIndex + 1})`
+        );
+        headersPreguntas.push('Planes de cuidado');
         valores.push(this.extraerPlanesCuidado(categoria));
       });
     });
@@ -411,7 +417,9 @@ export class FichaService {
 
   private extraerPlanesCuidado(categoria: ICategoria): string {
     if (categoria?.planes_cuidado) {
-      return `${categoria?.planes_cuidado.join(';')}`;
+      return categoria.planes_cuidado
+        .map((plan, index) => `${index + 1}) ${plan}`)
+        .join('\n');
     }
     return '';
   }
