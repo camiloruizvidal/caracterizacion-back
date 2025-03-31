@@ -21,6 +21,10 @@ import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 import { Sequelize } from 'sequelize-typescript';
 import { QueryTypes } from 'sequelize';
 import { FichaRepository } from '../../repository/ficha.repository';
+import * as path from 'path';
+import * as fs from 'fs';
+import * as ExcelJS from 'exceljs';
+import { Config } from '../../../../config/config';
 
 interface IResultadoCSV {
   id: number;
@@ -189,7 +193,6 @@ export class FichaService {
 
   public async guardarMapeoExcel(mapeo: IFormatoMapeoExcel): Promise<void> {
     try {
-      // Validaciones de negocio
       if (!mapeo.fichaJsonId) {
         throw new Error('El ID de la ficha es requerido');
       }
@@ -202,7 +205,6 @@ export class FichaService {
         throw new Error('Debe especificar al menos un mapeo');
       }
 
-      // Validar que todas las columnas de Excel estén mapeadas
       const columnasMapeadas = mapeo.mapeo.map(
         mapeoColumna => mapeoColumna.columnaExcel
       );
@@ -218,7 +220,6 @@ export class FichaService {
         );
       }
 
-      // Verificar si existe un mapeo para esta ficha
       const mapeoExistente = await MapeoExcelRepository.obtenerPorFicha(
         mapeo.fichaJsonId
       );
@@ -277,173 +278,26 @@ export class FichaService {
     }
   }
 
-  public async generarCSVFichasProcesadas(version: number) {
-    const query = `
-      WITH ficha_json_data AS (
-        SELECT 
-          jsonb_array_elements(grupal_data) as grupo_grupal,
-          jsonb_array_elements(individual_data) as grupo_individual
-        FROM ficha_json 
-        WHERE version = :version
-      ),
-      headers AS (
-        -- Obtener encabezados grupales
-        SELECT 
-          grupo_grupal->>'title' as grupo_titulo,
-          jsonb_array_elements(grupo_grupal->'values') as valor
-        FROM ficha_json_data
-        UNION ALL
-        -- Obtener encabezados individuales
-        SELECT 
-          grupo_individual->>'title' as grupo_titulo,
-          jsonb_array_elements(grupo_individual->'values') as valor
-        FROM ficha_json_data
-      ),
-      ficha_procesada_data AS (
-        SELECT 
-          fp.id,
-          fp.codigo,
-          fp.date_register,
-          u.nombre_primero || ' ' || u.nombre_segundo || ' ' || u.apellido_primero || ' ' || u.apellido_segundo as caracterizador_nombre,
-          u.documento as caracterizador_documento,
-          jsonb_array_elements(fp.grupal_data) as grupo_grupal,
-          jsonb_array_elements(fp.individual_data) as grupo_individual
-        FROM ficha_procesada fp
-        INNER JOIN "user" u ON u.id = fp.usuario_creacion_id
-        WHERE fp.version = :version
-      )
-      SELECT 
-        fp.id,
-        fp.codigo,
-        fp.date_register,
-        fp.caracterizador_nombre,
-        fp.caracterizador_documento,
-        h.grupo_titulo,
-        h.valor->>'label' as pregunta,
-        h.valor->>'value' as respuesta
-      FROM ficha_procesada_data fp
-      CROSS JOIN headers h
-      ORDER BY 
-        fp.id,
-        h.grupo_titulo,
-        (h.valor->>'orden')::integer;
-    `;
-
-    const results = await this.sequelize.query<IResultadoCSV>(query, {
-      replacements: { version },
-      type: QueryTypes.SELECT
-    });
-
-    // Convertir los resultados a formato CSV
-    const csvRows = [];
-
-    // Agregar encabezados
-    const headers = [
-      'ID Ficha',
-      'Código',
-      'Fecha Registro',
-      'Caracterizador',
-      'Documento Caracterizador',
-      'Grupo',
-      'Pregunta',
-      'Respuesta'
-    ];
-    csvRows.push(headers.join(','));
-
-    // Agregar datos
-    results.forEach(row => {
-      const values = [
-        row.id,
-        row.codigo,
-        row.date_register,
-        `"${row.caracterizador_nombre}"`,
-        row.caracterizador_documento,
-        `"${row.grupo_titulo}"`,
-        `"${row.pregunta}"`,
-        `"${row.respuesta}"`
-      ];
-      csvRows.push(values.join(','));
-    });
-
-    return csvRows.join('\n');
-  }
-
-  private procesarRegistroEncuesta(registro: {
-    grupalData: ICategoria[];
-    individualData: ICategoria[][];
-  }): string[][] {
-    const resultado: string[][] = [];
-    const headersCategorias: string[] = [];
-    const headersPreguntas: string[] = [];
-    const valores: string[] = [];
-
-    // Procesar datos grupales
-    registro.grupalData.forEach(categoria => {
-      console.log({ categoria: Object.keys(categoria) });
-      categoria.values?.forEach(pregunta => {
-        headersCategorias.push(categoria.title);
-        headersPreguntas.push(pregunta.label);
-        valores.push(this.formatearValores(pregunta));
-      });
-      headersCategorias.push(categoria.title);
-      headersPreguntas.push('Planes de cuidado');
-      valores.push(this.extraerPlanesCuidado(categoria));
-    });
-
-    registro.individualData.forEach((categoriasIndividuo, individuoIndex) => {
-      categoriasIndividuo.forEach(categoria => {
-        categoria.values?.forEach(pregunta => {
-          headersCategorias.push(
-            `${categoria.title} (Individual ${individuoIndex + 1})`
-          );
-          headersPreguntas.push(pregunta.label);
-          valores.push(this.formatearValores(pregunta));
-        });
-
-        headersCategorias.push(
-          `${categoria.title} (Individual ${individuoIndex + 1})`
-        );
-        headersPreguntas.push('Planes de cuidado');
-        valores.push(this.extraerPlanesCuidado(categoria));
-      });
-    });
-
-    resultado.push(headersCategorias);
-    resultado.push(headersPreguntas);
-    resultado.push(valores);
-
-    return resultado;
-  }
-
-  private extraerPlanesCuidado(categoria: ICategoria): string {
-    if (categoria?.planes_cuidado) {
-      return categoria.planes_cuidado
-        .map((plan, index) => `${index + 1}) ${plan}`)
-        .join('\n');
-    }
-    return '';
-  }
-
-  private formatearValores(pregunta: IPregunta): string {
-    if (['select'].includes(pregunta.type)) {
-      if (pregunta.value === null) {
-        return '';
-      }
-      const option = pregunta.options.find(
-        (option: IOptionsSelect) => option.value === pregunta.value
-      );
-      if (option) {
-        return `"${pregunta.value};${option.option}"`;
-      }
-      return pregunta.value;
-    } else {
-      return pregunta.value ?? '-';
-    }
-  }
-
   public async obtenerFormatoFichaJson(version: number) {
     try {
-      const REGISTROS_POR_PAGINA = 500;
+      const fecha = new Date().toISOString().replace(/[:.]/g, '');
+      const nombreArchivo = `caracterizacion_${version}_${fecha}.xlsx`;
+      const rutaCompleta = path.join(
+        Config.FOLDER_PUBLIC_URL,
+        Config.DIRECTORIO_SALIDA,
+        nombreArchivo
+      );
+
+      // Asegurarse que el directorio existe
+      const directorioSalida = path.join(
+        Config.FOLDER_PUBLIC_URL,
+        Config.DIRECTORIO_SALIDA
+      );
+      if (!fs.existsSync(directorioSalida)) {
+        fs.mkdirSync(directorioSalida, { recursive: true });
+      }
+
+      const REGISTROS_POR_PAGINA = 2;
       const totalRegistros =
         await FichaRepository.contarRegistrosPorVersion(version);
       const maxRegistrosIndividuales =
@@ -470,17 +324,16 @@ export class FichaService {
           );
 
         const resultados = encuestasProcesadas.map(registro =>
-          this.procesarRegistroEncuesta(registro)
+          this.procesarRegistroEncuesta(registro, maxRegistrosIndividuales)
         );
 
         if (pagina === 0 && resultados.length > 0) {
-          resultadoFinal.push(resultados[0][0]);
-          resultadoFinal.push(resultados[0][1]);
+          resultadoFinal.push(...resultados[0]);
+          await this.guardarArchivo(resultadoFinal, rutaCompleta, true);
+        } else if (resultados.length > 0) {
+          const valoresNuevos = resultados.map(resultado => resultado[2]);
+          await this.guardarArchivo(valoresNuevos, rutaCompleta, false);
         }
-
-        resultados.forEach(registro => {
-          resultadoFinal.push(registro[2]);
-        });
       }
 
       return resultadoFinal;
@@ -488,5 +341,193 @@ export class FichaService {
       console.error('Error al obtener formato de ficha:', { error });
       throw error;
     }
+  }
+
+  private procesarRegistroEncuesta(
+    registro: {
+      grupalData: ICategoria[];
+      individualData: ICategoria[][];
+    },
+    maxRegistrosIndividuales: number
+  ): string[][] {
+    const resultado: string[][] = [];
+    const headersCategorias: string[] = [];
+    const headersPreguntas: string[] = [];
+    const valores: string[] = [];
+
+    registro.grupalData.forEach(categoria => {
+      categoria.values?.forEach(pregunta => {
+        headersCategorias.push(categoria.title);
+        headersPreguntas.push(pregunta.label);
+        valores.push(this.formatearValores(pregunta));
+      });
+      headersCategorias.push(categoria.title);
+      headersPreguntas.push('Planes de cuidado');
+      valores.push(this.extraerPlanesCuidado(categoria));
+    });
+
+    const categoriaIndividual = registro.individualData[0] || [];
+    categoriaIndividual.forEach(categoria => {
+      for (let i = 0; i < maxRegistrosIndividuales; i++) {
+        categoria.values?.forEach(pregunta => {
+          headersCategorias.push(`${categoria.title} (Individual ${i + 1})`);
+          headersPreguntas.push(pregunta.label);
+        });
+        headersCategorias.push(`${categoria.title} (Individual ${i + 1})`);
+        headersPreguntas.push('Planes de cuidado');
+      }
+    });
+
+    registro.individualData.forEach(categoriasIndividuo => {
+      categoriasIndividuo.forEach(categoria => {
+        categoria.values?.forEach(pregunta => {
+          valores.push(this.formatearValores(pregunta));
+        });
+        valores.push(this.extraerPlanesCuidado(categoria));
+      });
+    });
+
+    resultado.push(headersCategorias);
+    resultado.push(headersPreguntas);
+    resultado.push(valores);
+
+    return resultado;
+  }
+
+  private extraerPlanesCuidado(categoria: ICategoria): string {
+    if (categoria?.planes_cuidado) {
+      return categoria.planes_cuidado
+        .map((plan, indice) => `${indice + 1}) ${plan}`)
+        .join('\n');
+    }
+    return '';
+  }
+
+  private formatearValores(pregunta: IPregunta): string {
+    if (['select'].includes(pregunta.type)) {
+      if (pregunta.value === null) {
+        return '';
+      }
+      const opcion = pregunta.options.find(
+        (opcion: IOptionsSelect) => opcion.value === pregunta.value
+      );
+      if (opcion) {
+        return `${pregunta.value}-${opcion.option}`;
+      }
+      return pregunta.value;
+    } else {
+      return pregunta.value ?? '-';
+    }
+  }
+
+  private async guardarArchivo(
+    resultados: string[][],
+    rutaArchivo: string,
+    esHeader: boolean
+  ) {
+    if (!this.esStringArray(resultados)) {
+      throw 'Formato inexperado string[][]';
+    }
+
+    try {
+      const libroTrabajo = new ExcelJS.Workbook();
+      const hojaTrabajo = libroTrabajo.addWorksheet('Hoja1');
+
+      if (esHeader) {
+        const encabezado = resultados[0];
+        hojaTrabajo.addRow(encabezado);
+
+        let columnaInicio = 1;
+        let valorActual = encabezado[0];
+
+        for (let i = 1; i <= encabezado.length; i++) {
+          if (i === encabezado.length || encabezado[i] !== valorActual) {
+            if (i - columnaInicio > 0) {
+              hojaTrabajo.mergeCells(1, columnaInicio, 1, i);
+              const celda = hojaTrabajo.getCell(1, columnaInicio);
+              celda.alignment = { horizontal: 'center' };
+              celda.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+              };
+            }
+            columnaInicio = i + 1;
+            valorActual = encabezado[i];
+          }
+        }
+
+        for (let i = 1; i < resultados.length; i++) {
+          const fila = hojaTrabajo.addRow(resultados[i]);
+          fila.eachCell(celda => {
+            celda.border = {
+              top: { style: 'thin' },
+              left: { style: 'thin' },
+              bottom: { style: 'thin' },
+              right: { style: 'thin' }
+            };
+          });
+        }
+
+        await libroTrabajo.xlsx.writeFile(rutaArchivo);
+      } else {
+        const archivoExiste = fs.existsSync(rutaArchivo);
+
+        if (archivoExiste) {
+          await libroTrabajo.xlsx.readFile(rutaArchivo);
+          const hojaTrabajo = libroTrabajo.getWorksheet('Hoja1');
+          resultados.forEach(datosFila => {
+            const fila = hojaTrabajo.addRow(datosFila);
+            fila.eachCell(celda => {
+              celda.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+              };
+            });
+          });
+          await libroTrabajo.xlsx.writeFile(rutaArchivo);
+        } else {
+          const hojaTrabajo = libroTrabajo.addWorksheet('Hoja1');
+          resultados.forEach(datosFila => {
+            const fila = hojaTrabajo.addRow(datosFila);
+            fila.eachCell(celda => {
+              celda.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+              };
+            });
+          });
+          await libroTrabajo.xlsx.writeFile(rutaArchivo);
+        }
+      }
+    } catch (error) {
+      console.error('Error al guardar Excel:', error);
+      throw error;
+    }
+  }
+
+  private esStringArray(array: any): boolean {
+    if (!Array.isArray(array)) return false;
+
+    for (let i = 0; i < array.length; i++) {
+      if (!Array.isArray(array[i])) {
+        console.log({ array: array[i] });
+        return false;
+      }
+
+      for (let j = 0; j < array[i].length; j++) {
+        if (typeof array[i][j] !== 'string') {
+          console.log({ type: typeof array[i][j], data: array[i][j] });
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }

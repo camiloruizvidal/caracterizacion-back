@@ -26,4 +26,5 @@ export class Config {
   );
   public static readonly DIRECTORIO_CARGA_EXCEL =
     process.env.DIRECTORIO_CARGA_EXCEL;
+  public static readonly DIRECTORIO_SALIDA = process.env.DIRECTORIO_SALIDA;
 }
