@@ -1,6 +1,7 @@
 import {
   ETipoGrupo,
-  IFiltrosBusqueda
+  IFiltrosBusqueda,
+  EFileStatus
 } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { Injectable, Inject, HttpStatus, HttpException } from '@nestjs/common';
@@ -25,6 +26,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as ExcelJS from 'exceljs';
 import { Config } from '../../../../config/config';
+import { CacheService } from '../../../../utils/cache.service';
 
 interface IResultadoCSV {
   id: number;
@@ -282,14 +284,15 @@ export class FichaService {
     try {
       const fecha = new Date().toISOString().replace(/[:.]/g, '');
       const nombreArchivo = `caracterizacion_${version}_${fecha}.xlsx`;
+      const rutaRelativa = path.join(Config.DIRECTORIO_SALIDA, nombreArchivo);
       const rutaCompleta = path.join(
+        'src',
         Config.FOLDER_PUBLIC_URL,
-        Config.DIRECTORIO_SALIDA,
-        nombreArchivo
+        rutaRelativa
       );
 
-      // Asegurarse que el directorio existe
       const directorioSalida = path.join(
+        'src',
         Config.FOLDER_PUBLIC_URL,
         Config.DIRECTORIO_SALIDA
       );
@@ -335,8 +338,7 @@ export class FichaService {
           await this.guardarArchivo(valoresNuevos, rutaCompleta, false);
         }
       }
-
-      return resultadoFinal;
+      return rutaRelativa;
     } catch (error) {
       console.error('Error al obtener formato de ficha:', { error });
       throw error;

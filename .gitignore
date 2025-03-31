@@ -4,6 +4,7 @@
 /files
 /uploads/*
 /public/download/*
+/src/public/*
 # Logs
 logs
 *.log

@@ -314,78 +314,25 @@ export class FichaController {
 
   @Get('formato/:version')
   @Public()
-  async obtenerFormatoFicha(@Param('version') version: string) {
+  async obtenerFormatoFicha(
+    @Param('version') version: string,
+    @Req() req: Request
+  ) {
     try {
-      const data = await this.fichaService.obtenerFormatoFichaJson(
+      const rutaRelativa = await this.fichaService.obtenerFormatoFichaJson(
         Number(version)
       );
 
-      // Crear tabla HTML
-      let tablaHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <style>
-            table {
-              border-collapse: collapse;
-              width: 100%;
-              margin: 20px 0;
-            }
-            th, td {
-              border: 1px solid #ddd;
-              padding: 8px;
-              text-align: left;
-            }
-            th {
-              background-color: #f2f2f2;
-            }
-            tr:nth-child(even) {
-              background-color: #f9f9f9;
-            }
-            tr:hover {
-              background-color: #f5f5f5;
-            }
-            .container {
-              padding: 20px;
-              max-width: 1200px;
-              margin: 0 auto;
-            }
-            h1 {
-              color: #333;
-              margin-bottom: 20px;
-            }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>Datos de la Ficha</h1>
-            <table>
-      `;
+      const protocolo = req.protocol;
+      const host = req.get('host');
+      const dominio = `${protocolo}://${host}`;
+      const rutaNormalizada = rutaRelativa.replace(/\\/g, '/');
 
-      // Agregar encabezados
-      tablaHtml += '<tr>';
-      data[0].forEach(label => {
-        tablaHtml += `<th>${label}</th>`;
-      });
-      tablaHtml += '</tr>';
-
-      // Agregar datos
-      for (let i = 1; i < data.length; i++) {
-        tablaHtml += '<tr>';
-        data[i].forEach(valor => {
-          tablaHtml += `<td>${valor}</td>`;
-        });
-        tablaHtml += '</tr>';
-      }
-
-      tablaHtml += `
-            </table>
-          </div>
-        </body>
-        </html>
-      `;
-
-      return tablaHtml;
+      return {
+        code: HttpStatus.OK,
+        msj: 'Archivo generado exitosamente',
+        data: { url: `${dominio}/public/${rutaNormalizada}` }
+      };
     } catch (error) {
       throw new HttpException(
         {
