@@ -2,45 +2,45 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('ficha_procesada', {
+    await queryInterface.createTable('log', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      usuario_creacion_id: {
+      user_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      version: {
+      accion: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      tabla: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      registro_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      date_last_version: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      date_register: {
-        type: Sequelize.DATE,
-        allowNull: false
-      },
-      codigo: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      grupal_data: {
+      datos: {
         type: Sequelize.JSONB,
         allowNull: false
       },
-      individual_data: {
-        type: Sequelize.JSONB,
-        allowNull: false
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE
       }
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('ficha_procesada');
+  down: async queryInterface => {
+    await queryInterface.dropTable('log');
   }
 };

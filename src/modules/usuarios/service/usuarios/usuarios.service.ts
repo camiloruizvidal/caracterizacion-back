@@ -14,6 +14,7 @@ import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 import { UsuarioCodigosRepository } from '../../repository/usuario-codigos.repository';
 import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
 import { JwtService } from '@nestjs/jwt';
+import { Config } from 'src/Config/Config';
 
 @Injectable()
 export class UsuariosService {
@@ -127,7 +128,7 @@ export class UsuariosService {
   }
 
   private async encriptarContrasenna(password: string): Promise<string> {
-    const saltRounds = 10;
+    const saltRounds = Config.SALTOS_BCRYPT;
     const salt = await bcrypt.genSalt(saltRounds);
     const hashedPassword = await bcrypt.hash(password, salt);
     return hashedPassword;

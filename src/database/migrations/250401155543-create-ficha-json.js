@@ -2,37 +2,40 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('user_roles', {
+    await queryInterface.createTable('ficha_json', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      type: {
+      version: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      nombre: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      created_at: {
+      descripcion: {
+        type: Sequelize.TEXT
+      },
+      estructura: {
+        type: Sequelize.JSONB,
+        allowNull: false
+      },
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-        references: {
-          model: 'users',
-          key: 'id'
-        }
       }
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('user_roles');
+  down: async queryInterface => {
+    await queryInterface.dropTable('ficha_json');
   }
 };

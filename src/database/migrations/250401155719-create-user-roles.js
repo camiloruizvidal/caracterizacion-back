@@ -2,29 +2,33 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('version', {
+    await queryInterface.createTable('user_roles', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      date_last_version: {
-        type: Sequelize.DATE,
-        allowNull: true
+      user_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
-      created_at: {
+      rol: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      createdAt: {
         allowNull: false,
         type: Sequelize.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
       }
     });
   },
 
-  down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('version');
+  down: async queryInterface => {
+    await queryInterface.dropTable('user_roles');
   }
 };

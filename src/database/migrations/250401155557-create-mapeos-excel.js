@@ -1,8 +1,7 @@
 'use strict';
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('mapeos_excel', {
       id: {
         allowNull: false,
@@ -14,28 +13,29 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      columnas_excel: {
+      nombre: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      descripcion: {
+        type: Sequelize.TEXT
+      },
+      estructura: {
         type: Sequelize.JSONB,
         allowNull: false
       },
-      mapeo: {
-        type: Sequelize.JSONB,
-        allowNull: false
-      },
-      created_at: {
+      createdAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        type: Sequelize.DATE
       },
-      updated_at: {
+      updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+        type: Sequelize.DATE
       }
     });
   },
 
-  async down(queryInterface, Sequelize) {
+  down: async queryInterface => {
     await queryInterface.dropTable('mapeos_excel');
   }
 };
