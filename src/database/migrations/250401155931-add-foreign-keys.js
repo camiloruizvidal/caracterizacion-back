@@ -2,7 +2,6 @@
 
 module.exports = {
   up: async queryInterface => {
-    // Agregar llave foránea a ficha_json.version
     await queryInterface.addConstraint('ficha_json', {
       fields: ['version'],
       type: 'foreign key',
@@ -15,7 +14,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a mapeos_excel.ficha_json_id
     await queryInterface.addConstraint('mapeos_excel', {
       fields: ['ficha_json_id'],
       type: 'foreign key',
@@ -28,7 +26,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a registros_excel.mapeo_excel_id
     await queryInterface.addConstraint('registros_excel', {
       fields: ['mapeo_excel_id'],
       type: 'foreign key',
@@ -41,7 +38,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a cargas.registro_excel_id
     await queryInterface.addConstraint('cargas', {
       fields: ['registro_excel_id'],
       type: 'foreign key',
@@ -54,7 +50,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a ficha_procesada.ficha_json_id
     await queryInterface.addConstraint('ficha_procesada', {
       fields: ['ficha_json_id'],
       type: 'foreign key',
@@ -67,7 +62,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a user_codes.user_id
     await queryInterface.addConstraint('user_codes', {
       fields: ['user_id'],
       type: 'foreign key',
@@ -80,7 +74,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a user_roles.user_id
     await queryInterface.addConstraint('user_roles', {
       fields: ['user_id'],
       type: 'foreign key',
@@ -93,7 +86,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a log.user_id
     await queryInterface.addConstraint('log', {
       fields: ['user_id'],
       type: 'foreign key',
@@ -106,7 +98,6 @@ module.exports = {
       onUpdate: 'CASCADE'
     });
 
-    // Agregar llave foránea a backup.user_id
     await queryInterface.addConstraint('backup', {
       fields: ['user_id'],
       type: 'foreign key',
@@ -121,7 +112,6 @@ module.exports = {
   },
 
   down: async queryInterface => {
-    // Eliminar todas las llaves foráneas en orden inverso
     await queryInterface.removeConstraint('backup', 'fk_backup_user');
     await queryInterface.removeConstraint('log', 'fk_log_user');
     await queryInterface.removeConstraint('user_roles', 'fk_user_roles_user');
