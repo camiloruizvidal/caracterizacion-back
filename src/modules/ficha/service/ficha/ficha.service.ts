@@ -25,6 +25,7 @@ import * as fs from 'fs';
 import * as ExcelJS from 'exceljs';
 import { Config } from '../../../../config/config';
 import { GeneracionExcelRepository } from '../../repository/generacion-excel.repository';
+import { Request } from 'express';
 
 @Injectable()
 export class FichaService {
@@ -267,7 +268,7 @@ export class FichaService {
     }
   }
 
-  public async obtenerFormatoFichaJson(version: number) {
+  public async obtenerFormatoFichaJson(version: number, req: Request) {
     let progreso;
     try {
       console.log('Iniciando generación de archivo Excel...');
@@ -295,29 +296,70 @@ export class FichaService {
         fs.mkdirSync(directorioSalida, { recursive: true });
       }
 
-      const REGISTROS_POR_PAGINA = 2;
+      const REGISTROS_POR_PAGINA = 100;
       const totalRegistros =
         await FichaRepository.contarRegistrosPorVersion(version);
       console.log('Total de registros:', totalRegistros);
 
-      // Crear registro de progreso
       progreso = await GeneracionExcelRepository.crearProgreso(
         version,
         rutaRelativa,
         totalRegistros
       );
 
+      // Retornar la URL inmediatamente
+      const protocolo = req.protocol;
+      const host = req.get('host');
+      const dominio = `${protocolo}://${host}`;
+      const rutaNormalizada = rutaRelativa.replace(/\\/g, '/');
+      const url = `${dominio}/public/${rutaNormalizada}`;
+
+      // Procesar el archivo en segundo plano
+      this.procesarArchivoEnSegundoPlano(
+        version,
+        totalRegistros,
+        rutaCompleta,
+        progreso.id
+      ).catch(error => {
+        console.error('Error al procesar archivo en segundo plano:', error);
+        GeneracionExcelRepository.marcarComoError(progreso.id, error.message);
+      });
+
+      return {
+        code: HttpStatus.OK,
+        msj: 'Archivo en proceso de generación',
+        data: { url }
+      };
+    } catch (error) {
+      console.error('Error detallado al obtener formato de ficha:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Error al obtener el formato de la ficha',
+          error: error.message
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  private async procesarArchivoEnSegundoPlano(
+    version: number,
+    totalRegistros: number,
+    rutaCompleta: string,
+    progresoId: number
+  ) {
+    try {
       if (totalRegistros === 0) {
         console.log('No hay registros, generando Excel vacío...');
         const libroTrabajo = new ExcelJS.Workbook();
         await libroTrabajo.xlsx.writeFile(rutaCompleta);
         console.log('Excel vacío generado exitosamente');
-
-        // Marcar como completado
-        await GeneracionExcelRepository.marcarComoCompletado(progreso.id);
-        return rutaRelativa;
+        await GeneracionExcelRepository.marcarComoCompletado(progresoId);
+        return;
       }
 
+      const REGISTROS_POR_PAGINA = 100;
       const maxRegistrosIndividuales =
         await FichaRepository.obtenerMaxRegistrosPorVersion(version);
       console.log(
@@ -368,23 +410,18 @@ export class FichaService {
 
         registrosProcesados += encuestasProcesadas.length;
         await GeneracionExcelRepository.actualizarProgreso(
-          progreso.id,
+          progresoId,
           registrosProcesados
         );
       }
       console.log('Archivo generado exitosamente');
-
-      await GeneracionExcelRepository.marcarComoCompletado(progreso.id);
-      return rutaRelativa;
+      await GeneracionExcelRepository.marcarComoCompletado(progresoId);
     } catch (error) {
-      console.error('Error detallado al obtener formato de ficha:', error);
-      //if (progreso?.id) {
-      //  await GeneracionExcelRepository.marcarComoError(
-      //    progreso.id,
-      //    error.message
-      //  );
-      //}
-      //throw error;
+      console.error('Error al procesar archivo en segundo plano:', error);
+      await GeneracionExcelRepository.marcarComoError(
+        progresoId,
+        error.message
+      );
     }
   }
 

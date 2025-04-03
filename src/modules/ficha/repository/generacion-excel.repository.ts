@@ -9,7 +9,7 @@ export class GeneracionExcelRepository {
     version: number,
     rutaArchivo: string,
     totalRegistros: number
-  ) {
+  ): Promise<GeneracionExcel> {
     return await GeneracionExcel.create({
       version,
       rutaArchivo,
@@ -22,15 +22,12 @@ export class GeneracionExcelRepository {
   public static async actualizarProgreso(
     id: number,
     registrosProcesados: number
-  ) {
-    return await GeneracionExcel.update(
-      { registrosProcesados },
-      { where: { id } }
-    );
+  ): Promise<void> {
+    await GeneracionExcel.update({ registrosProcesados }, { where: { id } });
   }
 
-  public static async marcarComoCompletado(id: number) {
-    return await GeneracionExcel.update(
+  public static async marcarComoCompletado(id: number): Promise<void> {
+    await GeneracionExcel.update(
       {
         estado: EEstadoGeneracionExcel.COMPLETADO,
         fechaFin: new Date()
@@ -39,8 +36,11 @@ export class GeneracionExcelRepository {
     );
   }
 
-  public static async marcarComoError(id: number, mensajeError: string) {
-    return await GeneracionExcel.update(
+  public static async marcarComoError(
+    id: number,
+    mensajeError: string
+  ): Promise<void> {
+    await GeneracionExcel.update(
       {
         estado: EEstadoGeneracionExcel.ERROR,
         fechaFin: new Date(),
@@ -63,5 +63,13 @@ export class GeneracionExcelRepository {
         order: [['id', 'DESC']]
       })
     );
+  }
+
+  public static async obtenerPorRutaArchivo(
+    rutaArchivo: string
+  ): Promise<GeneracionExcel | null> {
+    return await GeneracionExcel.findOne({
+      where: { rutaArchivo }
+    });
   }
 }

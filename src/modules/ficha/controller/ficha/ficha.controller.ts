@@ -319,29 +319,12 @@ export class FichaController {
     @Req() req: Request
   ) {
     try {
-      const rutaRelativa = await this.fichaService.obtenerFormatoFichaJson(
-        Number(version)
+      return await this.fichaService.obtenerFormatoFichaJson(
+        Number(version),
+        req
       );
-
-      const protocolo = req.protocol;
-      const host = req.get('host');
-      const dominio = `${protocolo}://${host}`;
-      const rutaNormalizada = rutaRelativa.replace(/\\/g, '/');
-
-      return {
-        code: HttpStatus.OK,
-        msj: 'Archivo generado exitosamente',
-        data: { url: `${dominio}/public/${rutaNormalizada}` }
-      };
     } catch (error) {
-      throw new HttpException(
-        {
-          success: false,
-          message: 'Error al obtener el formato de la ficha',
-          error: error.message
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
+      return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
 }
