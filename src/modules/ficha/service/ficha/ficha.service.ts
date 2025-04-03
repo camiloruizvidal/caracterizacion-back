@@ -1,7 +1,6 @@
 import {
   ETipoGrupo,
-  IFiltrosBusqueda,
-  EFileStatus
+  IFiltrosBusqueda
 } from './../../../../utils/global.interface';
 import { UsuarioRepository } from './../../../usuarios/repository/usuario.repository';
 import { Injectable, Inject, HttpStatus, HttpException } from '@nestjs/common';
@@ -20,24 +19,12 @@ import { FichaJsonRepository } from '../../repository/ficha-json.repository';
 import { MapeoExcelRepository } from '../../repository/mapeo-excel.repository';
 import { IFormatoMapeoExcel } from '../../interfaces/mapeo-excel.interface';
 import { Sequelize } from 'sequelize-typescript';
-import { QueryTypes } from 'sequelize';
 import { FichaRepository } from '../../repository/ficha.repository';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ExcelJS from 'exceljs';
 import { Config } from '../../../../config/config';
-import { CacheService } from '../../../../utils/cache.service';
-
-interface IResultadoCSV {
-  id: number;
-  codigo: number;
-  date_register: Date;
-  caracterizador_nombre: string;
-  caracterizador_documento: string;
-  grupo_titulo: string;
-  pregunta: string;
-  respuesta: string;
-}
+import { GeneracionExcelRepository } from '../../repository/generacion-excel.repository';
 
 @Injectable()
 export class FichaService {
@@ -281,6 +268,7 @@ export class FichaService {
   }
 
   public async obtenerFormatoFichaJson(version: number) {
+    let progreso;
     try {
       console.log('Iniciando generación de archivo Excel...');
       const fecha = new Date().toISOString().replace(/[:.]/g, '');
@@ -312,12 +300,21 @@ export class FichaService {
         await FichaRepository.contarRegistrosPorVersion(version);
       console.log('Total de registros:', totalRegistros);
 
+      // Crear registro de progreso
+      progreso = await GeneracionExcelRepository.crearProgreso(
+        version,
+        rutaRelativa,
+        totalRegistros
+      );
+
       if (totalRegistros === 0) {
         console.log('No hay registros, generando Excel vacío...');
         const libroTrabajo = new ExcelJS.Workbook();
-        const hojaTrabajo = libroTrabajo.addWorksheet('Hoja1');
         await libroTrabajo.xlsx.writeFile(rutaCompleta);
         console.log('Excel vacío generado exitosamente');
+
+        // Marcar como completado
+        await GeneracionExcelRepository.marcarComoCompletado(progreso.id);
         return rutaRelativa;
       }
 
@@ -336,6 +333,7 @@ export class FichaService {
       console.log('Total de páginas a procesar:', totalPaginas);
 
       const resultadoFinal: string[][] = [];
+      let registrosProcesados = 0;
 
       for (let pagina = 0; pagina < totalPaginas; pagina++) {
         console.log(`Procesando página ${pagina + 1} de ${totalPaginas}...`);
@@ -367,12 +365,26 @@ export class FichaService {
           console.log('Guardando página adicional...');
           await this.guardarArchivo(valoresNuevos, rutaCompleta, false);
         }
+
+        registrosProcesados += encuestasProcesadas.length;
+        await GeneracionExcelRepository.actualizarProgreso(
+          progreso.id,
+          registrosProcesados
+        );
       }
       console.log('Archivo generado exitosamente');
+
+      await GeneracionExcelRepository.marcarComoCompletado(progreso.id);
       return rutaRelativa;
     } catch (error) {
       console.error('Error detallado al obtener formato de ficha:', error);
-      throw error;
+      //if (progreso?.id) {
+      //  await GeneracionExcelRepository.marcarComoError(
+      //    progreso.id,
+      //    error.message
+      //  );
+      //}
+      //throw error;
     }
   }
 

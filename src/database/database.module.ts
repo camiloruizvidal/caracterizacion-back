@@ -1,3 +1,4 @@
+import { GeneracionExcel } from 'src/modules/ficha/models/generacion-excel.model';
 import { Log } from './../modules/pacientes/model/log.model';
 import { DocumentoTipo } from './../modules/usuarios/model/documento-tipo.model';
 import { TarjetaFamiliar } from './../modules/ficha/model/tarjeta-familiar.model';
@@ -40,7 +41,8 @@ const models = [
   AlertasTipo,
   MapeoExcel,
   Carga,
-  RegistroExcel
+  RegistroExcel,
+  GeneracionExcel
 ];
 
 const databaseProvider = {
