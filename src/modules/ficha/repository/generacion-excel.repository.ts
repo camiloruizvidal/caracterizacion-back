@@ -68,8 +68,33 @@ export class GeneracionExcelRepository {
   public static async obtenerPorRutaArchivo(
     rutaArchivo: string
   ): Promise<GeneracionExcel | null> {
-    return await GeneracionExcel.findOne({
+    const respueta = await GeneracionExcel.findOne({
       where: { rutaArchivo }
     });
+    return respueta.dataValues;
+  }
+
+  public static async obtenerRegistrosPaginados(
+    page: number = 1,
+    pageSize: number = 10,
+    versionId?: number
+  ) {
+    const offset = (page - 1) * pageSize;
+    const whereClause = versionId ? { version: versionId } : {};
+
+    const { count, rows } = await GeneracionExcel.findAndCountAll({
+      where: whereClause,
+      offset,
+      limit: pageSize,
+      order: [['createdAt', 'DESC']]
+    });
+
+    return {
+      data: rows.map(row => row.dataValues),
+      totalItems: count,
+      currentPage: page,
+      totalPages: Math.ceil(count / pageSize),
+      itemsPerPage: pageSize
+    };
   }
 }

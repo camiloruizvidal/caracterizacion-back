@@ -612,4 +612,34 @@ export class FichaService {
 
     return true;
   }
+
+  public async obtenerRegistrosGeneracionExcel(
+    page: number = 1,
+    pageSize: number = 10,
+    versionId?: number
+  ) {
+    try {
+      const registros =
+        await GeneracionExcelRepository.obtenerRegistrosPaginados(
+          page,
+          pageSize,
+          versionId
+        );
+      return {
+        code: HttpStatus.OK,
+        msj: 'Registros obtenidos exitosamente',
+        data: registros
+      };
+    } catch (error) {
+      console.error('Error al obtener registros de generación Excel:', error);
+      throw new HttpException(
+        {
+          success: false,
+          message: 'Error al obtener los registros de generación Excel',
+          error: error.message
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
 }

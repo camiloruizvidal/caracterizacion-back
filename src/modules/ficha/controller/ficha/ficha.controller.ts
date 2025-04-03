@@ -327,4 +327,22 @@ export class FichaController {
       return this.manejadorErrorService.resolverErrorApi(error);
     }
   }
+
+  @Public()
+  @Get('generacion-excel/:versionId')
+  public async obtenerRegistrosGeneracionExcel(
+    @Param('versionId') versionId: number,
+    @Query('page') page: number = 1,
+    @Query('pageSize') pageSize: number = 10
+  ) {
+    try {
+      return await this.fichaService.obtenerRegistrosGeneracionExcel(
+        page,
+        pageSize,
+        versionId
+      );
+    } catch (error) {
+      return this.manejadorErrorService.resolverErrorApi(error);
+    }
+  }
 }
