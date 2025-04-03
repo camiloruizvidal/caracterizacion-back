@@ -282,39 +282,63 @@ export class FichaService {
 
   public async obtenerFormatoFichaJson(version: number) {
     try {
+      console.log('Iniciando generación de archivo Excel...');
       const fecha = new Date().toISOString().replace(/[:.]/g, '');
       const nombreArchivo = `caracterizacion_${version}_${fecha}.xlsx`;
+      console.log('Nombre del archivo:', nombreArchivo);
+
       const rutaRelativa = path.join(Config.DIRECTORIO_SALIDA, nombreArchivo);
       const rutaCompleta = path.join(
-        'src',
+        Config.STORAGE_PATH,
         Config.FOLDER_PUBLIC_URL,
         rutaRelativa
       );
+      console.log('Ruta completa del archivo:', rutaCompleta);
 
       const directorioSalida = path.join(
-        'src',
+        Config.STORAGE_PATH,
         Config.FOLDER_PUBLIC_URL,
         Config.DIRECTORIO_SALIDA
       );
+      console.log('Directorio de salida:', directorioSalida);
+
       if (!fs.existsSync(directorioSalida)) {
+        console.log('Creando directorio de salida...');
         fs.mkdirSync(directorioSalida, { recursive: true });
       }
 
       const REGISTROS_POR_PAGINA = 2;
       const totalRegistros =
         await FichaRepository.contarRegistrosPorVersion(version);
+      console.log('Total de registros:', totalRegistros);
+
+      if (totalRegistros === 0) {
+        console.log('No hay registros, generando Excel vacío...');
+        const libroTrabajo = new ExcelJS.Workbook();
+        const hojaTrabajo = libroTrabajo.addWorksheet('Hoja1');
+        await libroTrabajo.xlsx.writeFile(rutaCompleta);
+        console.log('Excel vacío generado exitosamente');
+        return rutaRelativa;
+      }
+
       const maxRegistrosIndividuales =
         await FichaRepository.obtenerMaxRegistrosPorVersion(version);
+      console.log(
+        'Máximo de registros individuales:',
+        maxRegistrosIndividuales
+      );
 
       const totalRegistrosReales =
         totalRegistros * (maxRegistrosIndividuales + 1);
       const totalPaginas = Math.ceil(
         totalRegistrosReales / REGISTROS_POR_PAGINA
       );
+      console.log('Total de páginas a procesar:', totalPaginas);
 
       const resultadoFinal: string[][] = [];
 
       for (let pagina = 0; pagina < totalPaginas; pagina++) {
+        console.log(`Procesando página ${pagina + 1} de ${totalPaginas}...`);
         const registrosNecesarios = Math.ceil(
           REGISTROS_POR_PAGINA / (maxRegistrosIndividuales + 1)
         );
@@ -325,22 +349,29 @@ export class FichaService {
             registrosNecesarios,
             pagina * registrosNecesarios
           );
+        console.log(
+          `Registros obtenidos en la página ${pagina + 1}:`,
+          encuestasProcesadas.length
+        );
 
-        const resultados = encuestasProcesadas.map(registro =>
-          this.procesarRegistroEncuesta(registro, maxRegistrosIndividuales)
+        const resultados = encuestasProcesadas.map(encuesta =>
+          this.procesarRegistroEncuesta(encuesta, maxRegistrosIndividuales)
         );
 
         if (pagina === 0 && resultados.length > 0) {
           resultadoFinal.push(...resultados[0]);
+          console.log('Guardando encabezados y primera página...');
           await this.guardarArchivo(resultadoFinal, rutaCompleta, true);
         } else if (resultados.length > 0) {
           const valoresNuevos = resultados.map(resultado => resultado[2]);
+          console.log('Guardando página adicional...');
           await this.guardarArchivo(valoresNuevos, rutaCompleta, false);
         }
       }
+      console.log('Archivo generado exitosamente');
       return rutaRelativa;
     } catch (error) {
-      console.error('Error al obtener formato de ficha:', { error });
+      console.error('Error detallado al obtener formato de ficha:', error);
       throw error;
     }
   }
