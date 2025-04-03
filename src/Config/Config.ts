@@ -15,6 +15,7 @@ export class Config {
   public static readonly puerto = process.env.PORT;
   public static readonly FOLDER_FILES_URL = process.env.FILE_URL;
   public static readonly FOLDER_PUBLIC_URL = process.env.FOLDER_PUBLIC_URL;
+  public static readonly STORAGE_PATH = process.env.STORAGE_PATH;
   public static readonly CANTIDAD_REGISTROS_BULK: number = Number(
     process.env.CANTIDAD_REGISTROS_BULK
   );
