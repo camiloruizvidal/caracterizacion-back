@@ -352,6 +352,8 @@ export class FichaService {
       if (totalRegistros === 0) {
         console.log('No hay registros, generando Excel vacío...');
         const libroTrabajo = new ExcelJS.Workbook();
+        const hojaTrabajo = libroTrabajo.addWorksheet('Hoja1');
+        hojaTrabajo.addRow(['SIN REGISTROS']);
         await libroTrabajo.xlsx.writeFile(rutaCompleta);
         console.log('Excel vacío generado exitosamente');
         await GeneracionExcelRepository.marcarComoCompletado(progresoId);
