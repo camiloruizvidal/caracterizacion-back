@@ -430,6 +430,15 @@ export class FichaService {
     registro: {
       grupalData: ICategoria[];
       individualData: ICategoria[][];
+      usuarioCreacion: {
+        nombrePrimero: string;
+        nombreSegundo: string;
+        apellidoPrimero: string;
+        apellidoSegundo: string;
+        documento: string;
+      };
+      codigo: number;
+      dateRegister: Date;
     },
     maxRegistrosIndividuales: number
   ): string[][] {
@@ -438,6 +447,38 @@ export class FichaService {
     const headersPreguntas: string[] = [];
     const valores: string[] = [];
 
+    // Agregar datos del usuario y código
+    headersCategorias.push('Datos del caracterizador');
+    headersPreguntas.push('Primer nombre');
+    valores.push(registro.usuarioCreacion.nombrePrimero || '');
+
+    headersCategorias.push('Datos del caracterizador');
+    headersPreguntas.push('Segundo nombre');
+    valores.push(registro.usuarioCreacion.nombreSegundo || '');
+
+    headersCategorias.push('Datos del caracterizador');
+    headersPreguntas.push('Primer apellido');
+    valores.push(registro.usuarioCreacion.apellidoPrimero || '');
+
+    headersCategorias.push('Datos del caracterizador');
+    headersPreguntas.push('Segundo apellido');
+    valores.push(registro.usuarioCreacion.apellidoSegundo || '');
+
+    headersCategorias.push('Datos del caracterizador');
+    headersPreguntas.push('Documento');
+    valores.push(registro.usuarioCreacion.documento || '');
+
+    headersCategorias.push('Datos de la ficha');
+    headersPreguntas.push('Código');
+    valores.push(registro.codigo.toString());
+
+    headersCategorias.push('Datos de la ficha');
+    headersPreguntas.push('Fecha de registro');
+    valores.push(
+      registro.dateRegister.toISOString().replace('T', ' ').substring(0, 19)
+    );
+
+    // Agregar el resto de los datos
     registro.grupalData.forEach(categoria => {
       categoria.values?.forEach(pregunta => {
         headersCategorias.push(categoria.title);
