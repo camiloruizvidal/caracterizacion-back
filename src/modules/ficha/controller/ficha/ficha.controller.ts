@@ -333,13 +333,15 @@ export class FichaController {
   public async obtenerRegistrosGeneracionExcel(
     @Param('versionId') versionId: number,
     @Query('page') page: number = 1,
-    @Query('pageSize') pageSize: number = 10
+    @Query('pageSize') pageSize: number = 10,
+    @Req() req: Request
   ) {
     try {
       return await this.fichaService.obtenerRegistrosGeneracionExcel(
         page,
         pageSize,
-        versionId
+        versionId,
+        req
       );
     } catch (error) {
       return this.manejadorErrorService.resolverErrorApi(error);

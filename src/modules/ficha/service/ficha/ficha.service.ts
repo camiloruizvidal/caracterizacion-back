@@ -616,7 +616,8 @@ export class FichaService {
   public async obtenerRegistrosGeneracionExcel(
     page: number = 1,
     pageSize: number = 10,
-    versionId?: number
+    versionId?: number,
+    req?: Request
   ) {
     try {
       const registros =
@@ -625,10 +626,26 @@ export class FichaService {
           pageSize,
           versionId
         );
+
+      // Normalizar las rutas y agregar el host
+      const protocolo = req?.protocol || 'http';
+      const host = req?.get('host') || 'localhost:3000';
+      const dominio = `${protocolo}://${host}`;
+
+      const registrosNormalizados = registros.data.map(registro => ({
+        ...registro,
+        rutaArchivo: registro.rutaArchivo
+          ? `${dominio}/${registro.rutaArchivo.replace(/\\/g, '/')}`
+          : null
+      }));
+
       return {
         code: HttpStatus.OK,
         msj: 'Registros obtenidos exitosamente',
-        data: registros
+        data: {
+          ...registros,
+          data: registrosNormalizados
+        }
       };
     } catch (error) {
       console.error('Error al obtener registros de generación Excel:', error);
