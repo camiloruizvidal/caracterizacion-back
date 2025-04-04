@@ -296,7 +296,6 @@ export class FichaService {
         fs.mkdirSync(directorioSalida, { recursive: true });
       }
 
-      const REGISTROS_POR_PAGINA = 100;
       const totalRegistros =
         await FichaRepository.contarRegistrosPorVersion(version);
       console.log('Total de registros:', totalRegistros);
