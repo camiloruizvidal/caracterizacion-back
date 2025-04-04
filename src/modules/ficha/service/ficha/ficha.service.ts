@@ -635,7 +635,7 @@ export class FichaService {
       const registrosNormalizados = registros.data.map(registro => ({
         ...registro,
         rutaArchivo: registro.rutaArchivo
-          ? `${dominio}/${registro.rutaArchivo.replace(/\\/g, '/')}`
+          ? `${dominio}/${Config.FOLDER_PUBLIC_URL}/${registro.rutaArchivo.replace(/\\/g, '/')}`
           : null
       }));
 

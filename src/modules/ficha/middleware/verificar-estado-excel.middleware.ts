@@ -12,7 +12,6 @@ import { EEstadoGeneracionExcel } from '../models/generacion-excel.model';
 export class VerificarEstadoExcelMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      // Extraer la ruta del archivo de la URL
       const url = req.url;
       const rutaArchivo = url.split('/public/')[1];
 
