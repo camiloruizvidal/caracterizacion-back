@@ -198,11 +198,19 @@ export class FichaController {
   }
 
   @Get('/versiones')
-  public async obtenerVersionesFicha(@Query('isFinish') isFinish?: string) {
+  public async obtenerVersionesFicha(
+    @Query('isFinish') isFinish?: string,
+    @Query('esPublicado') esPublicado?: string
+  ) {
     try {
       const validacion =
         isFinish === 'true' ? true : isFinish === 'false' ? false : null;
-      return await this.fichaService.obtenerVersiones(validacion);
+      const esPublicadoValue =
+        esPublicado === 'true' ? true : esPublicado === 'false' ? false : null;
+      return await this.fichaService.obtenerVersiones(
+        validacion,
+        esPublicadoValue
+      );
     } catch (error) {
       return this.manejadorErrorService.resolverErrorApi(error);
     }

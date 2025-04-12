@@ -152,8 +152,14 @@ export class FichaService {
     await FichaProcesadaRepository.procesarBackupsAlmacenadas(1);
   }
 
-  public async obtenerVersiones(estadoFinalizado: boolean | null) {
-    return await FichaJsonRepository.verVersiones(estadoFinalizado);
+  public async obtenerVersiones(
+    estadoFinalizado: boolean | null,
+    esPublicadoValue: boolean | null
+  ) {
+    return await FichaJsonRepository.verVersiones(
+      estadoFinalizado,
+      esPublicadoValue
+    );
   }
 
   public async agregarNuevaVersion(data: {
@@ -195,6 +201,7 @@ export class FichaService {
       );
     }
 
+    await FichaJsonRepository.finalizarFicha(version);
     return await FichaJsonRepository.publicarFicha(version);
   }
 

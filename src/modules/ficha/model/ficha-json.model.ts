@@ -30,6 +30,12 @@ export class FichaJson extends Model {
   @Column({ type: DataType.STRING, field: 'nombre_individual' })
   individualNombre: string;
 
+  @Column({ type: DataType.JSONB, field: 'grupal_data' })
+  grupalData: any;
+
+  @Column({ type: DataType.JSONB, field: 'individual_data' })
+  individualData: any;
+
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,

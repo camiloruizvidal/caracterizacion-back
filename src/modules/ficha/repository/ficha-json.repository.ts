@@ -187,10 +187,16 @@ export class FichaJsonRepository {
     );
   }
 
-  public static async verVersiones(isFinish: boolean | null) {
-    let where = {};
+  public static async verVersiones(
+    isFinish: boolean | null,
+    esPublicadoValue: boolean | null
+  ) {
+    const where = {};
     if (isFinish !== null) {
-      where = { isFinish };
+      where['isFinish'] = isFinish;
+    }
+    if (esPublicadoValue !== null) {
+      where['esPublicada'] = esPublicadoValue;
     }
 
     return Transformadores.extraerDataValues(
