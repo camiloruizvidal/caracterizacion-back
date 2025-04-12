@@ -164,6 +164,40 @@ export class FichaService {
     return await FichaJsonRepository.crearNuevaVersion(data);
   }
 
+  public async publicarFicha(version: number) {
+    if (!version || version <= 0) {
+      throw new HttpException(
+        'La versión debe ser un número positivo',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    const ficha = await FichaJsonRepository.obtenerFichaJsonPorVersion(version);
+
+    if (!ficha) {
+      throw new HttpException(
+        'No se encontró la ficha con la versión especificada',
+        HttpStatus.NOT_FOUND
+      );
+    }
+
+    if (ficha.isFinish) {
+      throw new HttpException(
+        'La ficha ya se encuentra publicada',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    if (!ficha.grupalData?.length && !ficha.individualData?.length) {
+      throw new HttpException(
+        'La ficha debe tener al menos un grupo antes de ser publicada',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+
+    return await FichaJsonRepository.publicarFicha(version);
+  }
+
   public async buscarDinamicamente(
     filtros: IFiltrosBusqueda[],
     pagina: number = 1,

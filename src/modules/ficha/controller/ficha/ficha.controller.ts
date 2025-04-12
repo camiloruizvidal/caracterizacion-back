@@ -145,6 +145,16 @@ export class FichaController {
     }
   }
 
+  @Post('ficha/publicar')
+  @HttpCode(204)
+  public async publicarFicha(@Body() data: { version: number }) {
+    try {
+      await this.fichaService.publicarFicha(data.version);
+    } catch (error) {
+      return this.manejadorErrorService.resolverErrorApi(error);
+    }
+  }
+
   @Post('nueva_version')
   @HttpCode(204)
   public async nuevaVersionFicha(@Body() versionData: VersionFichaDto) {

@@ -234,6 +234,20 @@ export class FichaJsonRepository {
     });
   }
 
+  public static async publicarFicha(version: number) {
+    return await FichaJson.update(
+      { esPublicada: true, isFinish: true },
+      { where: { version } }
+    );
+  }
+
+  public static async finalizarFicha(version: number) {
+    return await FichaJson.update(
+      { isFinish: false },
+      { where: { version: { [Op.ne]: version } } }
+    );
+  }
+
   public static async buscarResultadosDinamicos(
     filtros: IFiltrosBusqueda[],
     pagina: number = 1,
