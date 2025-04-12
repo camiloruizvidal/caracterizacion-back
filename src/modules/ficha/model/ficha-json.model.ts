@@ -30,11 +30,13 @@ export class FichaJson extends Model {
   @Column({ type: DataType.STRING, field: 'nombre_individual' })
   individualNombre: string;
 
-  @Column({ type: DataType.JSONB, field: 'grupal_data' })
-  grupalData: string;
-
-  @Column({ type: DataType.JSONB, field: 'individual_data' })
-  individualData: string;
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    field: 'es_publicada',
+    defaultValue: false
+  })
+  esPublicada: boolean;
 
   @Column({ type: DataType.DATE, defaultValue: DataType.NOW })
   createdAt: Date;
