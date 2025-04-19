@@ -112,7 +112,7 @@ export interface IOptionsVisibilityExtended extends IOptionsRule {
 export interface IOptionsRule {
   columnDepend: string;
   rule: EConditions;
-  value: string;
+  value: string | string[];
 }
 
 export interface ICodigos {
@@ -149,7 +149,8 @@ export enum EConditions {
   IGUAL_QUE = '=',
   DIFERENTE_QUE = '!==',
   VACIO = 'null',
-  RANGO_FECHA = 'rangoFecha'
+  RANGO_FECHA = 'rangoFecha',
+  OR = 'OR'
 }
 
 // Interfaces específicas del backend que no existen en el frontend
@@ -250,7 +251,8 @@ export const condiciones: ICondiciones[] = [
   { condition: EConditions.IGUAL_QUE, text: 'Igual que' },
   { condition: EConditions.DIFERENTE_QUE, text: 'Diferente que' },
   { condition: EConditions.VACIO, text: 'Vacio' },
-  { condition: EConditions.RANGO_FECHA, text: 'Rango de fechas' }
+  { condition: EConditions.RANGO_FECHA, text: 'Rango de fechas' },
+  { condition: EConditions.OR, text: 'OR' }
 ];
 
 export interface IFiltrosBusqueda {
