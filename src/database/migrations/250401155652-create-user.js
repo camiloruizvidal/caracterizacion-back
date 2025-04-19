@@ -11,30 +11,45 @@ module.exports = {
       },
       username: {
         type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
-      },
-      email: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+        allowNull: false
       },
       password: {
         type: Sequelize.STRING,
         allowNull: false
       },
-      estado: {
+      nombre_primero: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      nombre_segundo: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      apellido_primero: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      apellido_segundo: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      documento: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'activo'
+        unique: true
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      documento_tipo_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
-      updatedAt: {
+      rol_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      inactivo: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: false
       }
     });
   },

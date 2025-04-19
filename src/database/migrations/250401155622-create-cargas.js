@@ -9,25 +9,37 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      registro_excel_id: {
+      ficha_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      estado: {
+      url_archivo: {
         type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'pendiente'
+        allowNull: false
       },
-      error: {
-        type: Sequelize.TEXT
-      },
-      createdAt: {
+      estado: {
+        type: Sequelize.ENUM('INGRESADO', 'PROCESANDO', 'FINALIZADO', 'ERROR'),
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: 'INGRESADO'
       },
-      updatedAt: {
+      mensaje_error: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      cantidad_registros: {
+        type: Sequelize.INTEGER,
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: 0
+      },
+      created_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },

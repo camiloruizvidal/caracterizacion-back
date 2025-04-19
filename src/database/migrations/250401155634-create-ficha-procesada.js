@@ -9,26 +9,41 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      ficha_json_id: {
+      usuario_creacion_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      datos: {
-        type: Sequelize.JSONB,
+      version: {
+        type: Sequelize.INTEGER,
         allowNull: false
       },
-      estado: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        defaultValue: 'activo'
+      date_last_version: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      date_register: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      codigo: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      grupal_data: {
+        type: Sequelize.JSON,
+        allowNull: true
+      },
+      individual_data: {
+        type: Sequelize.JSON,
+        allowNull: true
+      },
+      created_at: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },

@@ -9,28 +9,23 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+      data: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
-      nombre: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      descripcion: {
-        type: Sequelize.TEXT
-      },
-      ruta: {
-        type: Sequelize.STRING,
-        allowNull: false
+      status: {
+        type: Sequelize.ENUM('Almacenado', 'Procesando', 'Finalizado', 'Error'),
+        defaultValue: 'Almacenado'
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },

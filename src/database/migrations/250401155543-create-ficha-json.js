@@ -9,28 +9,52 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      is_finish: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false
+      },
       version: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false
       },
       nombre: {
         type: Sequelize.STRING,
+        allowNull: true
+      },
+      dateLastVersion: {
+        type: Sequelize.DATE,
         allowNull: false
       },
-      descripcion: {
-        type: Sequelize.TEXT
+      nombre_grupal: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      estructura: {
+      nombre_individual: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      grupal_data: {
         type: Sequelize.JSONB,
-        allowNull: false
+        allowNull: true
+      },
+      individual_data: {
+        type: Sequelize.JSONB,
+        allowNull: true
+      },
+      es_publicada: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },

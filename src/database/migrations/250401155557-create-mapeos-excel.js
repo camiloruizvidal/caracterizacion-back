@@ -13,24 +13,23 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      nombre: {
-        type: Sequelize.STRING,
-        allowNull: false
-      },
-      descripcion: {
-        type: Sequelize.TEXT
-      },
-      estructura: {
+      columnas_excel: {
         type: Sequelize.JSONB,
         allowNull: false
       },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      mapeo: {
+        type: Sequelize.JSONB,
+        allowNull: false
       },
-      updatedAt: {
+      created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
+      },
+      updated_at: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },

@@ -9,26 +9,27 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      mapeo_excel_id: {
+      carga_id: {
         type: Sequelize.INTEGER,
         allowNull: false
       },
-      datos: {
+      ficha_id: {
+        type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      datos_json: {
         type: Sequelize.JSONB,
         allowNull: false
       },
-      estado: {
-        type: Sequelize.STRING,
+      created_at: {
         allowNull: false,
-        defaultValue: 'pendiente'
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       },
-      createdAt: {
+      updated_at: {
         allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },

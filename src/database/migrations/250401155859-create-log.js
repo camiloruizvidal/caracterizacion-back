@@ -9,33 +9,23 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      user_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
+      tipo: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
-      accion: {
-        type: Sequelize.STRING,
-        allowNull: false
+      data: {
+        type: Sequelize.TEXT,
+        allowNull: true
       },
-      tabla: {
-        type: Sequelize.STRING,
-        allowNull: false
+      created_at: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       },
-      registro_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false
-      },
-      datos: {
-        type: Sequelize.JSONB,
-        allowNull: false
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
+      updated_at: {
+        allowNull: true,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW
       }
     });
   },
