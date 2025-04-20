@@ -5,7 +5,7 @@ dotenv.config();
 export class Config {
   public static readonly DIALECT: Dialect = process.env
     .DATABASE_TYPE as Dialect;
-  public static readonly SALTOS_BCRYPT = process.env.SALTOS_BCRYPT;
+  public static readonly SALTOS_BCRYPT = Number(process.env.SALTOS_BCRYPT);
   public static readonly ambiente = process.env.AMBIENTE;
   public static readonly DB_HOST = process.env.DATABASE_HOST;
   public static readonly DB_PORT = Number(process.env.DATABASE_PORT);

@@ -3,7 +3,8 @@ import {
   IsBoolean,
   IsOptional,
   IsNotEmpty,
-  IsNumberString
+  IsNumberString,
+  IsNumber
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
@@ -93,7 +94,7 @@ export class UsuarioCrearDto {
     description: 'Código inicial (opcional)',
     example: ''
   })
-  @IsNumberString()
+  @IsNumber()
   @IsOptional()
   @Transform(({ value }) => (value.trim() === '' ? null : Number(value)))
   codigoInicial: number | null;
@@ -102,7 +103,7 @@ export class UsuarioCrearDto {
     description: 'Código final (opcional)',
     example: ''
   })
-  @IsNumberString()
+  @IsNumber()
   @IsOptional()
   @Transform(({ value }) => (value.trim() === '' ? null : Number(value)))
   codigoFinal: number | null;
@@ -114,4 +115,29 @@ export class UsuarioCrearDto {
   @IsBoolean()
   @IsNotEmpty()
   inactivo: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Número de identificación del Equipo Básico de Salud',
+    example: 'EBS-12345'
+  })
+  @IsString()
+  @IsOptional()
+  numeroIdentificacionEBS?: string;
+
+  @ApiPropertyOptional({
+    description: 'Prestador primario del EBS',
+    example: 'Hospital Central'
+  })
+  @IsString()
+  @IsOptional()
+  prestadorPrimarioEBS?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Perfil de quien realiza la evaluación de necesidades en salud - caracterización',
+    example: 'Enfermero Jefe'
+  })
+  @IsString()
+  @IsOptional()
+  perfilEvaluador?: string;
 }

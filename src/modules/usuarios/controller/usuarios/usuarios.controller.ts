@@ -62,7 +62,20 @@ export class UsuariosController {
 
   @Get('/documentoTipo')
   public async documentoTipo() {
-    return await this.usuariosService.getDocumentType();
+    try {
+      const tiposDocumento = await this.usuariosService.getDocumentType();
+      return {
+        success: true,
+        data: tiposDocumento
+      };
+    } catch (error) {
+      console.error('Error en documentoTipo:', error);
+      return {
+        success: false,
+        error: 'Error al cargar los tipos de documento',
+        details: error.message
+      };
+    }
   }
 
   @Post('')
@@ -71,6 +84,7 @@ export class UsuariosController {
       const usuario = await this.usuariosService.createUser(newUser);
       return plainToInstance(UsuarioResponseDto, usuario);
     } catch (error) {
+      console.log({ error });
       return error;
     }
   }

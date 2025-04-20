@@ -58,4 +58,23 @@ export class UsuarioResponseDto {
 
   @Exclude()
   documentoTipoId: number;
+
+  @ApiPropertyOptional({
+    description: 'Número de identificación del Equipo Básico de Salud',
+    example: 'EBS-12345'
+  })
+  numeroIdentificacionEBS?: string;
+
+  @ApiPropertyOptional({
+    description: 'Prestador primario del EBS',
+    example: 'Hospital Central'
+  })
+  prestadorPrimarioEBS?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Perfil de quien realiza la evaluación de necesidades en salud - caracterización',
+    example: 'Enfermero Jefe'
+  })
+  perfilEvaluador?: string;
 }

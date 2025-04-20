@@ -1,5 +1,5 @@
 import { Expose, Transform } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsBoolean,
   IsNotEmpty,
@@ -83,6 +83,31 @@ export class UsuarioActualizarDTO {
   })
   @IsNumber()
   rolId: number;
+
+  @ApiPropertyOptional({
+    description: 'Número de identificación del Equipo Básico de Salud',
+    example: 'EBS-12345'
+  })
+  @IsString()
+  @IsOptional()
+  numeroIdentificacionEBS?: string;
+
+  @ApiPropertyOptional({
+    description: 'Prestador primario del EBS',
+    example: 'Hospital Central'
+  })
+  @IsString()
+  @IsOptional()
+  prestadorPrimarioEBS?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Perfil de quien realiza la evaluación de necesidades en salud - caracterización',
+    example: 'Enfermero Jefe'
+  })
+  @IsString()
+  @IsOptional()
+  perfilEvaluador?: string;
 
   @ApiProperty({
     description: 'Código inicial del rango, puede ser vacío'

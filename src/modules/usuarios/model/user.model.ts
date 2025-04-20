@@ -89,6 +89,27 @@ export class User extends Model {
   })
   inactivo: boolean;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    field: 'numero_identificacion_ebs'
+  })
+  numeroIdentificacionEBS: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    field: 'prestador_primario_ebs'
+  })
+  prestadorPrimarioEBS: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+    field: 'perfil_evaluador'
+  })
+  perfilEvaluador: string;
+
   @BelongsTo(() => UserRoles)
   roles: UserRoles;
 

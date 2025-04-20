@@ -140,6 +140,9 @@ export class UsuarioRepository {
     documentoTipoId: string;
     rolId: string;
     inactivo: boolean;
+    numeroIdentificacionEBS?: string;
+    prestadorPrimarioEBS?: string;
+    perfilEvaluador?: string;
   }) {
     return Transformadores.extraerDataValues(
       await User.create({
@@ -152,7 +155,10 @@ export class UsuarioRepository {
         documento: usuario.documento,
         documentoTipoId: Number(usuario.documentoTipoId),
         rolId: Number(usuario.rolId),
-        inactivo: usuario.inactivo
+        inactivo: usuario.inactivo,
+        numeroIdentificacionEBS: usuario.numeroIdentificacionEBS,
+        prestadorPrimarioEBS: usuario.prestadorPrimarioEBS,
+        perfilEvaluador: usuario.perfilEvaluador
       })
     );
   }
@@ -188,7 +194,10 @@ export class UsuarioRepository {
           'documento',
           'documentoTipoId',
           'rolId',
-          'inactivo'
+          'inactivo',
+          'numeroIdentificacionEBS',
+          'prestadorPrimarioEBS',
+          'perfilEvaluador'
         ],
         where: { id },
         include: [
@@ -216,6 +225,9 @@ export class UsuarioRepository {
       documentoTipoId: number;
       rolId: number;
       inactivo: boolean;
+      numeroIdentificacionEBS?: string;
+      prestadorPrimarioEBS?: string;
+      perfilEvaluador?: string;
     }
   ) {
     const usuarioExistente = await User.findByPk(id);
@@ -229,7 +241,10 @@ export class UsuarioRepository {
         documento: usuario.documento,
         documentoTipoId: usuario.documentoTipoId,
         rolId: usuario.rolId,
-        inactivo: usuario.inactivo
+        inactivo: usuario.inactivo,
+        numeroIdentificacionEBS: usuario.numeroIdentificacionEBS || null,
+        prestadorPrimarioEBS: usuario.prestadorPrimarioEBS || null,
+        perfilEvaluador: usuario.perfilEvaluador || null
       })
     );
   }
