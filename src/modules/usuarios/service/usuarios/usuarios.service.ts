@@ -75,7 +75,18 @@ export class UsuariosService {
     usuarioNuevo.password = await this.encriptarContrasenna(
       usuarioNuevo.password
     );
-    return await UsuarioRepository.crearUsuario(usuarioNuevo);
+
+    const usuario = await UsuarioRepository.crearUsuario(usuarioNuevo);
+
+    if (usuarioNuevo?.codigoInicial && usuarioNuevo?.codigoFinal) {
+      await UsuarioCodigosRepository.asignarCodigo(
+        Number(usuarioNuevo.codigoInicial),
+        Number(usuarioNuevo.codigoFinal),
+        usuario.id
+      );
+    }
+
+    return usuario;
   }
 
   public async detailUser(idUser: number): Promise<any> {

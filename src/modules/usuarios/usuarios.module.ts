@@ -3,6 +3,7 @@ import { UsuariosService } from './service/usuarios/usuarios.service';
 import { UsuariosController } from './controller/usuarios/usuarios.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { Config } from '../../Config/Config';
+import { ManejadorErrorService } from 'src/utils/manejador-error.service';
 
 @Module({
   imports: [
@@ -11,7 +12,7 @@ import { Config } from '../../Config/Config';
       signOptions: { expiresIn: '1d' }
     })
   ],
-  providers: [UsuariosService],
+  providers: [UsuariosService, ManejadorErrorService],
   controllers: [UsuariosController]
 })
 export class UsuariosModule {}

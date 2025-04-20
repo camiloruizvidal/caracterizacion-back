@@ -1,3 +1,4 @@
+import { ManejadorErrorService } from './../../../../utils/manejador-error.service';
 import { UsuariosService } from './../../service/usuarios/usuarios.service';
 import { plainToInstance } from 'class-transformer';
 import {
@@ -21,7 +22,10 @@ import { Public } from 'src/decorators/public.decorator';
 
 @Controller('/api/v1/usuarios')
 export class UsuariosController {
-  constructor(private usuariosService: UsuariosService) {}
+  constructor(
+    private usuariosService: UsuariosService,
+    private manejadorErrorService: ManejadorErrorService
+  ) {}
 
   @Get('')
   public async getUsers(
@@ -85,6 +89,7 @@ export class UsuariosController {
       return plainToInstance(UsuarioResponseDto, usuario);
     } catch (error) {
       console.log({ error });
+      this.manejadorErrorService.resolverErrorApi(error);
       return error;
     }
   }

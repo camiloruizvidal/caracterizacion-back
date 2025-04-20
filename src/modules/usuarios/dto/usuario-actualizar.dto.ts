@@ -113,14 +113,14 @@ export class UsuarioActualizarDTO {
     description: 'Código inicial del rango, puede ser vacío'
   })
   @IsOptional()
-  @IsNumberString()
+  @IsNumber()
   @Transform(({ value }) => (value.trim() === '' ? null : Number(value)))
   codigoInicial: number | null;
 
   @ApiProperty({
     description: 'Código final del rango, puede ser vacío'
   })
-  @IsNumberString()
+  @IsNumber()
   @IsOptional()
   @Transform(({ value }) => (value.trim() === '' ? null : Number(value)))
   codigoFinal: number | null;
