@@ -10,11 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug SSH
-        run: |
-          ssh-add -L
-          ssh -T git@github.com
-
       - name: Checkout code
         uses: actions/checkout@v3
 
