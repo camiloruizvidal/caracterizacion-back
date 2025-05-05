@@ -29,11 +29,16 @@ jobs:
 
             git pull origin QA || { echo "Error: No se pudo hacer git pull"; exit 1; }
 
+            echo "Instalando dependencias..."
             npm install || { echo "Error: Falló npm install"; exit 1; }
 
+            echo "Construyendo el proyecto..."
             npm run build || { echo "Error: Falló npm run build"; exit 1; }
 
             # npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
+
+            echo "Verificando la estructura de directorios..."
+            ls -la dist/ || { echo "Error: No se pudo listar el directorio dist"; exit 1; }
 
             echo "Reiniciando el servicio caracterizacion-back..."
             pm2 delete caracterizacion-back || echo "Advertencia: El servicio caracterizacion-back no estaba en ejecución"
@@ -41,6 +46,8 @@ jobs:
             # Verificar si el archivo dist/main.js existe
             if [ ! -f "dist/main.js" ]; then
               echo "Error: No se encontró el archivo dist/main.js después de la construcción"
+              echo "Contenido del directorio dist:"
+              ls -la dist/
               exit 1
             fi
 
