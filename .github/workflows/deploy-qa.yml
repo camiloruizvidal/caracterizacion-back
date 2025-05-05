@@ -1,0 +1,45 @@
+name: Deploy Backend to QA Server.
+
+on:
+  push:
+    branches:
+      - QA
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to QA server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.QA_CREDENTIALS }} <<EOF
+            set -e  # Si un comando falla, el script se detendrá
+
+            echo "Desplegando Backend de Caracterización en QA..."
+
+            cd /var/www/caracterizacion/caracterizacion-back || { echo "Error: No se pudo acceder al directorio"; exit 1; }
+
+            git pull origin QA || { echo "Error: No se pudo hacer git pull"; exit 1; }
+
+            npm install || { echo "Error: Falló npm install"; exit 1; }
+
+            npm run build || { echo "Error: Falló npm run build"; exit 1; }
+
+            npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
+
+            echo "Reiniciando el servicio caracterizacion-back..."
+            pm2 delete caracterizacion-back || echo "Advertencia: El servicio caracterizacion-back no estaba en ejecución"
+            echo "Iniciando caracterizacion-back..."
+            pm2 start dist/main.js --name "caracterizacion-back" || { echo "Error: Falló al iniciar PM2"; exit 1; }
+            pm2 save || { echo "Error: Falló pm2 save"; exit 1; }
+
+            echo "✅ Backend de Caracterización desplegado correctamente en QA."
+          EOF
