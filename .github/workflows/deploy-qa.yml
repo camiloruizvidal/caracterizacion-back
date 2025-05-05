@@ -33,7 +33,7 @@ jobs:
 
             npm run build || { echo "Error: Falló npm run build"; exit 1; }
 
-            npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
+            # npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
 
             echo "Reiniciando el servicio caracterizacion-back..."
             pm2 delete caracterizacion-back || echo "Advertencia: El servicio caracterizacion-back no estaba en ejecución"
