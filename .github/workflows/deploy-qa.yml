@@ -37,6 +37,13 @@ jobs:
 
             echo "Reiniciando el servicio caracterizacion-back..."
             pm2 delete caracterizacion-back || echo "Advertencia: El servicio caracterizacion-back no estaba en ejecución"
+
+            # Verificar si el archivo dist/main.js existe
+            if [ ! -f "dist/main.js" ]; then
+              echo "Error: No se encontró el archivo dist/main.js después de la construcción"
+              exit 1
+            fi
+
             echo "Iniciando caracterizacion-back..."
             pm2 start dist/main.js --name "caracterizacion-back" || { echo "Error: Falló al iniciar PM2"; exit 1; }
             pm2 save || { echo "Error: Falló pm2 save"; exit 1; }
