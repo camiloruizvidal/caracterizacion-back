@@ -23,7 +23,7 @@ import { FichaRepository } from '../../repository/ficha.repository';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as ExcelJS from 'exceljs';
-import { Config } from '../../../../config/config';
+import { Config } from '../../../../Config/Config';
 import { GeneracionExcelRepository } from '../../repository/generacion-excel.repository';
 import { Request } from 'express';
 
