@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UsuariosService } from './service/usuarios/usuarios.service';
 import { UsuariosController } from './controller/usuarios/usuarios.controller';
 import { JwtModule } from '@nestjs/jwt';
-import { Config } from '../../Config/Config';
+import { Config } from '../../config/config';
 import { ManejadorErrorService } from 'src/utils/manejador-error.service';
 
 @Module({

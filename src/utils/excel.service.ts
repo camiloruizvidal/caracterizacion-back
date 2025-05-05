@@ -1,4 +1,4 @@
-import { Config } from 'src/Config/Config';
+import { Config } from 'src/config/config';
 import * as ExcelJS from 'exceljs';
 import * as fs from 'fs';
 import path from 'path';

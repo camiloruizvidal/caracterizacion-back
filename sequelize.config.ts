@@ -1,4 +1,4 @@
-import { Config } from './src/Config/Config';
+import { Config } from './src/config/config';
 
 const config = {
   development: {

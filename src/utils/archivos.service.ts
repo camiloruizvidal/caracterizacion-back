@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { Config } from 'src/Config/Config';
+import { Config } from 'src/config/config';
 
 export class ArchivosService {
   private directorioBase: string;

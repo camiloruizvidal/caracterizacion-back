@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { Constantes } from './utils/constantes';
 import { obtenerNivelesLog } from './utils/logger.enum';
-import { Config } from './config/Config';
+import { Config } from './config/config';
 import * as moment from 'moment';
 import 'moment-timezone';
 import { formatearErroresValidacion } from './utils/formatear-errores-validacion';

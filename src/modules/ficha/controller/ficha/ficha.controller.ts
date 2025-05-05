@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { InformesService } from '../../service/informes/informes.service';
 import { Request, Response } from 'express';
-import { Config } from 'src/Config/Config';
+import { Config } from 'src/config/config';
 import { WordAPdfService } from 'src/utils/word-a-pdf.service';
 import { VersionFichaDto } from '../../dto/version-ficha.dto';
 import { obtenerGruposParamsDto } from '../../dto/obtener-grupos-params.dto';
