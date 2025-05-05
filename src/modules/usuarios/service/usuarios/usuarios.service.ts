@@ -14,7 +14,7 @@ import { UsuarioCrearDto } from '../../dto/usuario-crear.dto';
 import { UsuarioCodigosRepository } from '../../repository/usuario-codigos.repository';
 import { UsuarioActualizarDTO } from '../../dto/usuario-actualizar.dto';
 import { JwtService } from '@nestjs/jwt';
-import { Config } from 'src/config/config';
+import { Config } from 'src/Config/Config';
 
 @Injectable()
 export class UsuariosService {

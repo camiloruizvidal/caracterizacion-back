@@ -1,4 +1,4 @@
-import { Config } from '../../../../config/config';
+import { Config } from './../../../../Config/Config';
 import { ArchivosService } from './../../../../utils/archivos.service';
 import { Injectable } from '@nestjs/common';
 import { IPacienteImportExcel } from '../../interface/pacientes.interdace';

@@ -1,4 +1,4 @@
-import { Config } from 'src/config/config';
+import { Config } from 'src/Config/Config';
 import { EFileStatus } from './../global.interface';
 import { CacheService } from './../cache.service';
 import {

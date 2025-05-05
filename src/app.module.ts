@@ -4,7 +4,7 @@ import { UsuariosModule } from './modules/usuarios/usuarios.module';
 import { FichaModule } from './modules/ficha/ficha.module';
 import { DatabaseModule } from './database/database.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { Config } from './config/config';
+import { Config } from './Config/Config';
 import * as path from 'path';
 import { ExcelService } from './utils/excel.service';
 import { AlertasModule } from './modules/alertas/alertas.module';

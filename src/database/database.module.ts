@@ -3,7 +3,7 @@ import { Log } from './../modules/pacientes/model/log.model';
 import { DocumentoTipo } from './../modules/usuarios/model/documento-tipo.model';
 import { TarjetaFamiliar } from './../modules/ficha/model/tarjeta-familiar.model';
 import { Ficha } from './../modules/ficha/model/ficha.model';
-import { Config } from 'src/config/config';
+import { Config } from 'src/Config/Config';
 import { Sequelize } from 'sequelize-typescript';
 import { Module } from '@nestjs/common';
 import { User } from 'src/modules/usuarios/model/user.model';

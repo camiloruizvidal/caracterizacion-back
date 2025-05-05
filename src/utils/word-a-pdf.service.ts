@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import PizZip from 'pizzip';
 import Docxtemplater from 'docxtemplater';
-import { Config } from 'src/config/config';
+import { Config } from 'src/Config/Config';
 import { CacheService } from './cache.service';
 import { EFileStatus } from './global.interface';
 

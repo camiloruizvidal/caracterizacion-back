@@ -3,7 +3,7 @@ import { EEstadoCargaEnum } from '../../enums/estado-carga.enum';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Carga } from '../../model/carga.model';
 import { RegistroExcelRepository } from '../../repository/registro-excel.repository';
-import { Config } from 'src/config/config';
+import { Config } from 'src/Config/Config';
 import * as fs from 'fs';
 import * as unzipper from 'unzipper';
 import * as sax from 'sax';
