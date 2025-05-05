@@ -33,7 +33,20 @@ jobs:
             npm install || { echo "Error: Falló npm install"; exit 1; }
 
             echo "Construyendo el proyecto..."
-            npm run build || { echo "Error: Falló npm run build"; exit 1; }
+            echo "Directorio actual: \$(pwd)"
+            echo "Contenido del directorio antes del build:"
+            ls -la
+
+            echo "Ejecutando build con verbosidad..."
+            NODE_ENV=production npm run build --verbose || {
+              echo "Error: Falló npm run build"
+              echo "Contenido del directorio después del error:"
+              ls -la
+              exit 1
+            }
+
+            echo "Contenido del directorio después del build:"
+            ls -la
 
             # npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
 
