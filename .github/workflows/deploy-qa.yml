@@ -56,9 +56,9 @@ jobs:
             echo "Reiniciando el servicio caracterizacion-back..."
             pm2 delete caracterizacion-back || echo "Advertencia: El servicio caracterizacion-back no estaba en ejecución"
 
-            # Verificar si el archivo dist/main.js existe
-            if [ ! -f "dist/main.js" ]; then
-              echo "Error: No se encontró el archivo dist/main.js después de la construcción"
+            # Verificar si el archivo dist/src/main.js existe
+            if [ ! -f "dist/src/main.js" ]; then
+              echo "Error: No se encontró el archivo dist/src/main.js después de la construcción"
               echo "Contenido del directorio dist:"
               ls -la dist/
               exit 1
