@@ -23,20 +23,50 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.QA_CREDENTIALS }} <<EOF
             set -e  # Si un comando falla, el script se detendrá
 
-            echo "Desplegando Backend en QA..."
+            echo "Desplegando Backend de Caracterización en QA..."
 
             cd /var/www/caracterizacion/caracterizacion-back || { echo "Error: No se pudo acceder al directorio"; exit 1; }
 
             git pull origin QA || { echo "Error: No se pudo hacer git pull"; exit 1; }
 
-            echo "Instalando de npm install || { echo "Error: Falló npm install"; exit 1; }
+            echo "Instalando dependencias..."
+            npm install || { echo "Error: Falló npm install"; exit 1; }
 
-            npm run build || { echo "Error: Falla base de datos"; exit 1; }
+            echo "Construyendo el proyecto..."
+            echo "Directorio actual: \$(pwd)"
+            echo "Contenido del directorio antes del build:"
+            ls -la
 
-            npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
+            echo "Ejecutando build con verbosidad..."
+            NODE_ENV=production npm run build --verbose || {
+              echo "Error: Falló npm run build"
+              echo "Contenido del directorio después del error:"
+              ls -la
+              exit 1
+            }
+
+            echo "Contenido del directorio después del build:"
+            ls -la
+
+            # npm run db:migrate -f || { echo "Error: Falló la migración de la base de datos"; exit 1; }
+
+            echo "Verificando la estructura de directorios..."
+            ls -la dist/ || { echo "Error: No se pudo listar el directorio dist"; exit 1; }
 
             echo "Reiniciando el servicio caracterizacion-back..."
             pm2 delete caracterizacion-back || echo "Advertencia: El servicio caracterizacion-back no estaba en ejecución"
+
+            # Verificar si el archivo dist/main.js existe
+            if [ ! -f "dist/main.js" ]; then
+              echo "Error: No se encontró el archivo dist/main.js después de la construcción"
+              echo "Contenido del directorio dist:"
+              ls -la dist/
+              exit 1
+            fi
+
             echo "Iniciando caracterizacion-back..."
             pm2 start dist/src/main.js --name "caracterizacion-back" || { echo "Error: Falló al iniciar PM2"; exit 1; }
+            pm2 save || { echo "Error: Falló pm2 save"; exit 1; }
+
+            echo "✅ Backend de Caracterización desplegado correctamente en QA."
           EOF
