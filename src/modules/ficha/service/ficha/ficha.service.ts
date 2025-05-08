@@ -26,6 +26,8 @@ import * as ExcelJS from 'exceljs';
 import { Config } from '../../../../Config/Config';
 import { GeneracionExcelRepository } from '../../repository/generacion-excel.repository';
 import { Request } from 'express';
+import { CacheService } from 'src/utils/cache.service';
+import { EFileStatus } from 'src/utils/global.interface';
 
 @Injectable()
 export class FichaService {
@@ -398,6 +400,10 @@ export class FichaService {
         await libroTrabajo.xlsx.writeFile(rutaCompleta);
         console.log('Excel vacío generado exitosamente');
         await GeneracionExcelRepository.marcarComoCompletado(progresoId);
+        CacheService.setFileStatus(
+          path.basename(rutaCompleta),
+          EFileStatus.COMPLETED
+        );
         return;
       }
 
@@ -458,12 +464,21 @@ export class FichaService {
       }
       console.log('Archivo generado exitosamente');
       await GeneracionExcelRepository.marcarComoCompletado(progresoId);
+      CacheService.setFileStatus(
+        path.basename(rutaCompleta),
+        EFileStatus.COMPLETED
+      );
     } catch (error) {
       console.error('Error al procesar archivo en segundo plano:', error);
       await GeneracionExcelRepository.marcarComoError(
         progresoId,
         error.message
       );
+      CacheService.setFileStatus(
+        path.basename(rutaCompleta),
+        EFileStatus.NOT_STARTED
+      );
+      throw error;
     }
   }
 
