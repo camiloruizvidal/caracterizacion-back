@@ -68,10 +68,10 @@ export class GeneracionExcelRepository {
   public static async obtenerPorRutaArchivo(
     rutaArchivo: string
   ): Promise<GeneracionExcel | null> {
-    const respueta = await GeneracionExcel.findOne({
+    const respuesta = await GeneracionExcel.findOne({
       where: { rutaArchivo }
     });
-    return respueta.dataValues;
+    return respuesta ? respuesta.dataValues : null;
   }
 
   public static async obtenerRegistrosPaginados(
