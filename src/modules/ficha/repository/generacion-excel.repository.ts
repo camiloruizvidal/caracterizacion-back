@@ -3,6 +3,7 @@ import {
   EEstadoGeneracionExcel,
   GeneracionExcel
 } from '../models/generacion-excel.model';
+import { Logger } from '@nestjs/common';
 
 export class GeneracionExcelRepository {
   public static async crearProgreso(
@@ -71,6 +72,7 @@ export class GeneracionExcelRepository {
     const respuesta = await GeneracionExcel.findOne({
       where: { rutaArchivo }
     });
+    Logger.debug({ respuesta });
     return respuesta ? respuesta.dataValues : null;
   }
 
