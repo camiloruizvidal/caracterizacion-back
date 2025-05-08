@@ -355,6 +355,7 @@ export class FichaService {
       const dominio = `${protocolo}://${host}`;
       const rutaNormalizada = rutaRelativa.replace(/\\/g, '/');
       const url = `${dominio}/public/${rutaNormalizada}`;
+      console.log('URL generada:', url);
 
       // Procesar el archivo en segundo plano
       this.procesarArchivoEnSegundoPlano(
@@ -373,7 +374,11 @@ export class FichaService {
         data: { url }
       };
     } catch (error) {
-      console.error('Error detallado al obtener formato de ficha:', error);
+      console.error('Error detallado al obtener formato de ficha:', {
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      });
       throw new HttpException(
         {
           success: false,
