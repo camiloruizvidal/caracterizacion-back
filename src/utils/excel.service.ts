@@ -59,17 +59,40 @@ export class ExcelService {
 
     const headers = header[0];
     headers.forEach(row => {
-      const startColumn = currentColumn;
-      const endColumn = startColumn + row.colSpan - 1;
-      this.worksheet.mergeCells(1, startColumn, 1, endColumn);
-      const cell = this.worksheet.getCell(1, startColumn);
-      cell.value = row.value;
-      cell.alignment = { horizontal: 'center' };
+      try {
+        const startColumn = currentColumn;
+        const endColumn = startColumn + (row.colSpan || 1) - 1;
 
-      currentColumn = endColumn + 1;
+        if (startColumn <= endColumn) {
+          const cell = this.worksheet.getCell(1, startColumn);
+
+          if (!cell.isMerged) {
+            try {
+              this.worksheet.mergeCells(1, startColumn, 1, endColumn);
+            } catch (mergeError) {
+              console.warn(
+                `No se pudo fusionar las celdas ${startColumn}-${endColumn}:`,
+                mergeError
+              );
+            }
+          }
+
+          cell.value = row.value;
+          cell.alignment = { horizontal: 'center' };
+        } else {
+          console.warn(`Rango de celdas inválido: ${startColumn}-${endColumn}`);
+        }
+
+        currentColumn = endColumn + 1;
+      } catch (error) {
+        console.error('Error al procesar celda:', error);
+        currentColumn += row.colSpan || 1;
+      }
     });
 
-    this.worksheet.addRow(header[1]);
+    if (header[1]) {
+      this.worksheet.addRow(header[1]);
+    }
   }
 
   public async agregarDatosEscritura(data: any[]): Promise<void> {
@@ -122,7 +145,7 @@ export class ExcelService {
       );
     }
 
-    const inicio = grupo * this.chunkSize + 2; // Comienza en la fila correspondiente al grupo
+    const inicio = grupo * this.chunkSize + 2;
     const fin = inicio + this.chunkSize - 1;
     const registros: any[] = [];
     let headers: string[] = [];

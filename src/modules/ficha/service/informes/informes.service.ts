@@ -58,14 +58,14 @@ export class InformesService {
     segundoHeader.push('Fecha de creacion');
     segundoHeader.push('Fecha de envio');
 
-    const grupalNombre = data.grupalNombre.map(registro => {
+    const grupalNombre = data.grupalData.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
       return { value: registro.title, colSpan: registro.values.length };
     }) as IEncabezadoExcel[];
 
-    const individualNombre = data.individualNombre.map(registro => {
+    const individualNombre = data.individualData.map(registro => {
       registro.values.forEach(reg => {
         segundoHeader.push(reg.label);
       });
@@ -82,7 +82,7 @@ export class InformesService {
 
     rows.forEach(data => {
       const registrosAnnadidos = [];
-      registrosAnnadidos.push(data.codigo.toString());
+      registrosAnnadidos.push(data.codigo?.toString() ?? '-');
       registrosAnnadidos.push('Camilo');
       registrosAnnadidos.push('Ruiz');
       registrosAnnadidos.push(new Date(data.updated_at ?? null).toISOString());
@@ -90,17 +90,29 @@ export class InformesService {
         new Date(data.dateRegister ?? null).toISOString()
       );
 
-      data.grupalNombre.forEach(element => {
-        element.values.forEach(value => {
-          registrosAnnadidos.push(value.value === null ? '-' : value.value);
+      if (Array.isArray(data.grupalNombre)) {
+        data.grupalNombre.forEach(element => {
+          if (element?.values && Array.isArray(element.values)) {
+            element.values.forEach(value => {
+              registrosAnnadidos.push(
+                value?.value === null ? '-' : (value?.value ?? '-')
+              );
+            });
+          }
         });
-      });
+      }
 
-      data.individualNombre.forEach(element => {
-        element.forEach(value => {
-          registrosAnnadidos.push(value.value === null ? '-' : value.value);
+      if (Array.isArray(data.individualNombre)) {
+        data.individualNombre.forEach(element => {
+          if (Array.isArray(element)) {
+            element.forEach(value => {
+              registrosAnnadidos.push(
+                value?.value === null ? '-' : (value?.value ?? '-')
+              );
+            });
+          }
         });
-      });
+      }
 
       resultados.push(registrosAnnadidos);
     });
