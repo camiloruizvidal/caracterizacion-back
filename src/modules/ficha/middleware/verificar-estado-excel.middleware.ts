@@ -26,7 +26,11 @@ export class VerificarEstadoExcelMiddleware implements NestMiddleware {
         );
       }
 
-      const rutaNormalizada = rutaArchivo.replace(/\//g, '\\');
+      // Normalizamos la ruta según el sistema operativo
+      const rutaNormalizada =
+        process.platform === 'win32'
+          ? rutaArchivo.replace(/\//g, '\\')
+          : rutaArchivo;
       console.log('Ruta normalizada:', rutaNormalizada);
 
       const registro =
