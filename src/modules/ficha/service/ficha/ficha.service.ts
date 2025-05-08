@@ -350,7 +350,9 @@ export class FichaService {
       );
 
       // Retornar la URL inmediatamente
-      const protocolo = req.protocol;
+      const protocolo = req.get('host').includes('localhost')
+        ? req.protocol
+        : 'https';
       const host = req.get('host');
       const dominio = `${protocolo}://${host}`;
       const rutaNormalizada = rutaRelativa.replace(/\\/g, '/');
