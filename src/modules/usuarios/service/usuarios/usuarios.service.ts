@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common';
@@ -184,6 +185,29 @@ export class UsuariosService {
         ...user,
         token: this.jwtService.sign(payload)
       };
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  public async validarUsuarioAdmin(usuario: string, password: string): Promise<any> {
+    try {
+      const user = await UsuarioRepository.buscarUsuarioConRol(usuario);
+      Logger.warn({user})
+      if (!user) {
+        throw new UnauthorizedException('Usuario no encontrado.');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Contraseña inválida.');
+      }
+      if (!user.roles || user.roles.type !== 'Administrador') {
+        throw new UnauthorizedException('Solo administradores pueden configurar el servidor.');
+      }
+
+      delete user.password;
+      return user;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
     }

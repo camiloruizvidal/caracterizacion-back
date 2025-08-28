@@ -5,6 +5,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   NotFoundException,
   Param,
   Post,
@@ -132,6 +133,36 @@ export class UsuariosController {
       return { success: true };
     } catch (error) {
       throw new UnauthorizedException(error.response);
+    }
+  }
+
+  @Public()
+  @Post('validate-admin-server')
+  async validateAdminServer(
+    @Body() { username, password }: { username: string; password: string }
+  ) {
+    try {
+      const user = await this.usuariosService.validarUsuarioAdmin(
+        username,
+        password
+      );
+      
+      return { 
+        success: true, 
+        message: 'Administrador validado correctamente',
+        user: {
+          id: user.id,
+          username: user.username,
+          nombre: `${user.nombrePrimero} ${user.apellidoPrimero}`
+        }
+      };
+    } catch (error) {
+      Logger.error({error});
+      throw new UnauthorizedException({
+        success: false,
+        message: 'Solo administradores pueden configurar el servidor',
+        error: error.message
+      });
     }
   }
 }

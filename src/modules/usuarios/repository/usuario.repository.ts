@@ -36,6 +36,37 @@ export class UsuarioRepository {
     return user?.dataValues;
   }
 
+  public static async buscarUsuarioConRol(
+    usuario: string,
+    inactivo: boolean = false
+  ) {
+    const user = await User.findOne({
+      attributes: [
+        'id',
+        'username',
+        'password',
+        'nombrePrimero',
+        'nombreSegundo',
+        'apellidoPrimero',
+        'apellidoSegundo',
+        'documento',
+        'rolId'
+      ],
+      where: {
+        username: usuario,
+        inactivo
+      },
+      include: [
+        {
+          model: UserRoles,
+          attributes: ['id', 'type'],
+          as: 'roles'
+        }
+      ]
+    });
+    return user?.dataValues;
+  }
+
   public static async buscarUsuariosPaginados(
     page: number,
     pageSize: number,
