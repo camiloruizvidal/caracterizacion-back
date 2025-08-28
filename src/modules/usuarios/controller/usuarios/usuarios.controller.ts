@@ -54,7 +54,7 @@ export class UsuariosController {
       const roles = await this.usuariosService.getRols();
       return plainToInstance(RolesDto, roles);
     } catch (error) {
-      console.error('Error obteniendo roles:', error);
+      console.error({error})
       throw error;
     }
   }
@@ -74,7 +74,7 @@ export class UsuariosController {
         data: tiposDocumento
       };
     } catch (error) {
-      console.error('Error en documentoTipo:', error);
+      console.error({error})
       return {
         success: false,
         error: 'Error al cargar los tipos de documento',
@@ -89,7 +89,7 @@ export class UsuariosController {
       const usuario = await this.usuariosService.createUser(newUser);
       return plainToInstance(UsuarioResponseDto, usuario);
     } catch (error) {
-      console.log({ error });
+      console.error({error})
       this.manejadorErrorService.resolverErrorApi(error);
       return error;
     }

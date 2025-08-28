@@ -193,7 +193,6 @@ export class UsuariosService {
   public async validarUsuarioAdmin(usuario: string, password: string): Promise<any> {
     try {
       const user = await UsuarioRepository.buscarUsuarioConRol(usuario);
-      Logger.warn({user})
       if (!user) {
         throw new UnauthorizedException('Usuario no encontrado.');
       }
